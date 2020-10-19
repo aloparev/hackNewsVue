@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h2>{{news.title}} ({{news.vote}})</h2>
+        <h2>{{news.title}} ({{news.votes}})</h2>
         <div class="list-action-btn">
             <button @click="updateItem(1)">Upvote</button>
             <button @click="updateItem(-1)">Downvote</button>
@@ -17,11 +17,10 @@ export default {
     },
     methods: {
         deleteItem : function(){
-            this.$emit("deleteNews", this.news);
+            this.$emit("deleteNews");
         },
         updateItem : function(value){
-            this.news.vote += value;
-            this.$emit("sortNews");
+            this.news.votes += value;
         }
     }
 }
