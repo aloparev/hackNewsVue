@@ -14,7 +14,12 @@ export default {
     },
     methods: {
         addNews: function(){
-            this.$emit("addNews", {title:this.title, vote:0})
+
+            if(!this.title || this.title.trim() == ""){
+                preventDefault();
+            }
+
+            this.$emit("addNews", {title:this.title, votes:0})
             this.title = "";
         }
     }
