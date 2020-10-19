@@ -3,11 +3,10 @@
         <div class="list-item">
             <h1>News List</h1>
             <news 
-                v-for="item in list"
+                v-for="item in getNews"
                 v-bind:key="item.id"
                 v-bind:news="item" 
-                @sortNews="sortNews"
-                @deleteNews="deleteNews"
+                @deleteNews="deleteNews(item.id)"
             />
         </div>
         <create-news @addNews="addNews" />
@@ -34,11 +33,8 @@ export default {
         CreateNews
     },
     methods:{
-        sortNews: function(){
-            this.list.sort((x,y) => y.vote - x.vote);
-        },
-        deleteNews: function(news){
-            this.list.splice(this.list.indexOf(news),1);
+        deleteNews: function(id){
+            this.list.splice(this.list.findIndex(e => e.id == id),1);
         },
         addNews: function(newNews){
             let id = 0;
@@ -47,11 +43,16 @@ export default {
                 id = Math.max(...this.list.map(e => e.id));
                 id++;
             }
-
+            
             newNews.id = id;
             
             this.list.push(newNews);
-            this.sortNews();
+        }
+    },
+    computed:{
+        getNews: function(){
+            let newList = [...this.list];
+            return newList.sort((x,y) => y.votes - x.votes);
         }
     }
 }
