@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <list-news v-bind:list="list" />
+    <list-news/>
   </div>
 </template>
 
@@ -9,15 +9,6 @@ import ListNews from './components/ListNews.vue';
 
 export default {
   name: 'app',
-  data () {
-    return {
-      list:[
-        {id:0, title:"Just", vote:0},
-        {id:1, title:"VueJS", vote:0},
-        {id:2, title:"Rocks", vote:0}
-      ]
-    }
-  },
   components:{
     ListNews
   }
