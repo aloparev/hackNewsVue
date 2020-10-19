@@ -4,7 +4,7 @@
             <h1>News List</h1>
             <news 
                 v-for="item in list"
-                v-bind:key="item.key"
+                v-bind:key="item.id"
                 v-bind:news="item" 
                 @sortNews="sortNews"
                 @deleteNews="deleteNews"
@@ -20,10 +20,13 @@ import CreateNews from './CreateNews.vue';
 
 export default {
     name: 'list-news',
-    props:{
-        list: {
-            type: Array,
-            default: []
+    data () {
+        return {
+            list:[
+                {id:0, title:"Just", votes:0},
+                {id:1, title:"VueJS", votes:0},
+                {id:2, title:"Rocks", votes:0}
+            ]
         }
     },
     components: {
