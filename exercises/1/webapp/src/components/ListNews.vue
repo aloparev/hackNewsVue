@@ -3,7 +3,7 @@
         <div class="list-item">
             <h1>News List</h1>
             <news 
-                v-for="item in getNews"
+                v-for="item in getSortedNews"
                 v-bind:key="item.id"
                 v-bind:news="item" 
                 @deleteNews="deleteNews(item.id)"
@@ -37,20 +37,15 @@ export default {
             this.list.splice(this.list.findIndex(e => e.id == id),1);
         },
         addNews: function(newNews){
-            let id = 0;
-            
-            if(this.list.length > 0) {
-                id = Math.max(...this.list.map(e => e.id));
-                id++;
-            }
-            
-            newNews.id = id;
-            
-            this.list.push(newNews);
+            let id = Math.max(...this.list.map(e => e.id), 0);
+            id++;
+        
+            // create new object from old one and overwrite id value
+            this.list.push({...newNews, id: id})
         }
     },
     computed:{
-        getNews: function(){
+        getSortedNews: function(){
             let newList = [...this.list];
             return newList.sort((x,y) => y.votes - x.votes);
         }
