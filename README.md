@@ -22,32 +22,27 @@ I belong
   <img src="https://media1.tenor.com/images/cd82c6c47124c39429d06f50dbc2e7e1/tenor.gif?itemid=4573352" alt="william_catshire" width="40%">
 <p>
 
-## Homework - Exercise #0
 
-1. Find team members to groups of 2-3 people. Together, come up with a team name (Team names must be url-safe). We will setup a team on Github and Moodle for you. Kudos for a team name with a corresponding emoji. 
-2. Make a copy of this repository (using a second remote). Ensure that each member of your team has sufficient access. :star:
-3. Replace the content of this `README.md` with your individual content. Here's a Github [README.md template](https://github.com/othneildrew/Best-README-Template) and there are more [awesome READMEs](https://github.com/matiassingers/awesome-readme) out there. :star:
+## Installation Instructions
+- ´´´cd exercises´´´, for example  ´´´cd exercises/2´´´
+- ´´´cd webapp´´´
+- now execute ´´´npm install´´´
+- ´´´npm run dev´´´
 
-You can also have a look on the community checklist to get inspiration:
+## Contribution
+Wishing to contribute?
+We communicate over Moodle:
 
+https://moodle.htw-berlin.de/mod/bigbluebuttonbn/view.php?id=774135
 
-![community checklist](./.github/img/community_checklist.png)
+Similarly, we have Telegram group, if you wish to participate, please contact one of us:
 
-### How to submit homework
+Andrej Loparev:
+Andrej.Loparev@Student.HTW-Berlin.de
 
-You have to create a feature branch first, commit your code and push it to your
-copy of the homework repository. Then create a pull request with your feature
-branch as the target branch and request a review from your teachers.
+Truong An Nguyen:
+Truong.Nguyen@Student.HTW-Berlin.de
 
-![create pull request](./.github/img/create_pr.png)
-
-Make sure that you *watch* the original homework repository. That's where we
-update exercise descriptions. Keep your own copy up-to-date by merging in new
-commits of the original repository.
-
-![watch home repository](./.github/img/watch_repo.png)
-
-Do not submit lengthy pull request. Pull requests with a large `diff` in
-`Files changed` tab are difficult to review. If you want to get good feedback on
-your pull requests, don't push unrelated changes.
+Ilona Eisenbraun:
+Ilona.Eisenbraun@Student.HTW-Berlin.de
 
