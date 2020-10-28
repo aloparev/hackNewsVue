@@ -1,5 +1,5 @@
 <template>
-        <form onsubmit="return false;" class="add-item">
+        <form @submit.prevent="addNews" class="add-item">
             <input type="text" v-model="title" placeholder="title"/>
             <button type="submit" @click="addNews">Create</button>
         </form>
@@ -13,7 +13,7 @@ export default {
         }
     },
     methods: {
-        addNews: function(){
+        addNews(){
 
             if(!this.title || this.title.trim() == ""){
                 preventDefault();
