@@ -12,15 +12,17 @@
 <script>
 export default {
     props:{
-        news: Object,
-        default: null
+        news: {
+          type: Object,
+          default: () => ({})
+        }
     },
     methods: {
         deleteItem : function(){
             this.$emit("deleteNews");
         },
         updateItem : function(value){
-            this.news.votes += value;
+            this.$emit('update', {...this.news, votes: (this.news.votes + value)})
         }
     }
 }
