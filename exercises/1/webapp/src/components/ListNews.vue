@@ -4,7 +4,7 @@
             <h1>News List</h1>
             <news 
                 v-for="item in getSortedNews"
-                v-bind:key="item.id"
+                :key="item.id"
                 v-bind:news="item" 
                 @deleteNews="deleteNews(item.id)"
             />
@@ -34,7 +34,7 @@ export default {
     },
     methods:{
         deleteNews: function(id){
-            this.list.splice(this.list.findIndex(e => e.id == id),1);
+            this.list = this.list.filter(e => e.id !== id);
         },
         addNews: function(newNews){
             let id = Math.max(...this.list.map(e => e.id), 0);
@@ -45,7 +45,7 @@ export default {
         }
     },
     computed:{
-        getSortedNews: function(){
+        sortedNews(){
             let newList = [...this.list];
             return newList.sort((x,y) => y.votes - x.votes);
         }
