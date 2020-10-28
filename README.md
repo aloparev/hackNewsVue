@@ -23,13 +23,13 @@ I belong
 <p>
 
 
-## Installation Instructions
-- ´´´cd exercises´´´, for example  ´´´cd exercises/2´´´
-- ´´´cd webapp´´´
-- now execute ´´´npm install´´´
-- ´´´npm run dev´´´
+### Installation Instructions
+- ```cd exercises```, for example  ```cd exercises/2```
+- ```cd webapp```
+- now execute ```npm install```
+- ```npm run dev```
 
-## Contribution
+### Contribution
 Wishing to contribute?
 We communicate over Moodle:
 
