@@ -1,7 +1,7 @@
 <template>
         <form onsubmit="return false;" class="add-item">
             <input type="text" v-model="title" placeholder="title"/>
-            <button type="submit" v-on:click="addNews">Create</button>
+            <button type="submit" @click="addNews">Create</button>
         </form>
 </template>
 
