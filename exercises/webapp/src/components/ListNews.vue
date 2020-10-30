@@ -5,7 +5,7 @@
       <news
         v-for="item in getSortedNews"
         :key="item.id"
-        v-bind:news="item"
+        :news="item"
         @deleteNews="deleteNews(item.id)"
       />
     </div>
@@ -18,7 +18,11 @@ import News from "./News.vue";
 import CreateNews from "./CreateNews.vue";
 
 export default {
-  name: "list-news",
+  name: "ListNews",
+  components: {
+    News,
+    CreateNews,
+  },
   data() {
     return {
       list: [
@@ -28,9 +32,11 @@ export default {
       ],
     };
   },
-  components: {
-    News,
-    CreateNews,
+  computed: {
+    sortedNews() {
+      let newList = [...this.list];
+      return newList.sort((x, y) => y.votes - x.votes);
+    },
   },
   methods: {
     deleteNews: function (id) {
@@ -42,12 +48,6 @@ export default {
 
       // create new object from old one and overwrite id value
       this.list.push({ ...newNews, id: id });
-    },
-  },
-  computed: {
-    sortedNews() {
-      let newList = [...this.list];
-      return newList.sort((x, y) => y.votes - x.votes);
     },
   },
 };
