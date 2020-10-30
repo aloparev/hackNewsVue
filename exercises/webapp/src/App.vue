@@ -1,47 +1,45 @@
 <template>
   <div id="app">
-    <list-news/>
+    <list-news />
   </div>
 </template>
 
 <script>
-import ListNews from './components/ListNews.vue';
+import ListNews from "./components/ListNews/ListNews";
 
 export default {
-  name: 'app',
-  components:{
-    ListNews
-  }
-}
+  name: "app",
+  components: {
+    ListNews,
+  },
+};
 </script>
 <style>
+#app {
+  font-family: "Avenir", Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #2c3e50;
+  width: 500px;
+  margin: auto;
+  text-align: center;
+  max-height: 300px;
+}
 
-  #app {
-    font-family: 'Avenir', Arial, Helvetica, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    color:#2c3e50;
-    width:500px;
-    margin:auto;
-    text-align: center;
-    max-height: 300px;
-  }
+.list-item {
+  max-height: 600px;
+  overflow-y: auto;
+}
 
-  .list-item {
-    max-height: 600px;
-    overflow-y: auto;
-  }
+.list-action-btn {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
 
-  .list-action-btn {
-    display: flex;
-    justify-content: center;
-    margin-top:10px;
-  }
-
-  .add-item  {
-    margin-top:50px;
-    display:flex;
-    justify-content: center;
-  }
-
+.add-item {
+  margin-top: 50px;
+  display: flex;
+  justify-content: center;
+}
 </style>
