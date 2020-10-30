@@ -1,7 +1,4 @@
-import { mount } from '@vue/test-utils';
-import CreateNews from 'CreateNews.vue';
-
-const emptyTitle = "";
+import CreateNews from './CreateNews.vue';
 
 describe('App', () => {
     // Inspect the raw component options

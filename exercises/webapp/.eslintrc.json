@@ -1,7 +1,8 @@
 {
     "env": {
         "browser": true,
-        "es2021": true
+        "es2021": true,
+        "jest": true
     },
     "extends": [
         "eslint:recommended",
@@ -12,8 +13,8 @@
         "sourceType": "module"
     },
     "plugins": [
-        "vue"
+        "vue",
+        "jest"
     ],
-    "rules": {
-    }
+    "rules": {}
 }
