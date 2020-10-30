@@ -19,7 +19,7 @@ export default {
                 return;
             }
 
-            this.$emit('addNews', {title:this.title, votes:0});
+            this.$emit('add-news', {title:this.title, votes:0});
             this.title = '';
         }
     }

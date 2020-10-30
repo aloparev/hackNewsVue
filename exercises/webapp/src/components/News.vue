@@ -19,7 +19,7 @@ export default {
     },
     methods: {
         deleteItem : function(){
-            this.$emit('deleteNews');
+            this.$emit('delete-news');
         },
         updateItem : function(value){
             this.$emit('update', {...this.news, votes: (this.news.votes + value)});
