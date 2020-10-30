@@ -1,5 +1,20 @@
 {
+  "scripts": {
+    "test:unit": "jest",
+    "dev": "cd exercises/webapp && yarn run dev",
+    "build": "cd exercises/webapp && yarn run build"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "vue"
+    ],
+    "verbose": true
+  },
   "dependencies": {
+    "@vue/cli": "^4.5.8",
+    "@vue/cli-plugin-unit-jest": "^4.5.8",
+    "@vue/test-utils": "^1.1.0",
     "jest": "^26.6.1",
     "prettier": "^2.1.2",
     "vue-test-utils": "^1.0.0-beta.11"
