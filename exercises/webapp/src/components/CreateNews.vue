@@ -1,7 +1,19 @@
 <template>
-  <form @submit.prevent="addNews" class="add-item">
-    <input type="text" v-model="title" placeholder="title" />
-    <button type="submit" @click="addNews">Create</button>
+  <form
+    class="add-item"
+    @submit.prevent="addNews"
+  >
+    <input
+      v-model="title"
+      type="text"
+      placeholder="title"
+    >
+    <button
+      type="submit"
+      @click="addNews"
+    >
+      Create
+    </button>
   </form>
 </template>
 
