@@ -27,9 +27,9 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: check lint
-        run: yarn lint
+      - run: yarn lint
       - name: check tests
-        run: yarn test:unit
+      - run: yarn test:unit
       - name: The job has succeeded
         if: ${{ success() }}
   
