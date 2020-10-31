@@ -5,6 +5,10 @@
     </div>
     <div v-else class="list-item">
       <h1>News List</h1>
+      <p>
+        News counter: <span> {{ newsCount }} </span>
+      </p>
+      <button @click="reverseSort">sort asc/desc</button>
       <news
         v-for="item in sortedNews"
         :key="item.id"
@@ -25,6 +29,7 @@ export default {
   name: "ListNews",
   data() {
     return {
+      asc: 1,
       newsList: [
         { id: 0, title: "Just", votes: 0 },
         { id: 1, title: "VueJS", votes: 0 },
@@ -50,11 +55,19 @@ export default {
     update(news) {
       this.newsList.find((e) => e.id == news.id).votes = news.votes;
     },
+    reverseSort: function () {
+      this.asc *= -1;
+      // console.log('reverseSort');
+    },
   },
   computed: {
     sortedNews() {
-      let newsList = [...this.newsList];
-      return newsList.sort((x, y) => y.votes - x.votes);
+      let newList = [...this.newsList];
+      if (this.asc == 1) return newList.sort((x, y) => y.votes - x.votes);
+      else return newList.sort((x, y) => x.votes - y.votes);
+    },
+    newsCount: function () {
+      return this.newsList.length || 0;
     },
   },
 };
