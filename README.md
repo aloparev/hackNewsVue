@@ -1,10 +1,7 @@
 
-Countryroads
-
 # Systems Development and Frameworks - 2020/21
 
-This is the homework repository of course `Systems Development and Frameworks`
-at `Hochschule für Technik und Wirtschaft` in Berlin.
+This is the homework repository of `Systems Development and Frameworks` course at `HTW Berlin`.
 
 ## CountryRoads
 <p>
@@ -23,14 +20,16 @@ I belong
 <p>
 
 
-### Installation Instructions
-- ```cd exercises```
-- ```cd webapp```
-- now execute ```yarn install```
+### Getting started
+
+- ```cd exercises/webapp```
+- ```yarn install```
+- ```yarn run test```
 - ```yarn serve```
+- the app shall now be available under http://localhost:8080
 
 ### Contribution
-Wishing to contribute?
+Wish to contribute?
 We communicate over Moodle:
 
 https://moodle.htw-berlin.de/mod/bigbluebuttonbn/view.php?id=774135
