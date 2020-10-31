@@ -6,9 +6,9 @@ name: Continuous Integration (lint, unit test)
 # Controls when the action will run. Triggers the workflow on push or pull request
 on:
   push:
-    branches: [ main, excercise-2 ]
+    branches: [ main, exercise-2 ]
   pull_request:
-    branches: [ main, excercise-2 ]
+    branches: [ main, exercise-2 ]
 
 defaults:
   run:
@@ -24,13 +24,11 @@ jobs:
         node-version: [10.x, 12.x, 14.x]
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-    - uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-    - run: yarn lint
-    - run: yarn test:unit
-    - run: yarn serve
-    - name: The job has succeeded
-      if: ${{ success() }}
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: yarn lint
+      - run: yarn test:unit
+      - run: yarn serve
