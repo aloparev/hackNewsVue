@@ -1,66 +1,36 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
 name: Continuous Integration (lint, unit test)
 
 # Controls when the action will run. Triggers the workflow on push or pull request
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main, excercise-2 ]
+  pull_request:
+    branches: [ main, excercise-2 ]
+
+defaults:
+  run:
+    working-directory: ./exercises/webapp/
 
 jobs:
-  lint-frontend:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [14.x]
-    defaults:
-      run:
-        working-directory: ./webapp/
-    steps:
-      - uses: actions/checkout@v2
-      - name: Linting frontend with Node.js ${{ matrix.node-version }}
-        run: |
-              yarn install
-              yarn lint
+  build:
 
-  test-frontend:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [14.x]
-    defaults:
-      run:
-        working-directory: ./webapp/
-    steps:
-      - uses: actions/checkout@v2
-      - name: Testing frontend with Node.js ${{ matrix.node-version }}
-        run: |
-              yarn install
-              yarn test:unit
 
-  lint-backend:
-    runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [14.x]
-    defaults:
-      run:
-        working-directory: ./backend/
-    steps:
-      - uses: actions/checkout@v2
-      - name: Linting backend 
-        run: |
-              yarn install
-              yarn lint
+        node-version: [10.x, 12.x, 14.x]
 
-  test-backend:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [14.x]
-    defaults:
-      run:
-       working-directory: ./backend/
-    
     steps:
-      - uses: actions/checkout@v2
-      - name: Testing backend 
-        run: |
-              yarn install
-              yarn test
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: yarn lint
+    - run: yarn test:unit
+    - run: yarn serve
+    - name: The job has succeeded
+      if: ${{ success() }}
