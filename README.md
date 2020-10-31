@@ -24,10 +24,10 @@ I belong
 
 
 ### Installation Instructions
-- ```cd exercises```, for example  ```cd exercises/2```
+- ```cd exercises```
 - ```cd webapp```
-- now execute ```npm install```
-- ```npm run dev```
+- now execute ```yarn install```
+- ```yarn serve```
 
 ### Contribution
 Wishing to contribute?
@@ -35,7 +35,7 @@ We communicate over Moodle:
 
 https://moodle.htw-berlin.de/mod/bigbluebuttonbn/view.php?id=774135
 
-Similarly, we have Telegram group, if you wish to participate, please contact one of us:
+Similarly, we have a Telegram group, if you wish to participate, please contact one of us:
 
 Andrej Loparev:
 Andrej.Loparev@Student.HTW-Berlin.de
