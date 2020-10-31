@@ -11,6 +11,7 @@
 
 <script>
 export default {
+  name: "ListNews",
   props: {
     news: {
       type: Object,
@@ -21,7 +22,7 @@ export default {
     deleteItem: function () {
       this.$emit("delete-news");
     },
-    updateItem: function (value) {
+    updateItem(value) {
       this.$emit("update", { ...this.news, votes: this.news.votes + value });
     },
   },

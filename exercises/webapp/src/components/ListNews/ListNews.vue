@@ -9,11 +9,11 @@
         v-for="item in sortedNews"
         :key="item.id"
         v-bind:news="item"
-        @deleteNews="deleteNews(item.id)"
+        @delete-news="deleteNews(item.id)"
         @update="update"
       />
     </div>
-    <create-news @addNews="addNews" />
+    <create-news @add-news="addNews" />
   </div>
 </template>
 
@@ -37,17 +37,17 @@ export default {
     CreateNews,
   },
   methods: {
-    deleteNews: function (id) {
+    deleteNews(id) {
       this.newsList = this.newsList.filter((e) => e.id !== id);
     },
-    addNews: function (newNews) {
+    addNews(newNews) {
       let id = Math.max(...this.newsList.map((e) => e.id), 0);
       id++;
 
       // create new object from old one and overwrite id value
       this.newsList.push({ ...newNews, id: id });
     },
-    update: function (news) {
+    update(news) {
       this.newsList.find((e) => e.id == news.id).votes = news.votes;
     },
   },
