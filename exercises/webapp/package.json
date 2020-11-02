@@ -10,7 +10,9 @@
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "test:unit": "jest",
-    "test": "jest"
+    "test": "jest",
+    "serve:storybook": "start-storybook -p 6006",
+    "build:storybook": "build-storybook --no-dll"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -26,7 +28,6 @@
   },
   "babel": {
     "presets": [
-      "@vue/cli-plugin-babel/preset",
       "@babel/preset-env"
     ]
   },
@@ -51,6 +52,14 @@
     "@babel/core": "^7.12.3",
     "@babel/preset-env": "^7.12.1",
     "@jest/globals": "^26.6.1",
+    "@storybook/addon-a11y": "^6.0.28",
+    "@storybook/addon-actions": "^6.0.28",
+    "@storybook/addon-essentials": "^6.0.28",
+    "@storybook/addon-links": "^6.0.28",
+    "@storybook/addon-notes": "^5.2",
+    "@storybook/addon-viewport": "^5.2",
+    "@storybook/addons": "^5.2",
+    "@storybook/vue": "^6.0.28",
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
@@ -65,8 +74,9 @@
     "eslint-plugin-vue": "^7.1.0",
     "file-loader": "^1.1.4",
     "jest": "^26.6.1",
+    "react-is": "^17.0.1",
     "vue-jest": "^3.0.7",
-    "vue-loader": "^13.0.5",
+    "vue-loader": "^15.9.3",
     "vue-template-compiler": "^2.4.4"
   }
 }
