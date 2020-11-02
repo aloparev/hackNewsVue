@@ -49,4 +49,30 @@ describe("ListNews", () => {
     wrapper.vm.update({ id: 2, title: "Rocks", votes: -5 });
     expect(wrapper.vm.sortedNews[0].votes).toBe(2);
   });
+
+  it("Test will check functionality of sorting button", () => {
+    const wrapper = mount(ListNews, {
+      data() {
+        return {
+          newsList: [
+            { id: 0, title: "Just", votes: 3 },
+            { id: 1, title: "VueJS", votes: 1 },
+            { id: 2, title: "Rocks", votes: 2 },
+          ],
+          descending: true,
+        };
+      },
+    });
+
+    //sorting to ascending
+    const sortButton = wrapper.find("button");
+    sortButton.trigger("click");
+    expect(wrapper.vm.asc).toEqual(-1);
+    expect(wrapper.vm.sortedNews[0].votes).toBe(1);
+
+    //sorting to descending
+    sortButton.trigger("click");
+    expect(wrapper.vm.asc).toEqual(1);
+    expect(wrapper.vm.sortedNews[0].votes).toBe(3);
+  });
 });
