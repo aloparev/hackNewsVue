@@ -7,6 +7,13 @@
 
 <script>
 export default {
+  name: "CreateNews",
+  props: {
+    title: {
+      type: String,
+      required: true,
+    }
+    },
   data() {
     return {
       title: "",
