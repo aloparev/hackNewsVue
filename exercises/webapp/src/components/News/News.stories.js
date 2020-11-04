@@ -1,31 +1,23 @@
-import { action } from '@storybook/addon-actions';
-import News from './News.vue';
+import { action } from "@storybook/addon-actions";
+import News from "./News.vue";
 
 export default {
-    title: 'News',
-    component:News
+  title: "News",
+  component: News
 };
 
-const newsTemplate = '<news :news="news" @delete-news="deleteNews(news.id)" @update="update"/>';
-
-const NewsT = (args, {argTypes}) => ({
-    components: {News},
-    template: newsTemplate,
-    props:Object.keys(argTypes),
-    methods:{
-        deleteNews: action('deleteNews'),
-        update: action('update')
-    }
+const Template = (args, { argTypes }) => ({
+  props: Object.keys(argTypes),
+  components: { News},
+  template: '<News @update="updateNews" @delete-news="deleteNews" v-bind="$props" />',
+  methods: { updateNews: action('clicked'), deleteNews: action('clicked') }
 });
 
-const newsDefaultData = {
-    id:1,
-    title:'The CountryRoads',
-    votes:0
+export const NewsItem = Template.bind({});
+NewsItem.args = {
+    news:{
+      id: 0,
+      title: 'Example title',
+      votes: 3
+    }
 };
-
-export const Default = NewsT.bind({});
-Default.args = {
-    news: newsDefaultData
-};
-
