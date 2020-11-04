@@ -66,7 +66,7 @@ export default {
       if (this.asc == 1) return newList.sort((x, y) => y.votes - x.votes);
       else return newList.sort((x, y) => x.votes - y.votes);
     },
-    newsCount: function () {
+    newsCount() {
       return this.newsList.length || 0;
     },
   },
