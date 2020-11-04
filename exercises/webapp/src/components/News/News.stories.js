@@ -4,6 +4,7 @@ import News from "./News.vue";
 export default {
   title: "News",
   component: News,
+  argTypes: { background: { control: "color" } },
 };
 
 const Template = (args, { argTypes }) => ({
@@ -21,4 +22,5 @@ NewsItem.args = {
     title: "Example",
     votes: 3,
   },
+  background: "#e00",
 };

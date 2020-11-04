@@ -3,26 +3,41 @@ import { mount } from "@vue/test-utils";
 import News from "./News.vue";
 require("regenerator-runtime/runtime");
 
-describe("myComponent", () => {
-  it("Test coverage for delete emit", async () => {
+describe("News", () => {
+  it("should correctly emit when the delete button is clicked", async () => {
     let wrapper = mount(News);
-    wrapper.vm.deleteItem();
-    await wrapper.vm.$nextTick();
-
-    expect(wrapper.emitted()["delete-news"].length).toBe(1);
+    const deleteButton = wrapper.find(".delete");
+    await deleteButton.trigger("click");
+    expect(wrapper.emitted("delete-news")).toBeTruthy();
   });
 
-  it("Test coverage for update emit", async () => {
-    const newsObject = { id: 0, title: "Just", votes: 0 };
-    const expectedObject = { id: 0, title: "Just", votes: 5 };
+  it("should correctly increment votes when the upvote button is clicked", async () => {
+    const newsObject = { id: 0, title: "Just", votes: 3 };
     let wrapper = mount(News, {
       propsData: {
         news: newsObject,
       },
     });
-    wrapper.vm.updateItem(5);
-    await wrapper.vm.$nextTick();
+    await wrapper.find("button.upvote").trigger("click");
+    setTimeout(() => {
+      expect(wrapper.emitted("update")).toBeTruthy();
+      const newsHeader = wrapper.find("h2");
+      expect(newsHeader.text()).toContain(4);
+    }, 2000);
+  });
 
-    expect(wrapper.emitted("update")).toEqual([[expectedObject]]);
+  it("should correctly decrease votes when the downvote button is clicked", async () => {
+    const newsObject = { id: 0, title: "Just", votes: 3 };
+    let wrapper = mount(News, {
+      propsData: {
+        news: newsObject,
+      },
+    });
+    await wrapper.find("button.downvote").trigger("click");
+    setTimeout(() => {
+      expect(wrapper.emitted("update")).toBeTruthy();
+      const newsHeader = wrapper.find("h2");
+      expect(newsHeader.text()).toContain(2);
+    }, 2000);
   });
 });

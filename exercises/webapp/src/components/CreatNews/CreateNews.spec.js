@@ -4,12 +4,14 @@ import CreateNews from "./CreateNews.vue";
 require("regenerator-runtime/runtime");
 
 describe("CreateNews", () => {
-  it("Test for default empty title", () => {
+  it("should return default empty title", () => {
     const wrapper = mount(CreateNews);
-    expect(wrapper.vm.addNews()).toEqual();
+    const button = wrapper.find("button");
+    button.trigger("click");
+    expect(wrapper.title).toEqual();
   });
 
-  it("Test for add news emit", async () => {
+  it("should cover correct emit of component", async () => {
     const wrapper = mount(CreateNews, {
       data() {
         return {
@@ -17,9 +19,9 @@ describe("CreateNews", () => {
         };
       },
     });
-    wrapper.vm.addNews();
-    await wrapper.vm.$nextTick();
+    const button = wrapper.find("button");
+    await button.trigger("click");
 
-    expect(wrapper.emitted()["add-news"].length).toBe(1);
+    expect(wrapper.emitted("add-news")).toBeTruthy();
   });
 });
