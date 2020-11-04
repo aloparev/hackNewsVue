@@ -4,11 +4,7 @@
 name: Continuous Integration (lint, unit test)
 
 # Controls when the action will run. Triggers the workflow on push or pull request
-on:
-  push:
-    branches: [ main, exercise-2 ]
-  pull_request:
-    branches: [ main, exercise-2 ]
+on: [push, pull_request]
 
 defaults:
   run:
@@ -21,7 +17,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [10.x, 12.x, 14.x]
+        node-version: [10.x]
 
     steps:
       - uses: actions/checkout@v2
@@ -29,6 +25,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - run: yarn install
-      - run: yarn lint
-      - run: yarn test:unit
+      - name: Run lint 🧪
+        run: yarn lint
+      - name: Run jest 🧪
+        run: yarn test:unit
