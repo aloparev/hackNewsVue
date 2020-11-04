@@ -7,13 +7,7 @@
 
 <script>
 export default {
-  name: "CreateNews",
-  props: {
-    title: {
-      type: String,
-      required: true,
-    }
-    },
+  name: "News",
   data() {
     return {
       title: "",
