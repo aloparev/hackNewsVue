@@ -29,7 +29,7 @@ export default {
   name: "ListNews",
   data() {
     return {
-      asc: 1,
+      desc: true,
       newsList: [
         { id: 0, title: "Just", votes: 0 },
         { id: 1, title: "VueJS", votes: 0 },
@@ -55,19 +55,18 @@ export default {
     update(news) {
       this.newsList.find((e) => e.id == news.id).votes = news.votes;
     },
-    reverseSort: function () {
-      this.asc *= -1;
-      // console.log('reverseSort');
+    reverseSort() {
+      this.desc = !this.desc;
     },
   },
   computed: {
     sortedNews() {
       let newList = [...this.newsList];
-      if (this.asc == 1) return newList.sort((x, y) => y.votes - x.votes);
+      if (this.desc) return newList.sort((x, y) => y.votes - x.votes);
       else return newList.sort((x, y) => x.votes - y.votes);
     },
     newsCount() {
-      return this.newsList.length || 0;
+      return this.newsList.length;
     },
   },
 };
