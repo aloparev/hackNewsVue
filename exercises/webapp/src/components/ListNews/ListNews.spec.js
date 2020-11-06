@@ -13,7 +13,7 @@ describe("ListNews", () => {
         };
       },
     });
-    const paragraph = wrapper.find("h1");
+    const paragraph = wrapper.find("#error-message");
 
     expect(paragraph.text()).toEqual("The list is empty :(");
   });

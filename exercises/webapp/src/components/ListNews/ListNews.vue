@@ -1,21 +1,23 @@
 <template>
-  <div>
-    <div v-if="sortedNews.length == 0">
-      <h1>The list is empty :(</h1>
-    </div>
-    <div v-else class="list-item">
+  <div id="news-list-container">
+    <div class="news-list">
       <h1>News List</h1>
-      <p>
-        News counter: <span> {{ newsCount }} </span>
-      </p>
-      <button @click="reverseSort">sort asc/desc</button>
-      <news
-        v-for="item in sortedNews"
-        :key="item.id"
-        v-bind:news="item"
-        @delete-news="deleteNews(item.id)"
-        @update="update"
-      />
+      <div v-if="newsList.length == 0">
+        <h1 id="error-message">The list is empty :(</h1>
+      </div>
+      <div v-else>
+        <p>
+          News counter: <span> {{ newsCount }} </span>
+        </p>
+        <button @click="reverseSort">sort asc/desc</button>
+        <news
+          v-for="item in sortedNews"
+          :key="item.id"
+          v-bind:news="item"
+          @delete-news="deleteNews(item.id)"
+          @update="update"
+        />
+      </div>
     </div>
     <create-news @add-news="addNews" />
   </div>
@@ -71,3 +73,15 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+#news-list-container {
+  text-align: center;
+}
+
+.news-list {
+  max-height: 580px;
+  overflow-y: auto;
+  margin-bottom: 40px;
+}
+</style>
