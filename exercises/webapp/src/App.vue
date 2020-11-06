@@ -22,24 +22,6 @@ export default {
   color: #2c3e50;
   width: 500px;
   margin: auto;
-  text-align: center;
   max-height: 300px;
-}
-
-.list-item {
-  max-height: 600px;
-  overflow-y: auto;
-}
-
-.list-action-btn {
-  display: flex;
-  justify-content: center;
-  margin-top: 10px;
-}
-
-.add-item {
-  margin-top: 50px;
-  display: flex;
-  justify-content: center;
 }
 </style>
