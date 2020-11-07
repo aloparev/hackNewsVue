@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2>{{ news.title }} ({{ news.votes }})</h2>
-    <div class="action-btn-list">
+    <div>
       <button class="upvote" @click="updateItem(1)">Upvote</button>
       <button class="downvote" @click="updateItem(-1)">Downvote</button>
       <button class="delete" @click="deleteItem">Remove</button>
@@ -15,7 +15,7 @@ export default {
   props: {
     news: {
       type: Object,
-      default: () => ({}),
+      required: true,
     },
   },
   methods: {
