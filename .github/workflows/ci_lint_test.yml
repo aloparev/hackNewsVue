@@ -8,7 +8,7 @@ on: [push, pull_request]
 
 defaults:
   run:
-    working-directory: ./exercises/webapp/
+    working-directory: ./webapp/
 
 jobs:
 
