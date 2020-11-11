@@ -17,11 +17,5 @@
         "vue",
         "jest"
     ],
-    "rules": {
-        "prettier/prettier": [
-            "error", {
-                "endOfLine":"auto"
-            }
-        ]
-    }
+    "rules": {}
 }

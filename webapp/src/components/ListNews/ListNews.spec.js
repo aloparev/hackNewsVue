@@ -5,27 +5,28 @@ import News from "../News/News.vue";
 require("regenerator-runtime/runtime");
 
 describe("ListNews", () => {
-  describe("given empty list", () => {
-    let items;
+
+  describe('given empty list', () => {
+    let items
     beforeEach(() => {
-      items = [];
-    });
+      items = []
+    })
     it('should display "The list is empty :(" if newsList contains no items', () => {
       const wrapper = mount(ListNews, {
         data() {
-          return {
-            newsList: items,
-          };
-        },
+           return {
+             newsList : items
+           }
+        }
       });
 
       const paragraph = wrapper.find("#error-message");
 
       expect(paragraph.text()).toEqual("The list is empty :(");
-    });
+    })
   });
 
-  it("should display default news in list", () => {
+  it("should check for present default news in list", () => {
     const wrapper = mount(ListNews);
     const title = ["Just", "VueJS", "Rocks"];
 
@@ -35,7 +36,7 @@ describe("ListNews", () => {
     expect(news.at(2).text()).toContain(title[2]);
   });
 
-  it("should toggle between ascending and descending order", async () => {
+  it("should check functionality of sorting button", async () => {
     const wrapper = mount(ListNews, {
       data() {
         return {
