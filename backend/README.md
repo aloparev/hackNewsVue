@@ -71,8 +71,3 @@ mutation {
   }
 }
 ```
-
-
-#mutation{write(post:{title:"sfs", author:{name:"oijji"}}){id, title, votes, author{name}, voters{name}}}
-query{posts{title, id, author{name}, voters{name}}}
-#mutation{upvote(id:2, voter:{name:"Lee"}){id, votes, voters{name}}}
