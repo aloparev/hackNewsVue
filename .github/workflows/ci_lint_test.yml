@@ -6,10 +6,6 @@ name: Continuous Integration (lint, unit test)
 # Controls when the action will run. Triggers the workflow on push or pull request
 on: [push, pull_request]
 
-defaults:
-  run:
-    working-directory: ./webapp/
-
 jobs:
   build:
 
@@ -17,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [10.x]
+        node-version: [12.x]
 
     steps:
       - uses: actions/checkout@v2
@@ -25,6 +21,14 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
+      - name: Backend checking
+        working-directory: ./backend/
+      - name: Installing ⏬
+        run: yarn install
+      - name: Run tests
+        run: yarn test
+      - name: Frontend checking
+        working-directory: ./webapp/
       - name: Installing ⏬
         run: yarn install
       - name: Run lint 🧪
