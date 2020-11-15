@@ -2,12 +2,17 @@
 on: [push, pull_request]
 
 jobs:
+  build-frontend:
 
   lint:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [12.x]
+        node-version: [14.x]
+    
+    defaults:
+      run:
+        working-directory: ./webapp/
 
     steps:
       - uses: actions/checkout@v2
@@ -15,32 +20,10 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Backend checking
-        working-directory: ./backend/
-      - name: Installing ⏬
-        run: yarn install
-      - name: Run tests
-        run: yarn test
-      - name: Frontend checking
-        working-directory: ./webapp/
       - name: Installing ⏬
         run: yarn install
       - name: Run lint 🧪
         run: yarn lint
-
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [10.x]
-    steps:
-      - uses: actions/checkout@v2
-      - name: Testing with Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
-      - name: Installing ⏬
-        run: yarn install
       - name: Run tests 🧪
         run: yarn test:unit
 
@@ -66,5 +49,19 @@ jobs:
         run: yarn install
       - name: Run lint 🧪
         run: yarn lint
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [10.x]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Testing with Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Installing ⏬
+        run: yarn install
       - name: Run tests 🧪
         run: yarn test
