@@ -1,0 +1,20 @@
+{
+  "name": "root",
+  "description": "Countryroads list exercise",
+  "version": "1.0.0",
+  "author": "countryroads",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start:backend": "cd ./backend && yarn start",
+    "test:backend": "cd ./backend && yarn test",
+    "start:webapp": "cd ./webapp && yarn serve",
+    "build:webapp": "cd ./webapp && yarn build",
+    "test:webapp": "cd ./webapp && yarn test",
+    "test:unit": "cd ./webapp && yarn test:unit"
+  },
+  "workspaces": [
+    "webapp",
+    "backend"
+  ]
+}
