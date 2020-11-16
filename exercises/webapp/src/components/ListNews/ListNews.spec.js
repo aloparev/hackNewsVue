@@ -26,7 +26,7 @@ describe("ListNews", () => {
     })
   });
 
-  it("should check for present default news in list", () => {
+  it("should display default news in list", () => {
     const wrapper = mount(ListNews);
     const title = ["Just", "VueJS", "Rocks"];
 
@@ -36,7 +36,7 @@ describe("ListNews", () => {
     expect(news.at(2).text()).toContain(title[2]);
   });
 
-  it("should check functionality of sorting button", async () => {
+  it("should toggle between ascending and descending order", async () => {
     const wrapper = mount(ListNews, {
       data() {
         return {
