@@ -7,12 +7,9 @@ jobs:
     strategy:
       matrix:
         node-version: [14.x]
-    
-    defaults:
-      run:
-        working-directory: ./webapp/
 
     steps:
+      working-directory: ./webapp/
       - uses: actions/checkout@v2
       - name: Linting frontend with Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
@@ -29,11 +26,8 @@ jobs:
       matrix:
         node-version: [14.x]
     
-    defaults:
-      run:
-        working-directory: ./webapp/
-
     steps:
+      working-directory: ./webapp/
       - uses: actions/checkout@v2
       - name: Testing frontend with Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
@@ -49,10 +43,8 @@ jobs:
     strategy:
       matrix:
         node-version: [14.x]
-    defaults:
-      run:
-        working-directory: ./backend/
     steps:
+    working-directory: ./backend/
       - uses: actions/checkout@v2
       - name: Linting backend 
       - name: Installing ⏬
@@ -66,11 +58,8 @@ jobs:
   #     matrix:
   #       node-version: [14.x]
     
-  #   defaults:
-  #     run:
-  #       working-directory: ./backend/
-
   #   steps:
+  #    working-directory: ./backend/
   #     - uses: actions/checkout@v2
   #     - name: Testing backend 
   #     - name: Installing ⏬
