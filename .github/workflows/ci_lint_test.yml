@@ -2,9 +2,7 @@
 on: [push, pull_request]
 
 jobs:
-  build-frontend:
-
-  lint:
+  lint-frontend:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -16,7 +14,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Linting with Node.js ${{ matrix.node-version }}
+      - name: Linting frontend with Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
@@ -24,40 +22,20 @@ jobs:
         run: yarn install
       - name: Run lint 🧪
         run: yarn lint
-      - name: Run tests 🧪
-        run: yarn test:unit
 
-  build-backend:
-
+  test-frontend:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         node-version: [14.x]
     
     defaults:
       run:
-        working-directory: ./backend/
+        working-directory: ./webapp/
 
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
-      - name: Installing ⏬
-        run: yarn install
-      - name: Run lint 🧪
-        run: yarn lint
-
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [14.x]
-    steps:
-      - uses: actions/checkout@v2
-      - name: Testing with Node.js ${{ matrix.node-version }}
+      - name: Testing frontend with Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
@@ -65,5 +43,39 @@ jobs:
         run: yarn install
       - name: Run tests 🧪
         run: yarn test:unit
+
+  lint-backend:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x]
+    defaults:
+      run:
+        working-directory: ./backend/
+    steps:
+      - uses: actions/checkout@v2
+      - name: Linting backend 
+      - name: Installing ⏬
+        run: yarn install
+      - name: Run lint 🧪
+        run: yarn lint
+
+  # test-backend:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       node-version: [14.x]
+    
+  #   defaults:
+  #     run:
+  #       working-directory: ./backend/
+
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - name: Testing backend 
+  #     - name: Installing ⏬
+  #       run: yarn install
+  #     - name: Run tests 🧪
+  #       run: yarn test
 
 
