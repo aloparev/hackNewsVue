@@ -13,7 +13,7 @@
         <news
           v-for="item in sortedNews"
           :key="item.id"
-          v-bind:news="item"
+          :news="item"
           @delete-news="deleteNews(item.id)"
           @update="update"
         />
