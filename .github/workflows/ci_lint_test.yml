@@ -54,7 +54,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [10.x]
+        node-version: [14.x]
     steps:
       - uses: actions/checkout@v2
       - name: Testing with Node.js ${{ matrix.node-version }}
@@ -64,4 +64,6 @@ jobs:
       - name: Installing ⏬
         run: yarn install
       - name: Run tests 🧪
-        run: yarn test
+        run: yarn test:unit
+
+
