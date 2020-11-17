@@ -1,28 +1,26 @@
-// Resolvers define the technique for fetching the types defined in the
-// schema. This resolver retrieves books from the "books" array above.
 const resolvers = {
     Query: {
-      posts: async (parent, args, {dataSources}, resolveInfo) => {
-        return await dataSources.inMemoryDataAPI.allPosts()
+      posts: async (parent, args, {dataSources}) => {
+        return await dataSources.postsDataSrc.allPosts()
       },
-      users: async (parent, args, {dataSources}, _) => {
-        return await dataSources.inMemoryDataAPI.allUsers()
+      users: async (parent, args, {dataSources}) => {
+        return await dataSources.usersDataSrc.allUsers()
       }
     },
     User: {
-      posts: async (parent, args, {dataSources}, resolveInfo) => {
-        let posts = await dataSources.inMemoryDataAPI.allPosts();
+      posts: async (parent, args, {dataSources}) => {
+        let posts = await dataSources.postsDataSrc.allPosts();
         return posts.filter(e => e.author.name == parent.name)
       }
     },
     Mutation: {
-      write: async (parent, args, {dataSources}, resolveInfo) => {
+      write: async (parent, args, {dataSources}) => {
         console.log('Mutation.write.postInput', args.post)
-        return await dataSources.inMemoryDataAPI.createPost(args.post)
+        return await dataSources.postsDataSrc.createPost(args.post)
       },
-      upvote: async (parent, args, {dataSources}, resolveInfo) => {
+      upvote: async (parent, args, {dataSources}) => {
         console.log('Mutation.upvote.args', args)
-        return await dataSources.inMemoryDataAPI.upvotePost(args.id, args.voter)
+        return await dataSources.postsDataSrc.upvotePost(args.id, args.voter)
       }
     }
 };
