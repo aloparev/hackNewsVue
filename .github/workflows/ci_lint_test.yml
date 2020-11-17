@@ -13,12 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Linting frontend with Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
-      - name: Installing ⏬
         run: yarn install
-      - name: Run lint 🧪
         run: yarn lint
 
   test-frontend:
@@ -32,12 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Testing frontend with Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
-      - name: Installing ⏬
         run: yarn install
-      - name: Run tests 🧪
         run: yarn test:unit
 
   lint-backend:
@@ -51,29 +41,22 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Linting backend 
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
-      - name: Installing ⏬
         run: yarn install
-      - name: Run lint 🧪
         run: yarn lint
 
-  # test-backend:
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       node-version: [14.x]
-  #   defaults:
-  #     run:
-  #      working-directory: ./webapp/
+  test-backend:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x]
+    defaults:
+      run:
+       working-directory: ./backend/
     
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - name: Testing backend 
-  #     - name: Installing ⏬
-  #       run: yarn install
-  #     - name: Run tests 🧪
-  #       run: yarn test
+    steps:
+      - uses: actions/checkout@v2
+      - name: Testing backend 
+        run: yarn install
+        run: yarn test
 
 
