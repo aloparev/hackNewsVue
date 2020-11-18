@@ -5,25 +5,24 @@ import News from "../News/News.vue";
 require("regenerator-runtime/runtime");
 
 describe("ListNews", () => {
-
-  describe('given empty list', () => {
-    let items
+  describe("given empty list", () => {
+    let items;
     beforeEach(() => {
-      items = []
-    })
+      items = [];
+    });
     it('should display "The list is empty :(" if newsList contains no items', () => {
       const wrapper = mount(ListNews, {
         data() {
-           return {
-             newsList : items
-           }
-        }
+          return {
+            newsList: items,
+          };
+        },
       });
 
       const paragraph = wrapper.find("#error-message");
 
       expect(paragraph.text()).toEqual("The list is empty :(");
-    })
+    });
   });
 
   it("should display default news in list", () => {
