@@ -10,6 +10,8 @@
 </template>
 
 <script>
+import gql from "graphql-tag";
+require("regenerator-runtime/runtime");
 export default {
   name: "News",
   props: {
@@ -19,8 +21,25 @@ export default {
     },
   },
   methods: {
-    deleteItem: function () {
-      this.$emit("delete-news");
+    async deleteItem() {
+      try {
+        await this.$apollo.mutate({
+          mutation: gql`
+            mutation($id: ID!) {
+              delete(id: $id) {
+                title
+              }
+            }
+          `,
+          variables: {
+            id: this.news.id,
+          },
+        });
+
+        this.$emit("delete-news");
+      } catch {
+        throw new Error("Mutation 'delete' failed!");
+      }
     },
     updateItem(value) {
       this.$emit("update", { ...this.news, votes: this.news.votes + value });
