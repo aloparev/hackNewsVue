@@ -13,6 +13,7 @@
 </template>
 
 <script>
+import gql from "graphql-tag";
 export default {
   name: "CreateNews",
   data() {
@@ -26,6 +27,33 @@ export default {
         return;
       }
 
+      this.$apollo
+        .mutate({
+          // Query
+          mutation: gql`
+            mutation($post: PostInput!) {
+              write(post: $post) {
+                title
+                author {
+                  name
+                }
+              }
+            }
+          `,
+          // Parameters
+          variables: {
+            post: {
+              title: this.title,
+              author: { name: "TestUser" },
+            },
+          },
+        })
+        .then((data) => {
+          console.log(data);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
       this.$emit("add-news", { title: this.title, votes: 0 });
       this.title = "";
     },
