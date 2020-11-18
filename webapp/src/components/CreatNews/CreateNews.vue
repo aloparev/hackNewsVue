@@ -13,6 +13,12 @@
 </template>
 
 <script>
+<<<<<<< Updated upstream
+=======
+import gql from "graphql-tag";
+require("regenerator-runtime/runtime");
+
+>>>>>>> Stashed changes
 export default {
   name: "CreateNews",
   data() {
@@ -21,13 +27,35 @@ export default {
     };
   },
   methods: {
-    addNews() {
+    async addNews() {
       if (!this.title || this.title.trim() == "") {
         return;
       }
-
-      this.$emit("add-news", { title: this.title, votes: 0 });
-      this.title = "";
+      try {
+        const response = await this.$apollo.mutate({
+          mutation: gql`
+            mutation($post: PostInput!) {
+              write(post: $post) {
+                title
+                author {
+                  name
+                }
+              }
+            }
+          `,
+          variables: {
+            post: {
+              title: this.title,
+              author: { name: "TestUser" },
+            },
+          },
+        });
+        console.log(response.data.write.title);
+        this.$emit("add-news", { title: response.data.write.title, votes: 0 });
+        this.title = "";
+      } catch {
+        throw new Error("Mutation 'write' failed!");
+      }
     },
   },
 };
