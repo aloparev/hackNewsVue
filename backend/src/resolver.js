@@ -21,6 +21,12 @@ const resolvers = {
       upvote: async (parent, args, {dataSources}) => {
         console.log('Mutation.upvote.args', args)
         return await dataSources.postsDataSrc.upvotePost(args.id, args.voter)
+      },
+      downvote: async (parent, args, {dataSources}) => {
+        return await dataSources.postsDataSrc.downvotePost(args.id, args.voter)
+      },
+      delete: async (parent, args, {dataSources}) => {
+        return await dataSources.postsDataSrc.deletePost(args.id)
       }
     }
 };
