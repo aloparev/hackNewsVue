@@ -1,19 +1,22 @@
 const { ApolloServer} = require('apollo-server');
-const InMemoryDataSource = require('./MemoryDataSource')
-const typeDefs = require('./schema')
-const resolvers = require('./resolver')
+const PostsDataSource = require('./posts-data-source');
+const UsersDataSource = require('./users-data-source');
+const typeDefs = require('./schema');
+const resolvers = require('./resolver');
 
-// The ApolloServer constructor requires two parameters: your schema
-// definition and your set of resolvers.
+const postsMemory = new PostsDataSource();
+const usersMemory = new UsersDataSource();
 const server = new ApolloServer({
   typeDefs,
   resolvers,
   dataSources: ()=> {
-    return {inMemoryDataAPI:new InMemoryDataSource()};
+    return {postsDataSrc:postsMemory,
+            usersDataSrc:usersMemory
+    };
   }
 });
 
-// The `listen` method launches a web server.
+
 server.listen().then(({ url }) => {
   console.log(`🚀  Server ready at ${url}`);
 });
