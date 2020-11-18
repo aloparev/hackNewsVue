@@ -6,9 +6,7 @@
       v-model="title"
       placeholder="title"
     />
-    <button type="submit" :disabled="!title.length > 0" @click="addNews">
-      Create
-    </button>
+    <button type="submit" :disabled="!title.length > 0">Create</button>
   </form>
 </template>
 
