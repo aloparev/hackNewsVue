@@ -32,7 +32,7 @@ class PostsDataSource extends RESTDataSource {
         return post
       }
       else{
-      throw new UserInputError("This user voted on this post already", {invalidArgs: [currUser]});
+        throw new UserInputError("This user voted on this post already", {invalidArgs: [currUser]});
       }
     }
     else{
@@ -42,14 +42,15 @@ class PostsDataSource extends RESTDataSource {
 
   async downvotePost(id, currUser) {
     const post = this.posts.find(e => e.id == id);
-    if (post) {
-      if(!post.voters.find(voters => voters.name == currUser.name)){
+    if (post) {  
+      const userIndex = post.voters.findIndex(voters => voters.name == currUser.name)
+      if(userIndex > -1){ //user has been found
         post.votes--
-        post.voters.push(currUser)
+        post.voters.splice(userIndex,1)
         return post
       }
       else{
-      throw new UserInputError("This user voted on this post already", {invalidArgs: [currUser]});
+        throw new UserInputError("This user has not voted on this post yet", {invalidArgs: [currUser]});
       }
     }
     else{

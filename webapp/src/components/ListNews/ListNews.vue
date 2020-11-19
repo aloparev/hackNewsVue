@@ -1,61 +1,73 @@
 <template>
   <div id="news-list-container">
-    <div class="news-list">
+    <div>
       <h1>News List</h1>
-      <div v-if="newsList.length == 0">
-        <h1 id="error-message">The list is empty :(</h1>
+      <div v-if="$apollo.loading">
+        <h2>Loading...</h2>
       </div>
       <div v-else>
-        <p>
-          News counter: <span> {{ newsCount }} </span>
-        </p>
-        <button @click="reverseSort">sort asc/desc</button>
-        <news
-          v-for="item in sortedNews"
-          :key="item.id"
-          :news="item"
-          @delete-news="deleteNews(item.id)"
-          @update="update"
-        />
+        <div v-if="posts.length == 0">
+          <h1 id="error-message">The list is empty :(</h1>
+        </div>
+        <div v-else>
+          <p>
+            News counter: <span> {{ newsCount }} </span>
+          </p>
+          <button @click="reverseSort">sort asc/desc</button>
+          <div class="news-list">
+            <news
+              v-for="item in sortedNews"
+              :key="item.id"
+              :news="item"
+              @delete-news="deleteNews(item.id)"
+              @update="update"
+            />
+          </div>
+        </div>
+        <create-news @add-news="addNews" />
       </div>
     </div>
-    <create-news @add-news="addNews" />
   </div>
 </template>
 
 <script>
 import News from "../News/News";
 import CreateNews from "../CreatNews/CreateNews";
+import gql from "graphql-tag";
 
 export default {
   name: "ListNews",
   data() {
     return {
       desc: true,
-      newsList: [
-        { id: 0, title: "Just", votes: 0 },
-        { id: 1, title: "VueJS", votes: 0 },
-        { id: 2, title: "Rocks", votes: 0 },
-      ],
     };
   },
   components: {
     News,
     CreateNews,
   },
+  apollo: {
+    posts: gql`
+      query newsList {
+        posts {
+          id
+          title
+          votes
+        }
+      }
+    `,
+  },
   methods: {
     deleteNews(id) {
-      this.newsList = this.newsList.filter((e) => e.id !== id);
+      this.posts = [...this.posts.filter((e) => e.id !== id)];
     },
     addNews(newNews) {
-      let id = Math.max(...this.newsList.map((e) => e.id), 0);
-      id++;
-
-      // create new object from old one and overwrite id value
-      this.newsList.push({ ...newNews, id: id });
+      if (this.posts.findIndex((e) => e.id == newNews.id) == -1) {
+        this.posts.push({ ...newNews });
+      }
     },
     update(news) {
-      this.newsList.find((e) => e.id == news.id).votes = news.votes;
+      this.posts.find((e) => e.id == news.id).votes = news.votes;
     },
     reverseSort() {
       this.desc = !this.desc;
@@ -63,12 +75,12 @@ export default {
   },
   computed: {
     sortedNews() {
-      let newList = [...this.newsList];
-      if (this.desc) return newList.sort((x, y) => y.votes - x.votes);
-      else return newList.sort((x, y) => x.votes - y.votes);
+      let posts = [...this.posts];
+      if (this.desc) return posts.sort((x, y) => y.votes - x.votes);
+      else return posts.sort((x, y) => x.votes - y.votes);
     },
     newsCount() {
-      return this.newsList.length;
+      return this.posts.length;
     },
   },
 };
