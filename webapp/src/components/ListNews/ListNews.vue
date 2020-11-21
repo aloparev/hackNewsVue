@@ -58,16 +58,14 @@ export default {
     `,
   },
   methods: {
-    deleteNews(id) {
-      this.posts = [...this.posts.filter((e) => e.id !== id)];
+    deleteNews(deleteId) {
+      this.posts = [...this.posts.filter((post) => post.id !== deleteId)];
     },
     addNews(newNews) {
-      if (this.posts.findIndex((e) => e.id == newNews.id) == -1) {
-        this.posts.push({ ...newNews });
-      }
+      this.posts.push(newNews);
     },
-    update(news) {
-      this.posts.find((e) => e.id == news.id).votes = news.votes;
+    update(currNews) {
+      this.posts.find((post) => post.id == currNews.id).votes = currNews.votes;
     },
     reverseSort() {
       this.desc = !this.desc;
