@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Linting frontend with Node.js ${{ matrix.node-version }}
-      - run: |
+        run: |
               yarn install
               yarn lint
 
@@ -30,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Testing frontend with Node.js ${{ matrix.node-version }}
-      - run: |
+        run: |
               yarn install
               yarn test:unit
 
@@ -45,7 +45,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Linting backend 
-      - run: |
+        run: |
               yarn install
               yarn lint
 
@@ -61,6 +61,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Testing backend 
-      - run: |
+        run: |
               yarn install
               yarn test
