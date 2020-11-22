@@ -53,7 +53,7 @@ export default {
           })
           .catch(console.error);
 
-        console.log(response.data.write.title);
+        console.log(response.data.write);
         this.$emit("add-news", {
           id: response.data.write.id,
           title: response.data.write.title,
