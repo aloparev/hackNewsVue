@@ -1,24 +1,33 @@
 const { RESTDataSource } = require('apollo-datasource-rest');
 const {UserInputError} = require('apollo-server');
+const crypto = require('crypto');
+
+class Post {
+  constructor (data) {
+    this.id = crypto.randomBytes(16).toString('hex')
+    this.voters = []
+    this.votes = 0
+    Object.assign(this, data)
+  }
+}
+
 class PostsDataSource extends RESTDataSource {
   
   constructor() {
     super();
-    this.posts = [
-      { id: 0, title: "Just", votes: 0, voters:[], author: {name: 'Ilona'}},
-      { id: 12, title: "VueJS", votes: 0, voters:[], author: {name: 'Andrej'}},
-      { id: 2, title: "Rocks", votes: 0, voters:[], author: {name: 'An'}},
-      { id: 39, title: "CountrysRoad", votes: 0, voters:[], author: {name: 'Ilona'}}
-    ]
-}
+    this.posts = []
+  }
 
   async allPosts () {
     return this.posts
   }
 
+  initialize({context}) {
+    //console.log('PostsDataSource: ', context)
+  }
+
   async createPost (data) {
-    const newId = Math.max(...this.posts.map(e => e.id), 0) + 1
-    const newPost = {id : newId, title: data.title, votes: 0, author: data.author, voters:[]}
+    const newPost = new Post(data)
     this.posts.push(newPost)
     return newPost
   }
@@ -59,8 +68,8 @@ class PostsDataSource extends RESTDataSource {
 
   async deletePost (id) {
     const post = this.posts.find(e => e.id == id);
-    const deleteIndex = this.posts.indexOf(post);
     if (post) {
+      const deleteIndex = this.posts.indexOf(post);
       this.posts.splice(deleteIndex,1);
      return post;
     }
@@ -70,4 +79,4 @@ class PostsDataSource extends RESTDataSource {
 
   }
 } 
-module.exports = PostsDataSource
+module.exports = {Post, PostsDataSource}
