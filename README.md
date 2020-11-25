@@ -27,7 +27,7 @@ I belong
 - ```yarn serve```
 - the app shall now be available under http://localhost:8080
 
-To open the project in interactive mode, you can type ```vue ui```. To see our storybooks ```serve:storybook```.
+To open the project in an interactive mode, you can type ```vue ui```; to see our storybooks ```yarn serve:storybook```.
 
 ### Contribution
 
