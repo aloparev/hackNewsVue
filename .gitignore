@@ -1,5 +1,5 @@
 .eslintrc.back
 backend/package-lock.json
 backend/yarn.lock
-backend/node_modules
 node_modules
+.idea/
