@@ -1,3 +1,4 @@
+require('dotenv').config();
 const {ApolloServer, makeExecutableSchema} = require('apollo-server');
 const {Post, PostsDataSource} = require('./DataSource/posts-data-source');
 const {User, UsersDataSource} = require('./DataSource/users-data-source');
@@ -27,7 +28,10 @@ postsMemory.posts =[
 //Permissions
 const permissions = shield({
   Mutation: {
+    write:isAuthenticated,
+    upvote:isAuthenticated,
     delete:isAuthenticated,
+    downvote:isAuthenticated
   },
 }, { allowExternalErrors: true })
 

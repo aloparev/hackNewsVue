@@ -46,6 +46,16 @@ class UsersDataSource extends DataSource {
     return createAccessToken(newUser.id);
   }
 
+  async login(email, password) {
+    let user = this.getUserByEmail(email);
+    
+    if(user && bcrypt.compareSync(password, user.password)){
+      return createAccessToken(user.id);
+    }
+
+    return null;
+  }
+
   async allUsers() {
     return this.users;
   }

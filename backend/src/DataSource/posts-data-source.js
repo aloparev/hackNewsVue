@@ -27,21 +27,37 @@ class PostsDataSource extends DataSource {
   }
 
   async createPost (data) {
-    const newPost = new Post(data)
-    this.posts.push(newPost)
-    return newPost
+
+    const currUser = await this.context.dataSources.usersDataSrc.getUser(this.context.decodedJwt.id);
+    
+    if(currUser){
+      const newPost = new Post({...data, author:currUser});
+      this.posts.push(newPost);
+      
+      return newPost;
+    }
+
+    return null;
   }
 
-  async votePost(id, currUser, value) {
+  async votePost(id, value) {
     const post = this.posts.find(e => e.id == id);
+
     if (post) {
-      if(!post.voters.find(voters => voters.name == currUser.name)){
-        post.votes+=value
-        post.voters.push(currUser)
-        return post
-      }
-      else{
-        throw new UserInputError("This user voted on this post already", {invalidArgs: [currUser]});
+      const currUser = await this.context.dataSources.usersDataSrc.getUser(this.context.decodedJwt.id);
+
+      if(currUser) {
+
+        if(!post.voters.find(voter => voter.id == currUser.id)){
+         
+          post.votes+= value;
+          post.voters.push(currUser);
+
+          return post;
+        }
+        else{
+          throw new UserInputError("This user voted on this post already");
+        }
       }
     }
     else{
@@ -70,7 +86,7 @@ class PostsDataSource extends DataSource {
         }
       }
     }
-    else {
+    else{
       throw new UserInputError("No post with this ID", {invalidArgs: [id]});
     }
 
