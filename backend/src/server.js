@@ -1,40 +1,51 @@
-const {ApolloServer} = require('apollo-server');
+const {ApolloServer, makeExecutableSchema} = require('apollo-server');
 const {Post, PostsDataSource} = require('./DataSource/posts-data-source');
 const {User, UsersDataSource} = require('./DataSource/users-data-source');
 const typeDefs = require('./schema');
 const resolvers = require('./resolver');
+const {applyMiddleware} = require('graphql-middleware');
+const {shield} = require('graphql-shield');
+const {isAuthenticated} = require('./Permissions/user-rules');
+const {context} = require('./context')
 
 const postsMemory = new PostsDataSource();
 const usersMemory = new UsersDataSource();
 
+usersMemory.users = [
+  new User({name:'An', email:'an@gmail.com', password:'12345678'}),
+  new User({name:'Ilona', email:'ilona@gmail.com', password:'12345678'}),
+  new User({name:'Andrej', email:'andrej@gmail.com', password:'12345678'})
+];
+
 postsMemory.posts =[
-                    new Post({title: "Just", author: {name: 'Ilona'}}),
-                    new Post({title: "VueJS", author: {name: 'Andrej'}}),
-                    new Post({title: "Rocks", author: {name: 'An'}}),
-                    new Post({title: "CountrysRoad", author: {name: 'Ilona'}})
+                    new Post({title: "Just", author: usersMemory.users[0]}),
+                    new Post({title: "VueJS", author: usersMemory.users[1]}),
+                    new Post({title: "Rocks", author: usersMemory.users[2]}),
+                    new Post({title: "CountrysRoad", author: usersMemory.users[1]})
                   ];
 
-usersMemory.users = [
-                      new User('An'),
-                      new User('Ilona'),
-                      new User('Andrej')
-                    ];
-
-const context = ({req, res}) => ({req, res});
+//Permissions
+const permissions = shield({
+  Mutation: {
+    delete:isAuthenticated,
+  },
+}, { allowExternalErrors: true })
 
 const dataSources = () => ({postsDataSrc: postsMemory, usersDataSrc: usersMemory});
 
+const schema = applyMiddleware(
+  makeExecutableSchema({typeDefs, resolvers}),
+  permissions
+)
+
 class Server {
-  
+
   constructor(opts) {
-    
     const defaults = {
-      typeDefs,
-      resolvers,
+      schema,
       context,
       dataSources
     }
-
     return new ApolloServer({...defaults, ...opts})
   }
 }

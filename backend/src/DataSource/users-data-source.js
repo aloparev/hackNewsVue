@@ -1,24 +1,49 @@
-const { RESTDataSource } = require('apollo-datasource-rest');
+const {DataSource} = require('apollo-datasource');
+const {createAccessToken} = require('../token')
+const crypto = require('crypto');
+const bcrypt = require('bcrypt');
 
 class User{
-  constructor(name){
-    this.name = name
+  constructor(data){
+    this.id = crypto.randomBytes(16).toString('hex')
+    data.password = bcrypt.hashSync(data.password, 10);
+    Object.assign(this, data);
   }
 }
 
-class UsersDataSource extends RESTDataSource {
+class UsersDataSource extends DataSource {
   
   constructor() {
     super();
     this.users = []
   }
 
-  initialize({context}) {
-    //console.log('UsersDataSource: ', context)
+  async getUser(id) {
+    return this.users.find(user => user.id === id);
   }
 
-  async getUser(name) {
-    return this.users.find(user => user.name === name);
+  getUserByEmail(email) {
+    return this.users.find(user => user.email === email);
+  }
+
+  async signup(name, email, password) {
+    //trim
+    email = email.trim();
+    password = password.trim();
+      
+    /*
+      Validate:
+      - Make sure the email address is not taken by another user.
+      - Accept only passwords with a length of at least 8 characters.
+    */
+    if(this.getUserByEmail(email) || password.length < 8){
+      return null;
+    }
+    
+    const newUser = new User({name, email, password});
+    this.users.push(newUser);
+
+    return createAccessToken(newUser.id);
   }
 
   async allUsers() {
