@@ -22,16 +22,8 @@ class PostsDataSource extends DataSource {
     return this.posts;
   }
 
-  initialize({context}) {
-    this.context = context;
-  }
+  async createPost (data, currUser) {
 
-  async createPost (data) {
-    console.log(this.context);
-
-    const currUser = await this.context.dataSources.usersDataSrc.getUser(this.context.decodedJwt.id);
-    console.log(currUser);
-    
     if(currUser){
       const newPost = new Post({...data, author:currUser});
       this.posts.push(newPost);
@@ -42,11 +34,10 @@ class PostsDataSource extends DataSource {
     return null;
   }
 
-  async votePost(id, value) {
+  async votePost(id, value, currUser) {
     const post = this.posts.find(e => e.id == id);
 
     if (post) {
-      const currUser = await this.context.dataSources.usersDataSrc.getUser(this.context.decodedJwt.id);
 
       if(currUser) {
 
@@ -67,12 +58,11 @@ class PostsDataSource extends DataSource {
     }
   }
 
-  async deletePost (id) {
+  async deletePost (id, currUser) {
     
     const post = this.posts.find(e => e.id == id);
 
     if (post) {
-      const currUser = await this.context.dataSources.usersDataSrc.getUser(this.context.decodedJwt.id);
       
       if(currUser) {
 

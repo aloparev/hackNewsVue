@@ -9,14 +9,22 @@ const isAuthenticated = rule({ cache: 'contextual' })(
          console.log("utils",context.decodedJwt.id);
          console.log(context.dataSources.usersDataSrc);
          console.log(!! await context.dataSources.usersDataSrc.getUser(context.decodedJwt.id));
-        return (!! await context.dataSources.usersDataSrc.getUser(context.decodedJwt.id));
+        //return (!! await context.dataSources.usersDataSrc.getUser(context.decodedJwt.id));
+        
+        const currUser = await context.dataSources.usersDataSrc.getUser(context.decodedJwt.id);
+        
+        if(currUser){
+            context.currUser = currUser
+            return true;
+        }
+
+        return false;
     },
 )
 
-const createAccessToken = id => {
-    return sign({ id }, process.env.JWT_SECRET, { algorithm: 'HS256' });
-}
-
+// const createAccessToken = id => {
+//     return sign({ id }, process.env.JWT_SECRET, { algorithm: 'HS256' });
+// }
 
 const defaultUsers = [
     new User({name:'An', email:'an@gmail.com', password:'12345678'}),
@@ -33,5 +41,5 @@ const defaultPosts=[
 
 exports.isAuthenticated = isAuthenticated;
 exports.defaultPosts = defaultPosts;
-exports.createAccessToken = createAccessToken;
+// exports.createAccessToken = createAccessToken;
 exports.defaultUsers = defaultUsers;
