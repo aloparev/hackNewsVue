@@ -22,16 +22,8 @@ class PostsDataSource extends RESTDataSource {
     return this.posts
   }
 
-  initialize({context}) {
-    //console.log('PostsDataSource: ', context)
-  }
+  async createPost (data, currUser) {
 
-  async createPost (data) {
-    console.log(this.context);
-
-    const currUser = await this.context.dataSources.usersDataSrc.getUser(this.context.decodedJwt.id);
-    console.log(currUser);
-    
     if(currUser){
       const newPost = new Post({...data, author:currUser});
       this.posts.push(newPost);
@@ -42,11 +34,10 @@ class PostsDataSource extends RESTDataSource {
     return null;
   }
 
-  async votePost(id, value) {
+  async votePost(id, value, currUser) {
     const post = this.posts.find(e => e.id == id);
 
     if (post) {
-      const currUser = await this.context.dataSources.usersDataSrc.getUser(this.context.decodedJwt.id);
 
       if(currUser) {
 
@@ -67,7 +58,8 @@ class PostsDataSource extends RESTDataSource {
     }
   }
 
-  async downvotePost(id, currUser) {
+  async deletePost (id, currUser) {
+    
     const post = this.posts.find(e => e.id == id);
     if (post) {  
       if(!post.voters.find(voters => voters.name == currUser.name)){
@@ -87,9 +79,20 @@ class PostsDataSource extends RESTDataSource {
   async deletePost (id) {
     const post = this.posts.find(e => e.id == id);
     if (post) {
-      const deleteIndex = this.posts.indexOf(post);
-      this.posts.splice(deleteIndex,1);
-     return post;
+      
+      if(currUser) {
+
+        if( currUser.id == post.author.id) {
+
+          const deleteIndex = this.posts.indexOf(post);
+          this.posts.splice(deleteIndex,1);
+          
+          return post;
+
+        }else {
+          throw new Error("Only authors of a post are allowed to delete their own posts.");
+        }
+      }
     }
     else{
       throw new UserInputError("No post with this ID", {invalidArgs: [id]});

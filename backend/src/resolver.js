@@ -10,22 +10,21 @@ const resolvers = {
     User: {
       posts: async (parent, args, context) => {
         let posts = await context.dataSources.postsDataSrc.allPosts();
-        return posts.filter(e => e.author.name == parent.name)
+        return posts.filter(e => e.author.id == parent.id);
       }
     },
     Mutation: {
       write: async (parent, args, context) => {
-        console.log('Mutation.write.postInput', args.post)
-        return await context.dataSources.postsDataSrc.createPost(args.post)
+        return await context.dataSources.postsDataSrc.createPost(args.post, context.currUser);
       },
       upvote: async (parent, args, context) => {
-        return await context.dataSources.postsDataSrc.votePost(args.id, 1);
+        return await context.dataSources.postsDataSrc.votePost(args.id, 1, context.currUser);
       },
       downvote: async (parent, args, context) => {
-        return await context.dataSources.postsDataSrc.votePost(args.id, -1);
+        return await context.dataSources.postsDataSrc.votePost(args.id, -1, context.currUser);
       },
       delete: async (parent, args, context) => {
-        return await context.dataSources.postsDataSrc.deletePost(args.id);
+        return await context.dataSources.postsDataSrc.deletePost(args.id, context.currUser);
       },
       signup: async (parent, args, context) => {
         return await context.dataSources.usersDataSrc.signup(args.name, args.email, args.password);
