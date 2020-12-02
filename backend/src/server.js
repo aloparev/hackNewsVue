@@ -1,27 +1,28 @@
 require('dotenv').config();
 const {ApolloServer, makeExecutableSchema} = require('apollo-server');
-const {Post, PostsDataSource} = require('./DataSource/posts-data-source');
-const {User, UsersDataSource} = require('./DataSource/users-data-source');
+const {PostsDataSource} = require('./DataSources/posts-data-source');
+const {UsersDataSource} = require('./DataSources/users-data-source');
 const typeDefs = require('./schema');
 const resolvers = require('./resolver');
+const {applyMiddleware} = require('graphql-middleware');
+const {shield} = require('graphql-shield');
+const utils = require('./utils');
+const {context} = require('./context')
 
 const postsMemory = new PostsDataSource();
 const usersMemory = new UsersDataSource();
 
-postsMemory.posts =[
-                    new Post({title: "Just", author: {name: 'Ilona'}}),
-                    new Post({title: "VueJS", author: {name: 'Andrej'}}),
-                    new Post({title: "Rocks", author: {name: 'An'}}),
-                    new Post({title: "CountrysRoad", author: {name: 'Ilona'}})
-                  ];
+usersMemory.users = utils.defaultUsers;
+
+postsMemory.posts = utils.defaultPosts;
 
 //Permissions
 const permissions = shield({
   Mutation: {
-    write:isAuthenticated,
-    upvote:isAuthenticated,
-    delete:isAuthenticated,
-    downvote:isAuthenticated
+    write:utils.isAuthenticated,
+    upvote:utils.isAuthenticated,
+    delete:utils.isAuthenticated,
+    downvote:utils.isAuthenticated
   },
 }, { allowExternalErrors: true })
 
@@ -45,3 +46,4 @@ class Server {
 }
 
 module.exports = Server
+exports.permissions= permissions;

@@ -27,8 +27,10 @@ class PostsDataSource extends RESTDataSource {
   }
 
   async createPost (data) {
+    console.log(this.context);
 
     const currUser = await this.context.dataSources.usersDataSrc.getUser(this.context.decodedJwt.id);
+    console.log(currUser);
     
     if(currUser){
       const newPost = new Post({...data, author:currUser});
