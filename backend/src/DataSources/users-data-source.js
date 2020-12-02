@@ -42,12 +42,14 @@ class UsersDataSource extends DataSource {
     
     const newUser = new User({name, email, password});
     this.users.push(newUser);
+    console.log(this.users);
 
     return createAccessToken(newUser.id);
   }
 
   async login(email, password) {
     let user = this.getUserByEmail(email);
+    console.log(user);
     
     if(user && bcrypt.compareSync(password, user.password)){
       return createAccessToken(user.id);

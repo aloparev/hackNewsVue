@@ -12,7 +12,7 @@ const context = ({req}) => {
           process.env.JWT_SECRET
         );
 
-        console.log(decodedJwt)
+        console.log("context here", decodedJwt)
         
         return {decodedJwt};
 
