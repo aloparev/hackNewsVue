@@ -27,10 +27,10 @@ const resolvers = {
         return await context.dataSources.postsDataSrc.deletePost(args.id, context.currUser);
       },
       signup: async (parent, args, context) => {
-        return await context.dataSources.usersDataSrc.signup(args.name, args.email, args.password);
+        return await context.dataSources.usersDataSrc.signup(args.name, args.email, args.password, context.jwt);
       },
       login: async (parent, args, context) => {
-        return await context.dataSources.usersDataSrc.login(args.email, args.password);
+        return await context.dataSources.usersDataSrc.login(args.email, args.password, context.jwt);
       }
     }
 };

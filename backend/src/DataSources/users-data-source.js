@@ -26,7 +26,7 @@ class UsersDataSource extends DataSource {
     return this.users.find(user => user.email === email);
   }
 
-  async signup(name, email, password) {
+  async signup(name, email, password, jwt) {
     //trim
     email = email.trim();
     password = password.trim();
@@ -44,15 +44,15 @@ class UsersDataSource extends DataSource {
     this.users.push(newUser);
     console.log(this.users);
 
-    return createAccessToken(newUser.id);
+    return createAccessToken(newUser.id, jwt);
   }
 
-  async login(email, password) {
+  async login(email, password, jwt) {
     let user = this.getUserByEmail(email);
     console.log(user);
     
     if(user && bcrypt.compareSync(password, user.password)){
-      return createAccessToken(user.id);
+      return createAccessToken(user.id, jwt);
     }
 
     return null;
