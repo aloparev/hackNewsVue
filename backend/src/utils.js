@@ -6,9 +6,9 @@ require('dotenv').config();
 
 const isAuthenticated = rule({ cache: 'contextual' })(
     async (parent, args, context) => {
-         console.log("utils",context.decodedJwt.id);
-         console.log(context.dataSources.usersDataSrc);
-         console.log(!! await context.dataSources.usersDataSrc.getUser(context.decodedJwt.id));
+        //console.log("utils",context.decodedJwt.id);
+        //console.log(context.dataSources.usersDataSrc);
+        //console.log(!! await context.dataSources.usersDataSrc.getUser(context.decodedJwt.id));
         //return (!! await context.dataSources.usersDataSrc.getUser(context.decodedJwt.id));
         
         const currUser = await context.dataSources.usersDataSrc.getUser(context.decodedJwt.id);

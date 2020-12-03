@@ -1,70 +1,42 @@
 const { createTestClient } = require("apollo-server-testing");
 const {gql} = require("apollo-server");
-const {ApolloServer, makeExecutableSchema} = require('apollo-server');
 const {User, UsersDataSource} = require("./users-data-source");
 const {Post, PostsDataSource} = require("./posts-data-source");
-const {applyMiddleware} = require('graphql-middleware');
-const server = require("../server");
-const bcrypt = require('bcrypt');
+const Server = require("../server");
+const bcrypt = require("bcrypt");
+const utils = require("../utils");
+const jwt = require("jsonwebtoken");
 
 let postsMemory = new PostsDataSource();
 let usersMemory = new UsersDataSource();
-const typeDefs = require('../schema');
-const resolvers = require('../resolver');
+let decoded
 
-const s = new server();
+beforeEach(() => {
+    decoded = {jwt}
+})
 
-const testContext = (testToken) => {
-    let token = testToken || ''
-    token = token.replace('Bearer ', '')
-    try {
-      const decodedJwt = jwt.verify(
-        token,
-        process.env.JWTSECRET
-      )
-      return { decodedJwt }
-    } catch (e) {
-      return {}
-    }
-  }
+const testContext = () => decoded
 
-  const schema = applyMiddleware(makeExecutableSchema({typeDefs, resolvers}));
-  const setupServer = (ps, us, testToken) => {
-    const server = new ApolloServer({
-    schema,
-      context: testContext(testToken), // not sure if this is the correct way. but we didn`t find another solution to add the token as request (see https://github.com/apollographql/apollo-server/issues/2277)
-      dataSources: () => ({
-        posts: new PostsDataSource(ps, us)
-      })
-    })
-    return createTestClient(server)
-  }
+const server = new Server({context: testContext, dataSources: ()=> ({postsDataSrc: postsMemory, usersDataSrc:usersMemory})});
+const {query, mutate } = createTestClient(server);
 
 describe("queries", () => {
-    const postData = [
-        { id: 'post1', title: 'Item 1', votes: 0, voters: [], author: {} }
-      ]
-      const userData = [
-        new User({name:'An', email:'an@gmail.com', password:'12345678'}),
-        new User({name:'Ilona', email:'ilona@gmail.com', password:'12345678'}),
-        new User({name:'Andrej', email:'andrej@gmail.com', password:'12345678'})        
-    ]
-      postData[0].author = userData[0];
-    
-    
-      const { query } = setupServer(postData, userData);
-
 
     describe("USERS", () => {
+        
         const GET_USERS = gql`
                 query {
                     users {
+                        id
                         name
+                        email
                     }
                 }
             `;
         
         it("returns empty array", async () => {
+            usersMemory.users = []
+
             await expect(query({query: GET_USERS}))
             .resolves
             .toMatchObject({
@@ -74,34 +46,26 @@ describe("queries", () => {
         })
 
         it("given users in the database", async () => {
-            usersMemory.users = [new User("Andrej")]
+            usersMemory.users = [new User({name:"Andrej", email:"andrej@gmail.com", password:"12345678"})]
             
             await expect(query({query: GET_USERS}))
             .resolves
             .toMatchObject({
                 errors: undefined,
-                data: { users: [{name:"Andrej"}]}
+                data: { users: [{id:expect.anything(String), name:"Andrej", email:"andrej@gmail.com"}]}
             })
         })
 
         it("indefinitely nestable query", async () => {
-            usersMemory.users =[
-                new User('An'),
-                new User('Ilona'),
-                new User('Andrej')
-            ];
-            
-            postsMemory.posts =[
-                new Post({title: "Just", author: {name: 'Ilona'}}),
-                new Post({title: "VueJS", author: {name: 'Andrej'}}),
-                new Post({title: "Rocks", author: {name: 'An'}}),
-                new Post({title: "CountrysRoad", author: {name: 'Ilona'}})
-            ];
+            usersMemory.users = [...utils.defaultUsers];
+            postsMemory.posts = [...utils.defaultPosts];
 
             const NESTABLE_QUERY_USERS = gql`
                 query {
                     users {
+                        id
                         name
+                        email
                         posts {
                             title
                             author {
@@ -118,10 +82,12 @@ describe("queries", () => {
                data :{ users:
                 [
                     {
+                        id: expect.anything(String),
                         name: "An",
+                        email: "an@gmail.com",
                         posts: [
                             {
-                                title: "Rocks",
+                                title: "Just",
                                 author: {
                                     name: "An",
                                 }
@@ -129,10 +95,12 @@ describe("queries", () => {
                         ]
                     },
                     {
+                        id: expect.anything(String),
                         name: "Ilona",
+                        email: "ilona@gmail.com",
                         posts: [
                             {
-                                title: "Just",
+                                title: "VueJS",
                                 author: {
                                     name: "Ilona"
                                 }
@@ -146,10 +114,12 @@ describe("queries", () => {
                         ],
                     },
                     {
+                        id: expect.anything(String),
                         name: "Andrej",
+                        email: "andrej@gmail.com",
                         posts: [
                             {
-                                title: "VueJS",
+                                title: "Rocks",
                                 author: {
                                     name: "Andrej",
                                 }
@@ -161,3 +131,140 @@ describe("queries", () => {
         });
     });
 });
+
+describe("mutations", () => {
+    beforeEach(() => {
+        usersMemory.users = [...utils.defaultUsers];
+        postsMemory.posts = [...utils.defaultPosts];
+    })
+
+    describe("SIGN UP", () => {
+        
+        const SIGN_UP = gql`
+            mutation ($name: String!, $email: String!, $password: String!){
+                signup(name: $name, email: $email, password: $password)
+            }
+        `;
+
+        const signup_action = () => mutate({
+            mutation: SIGN_UP,
+            variables: {
+                    name: "TestUser",
+                    email: "testUser@gmail.com",
+                    password: "12345678"
+                }
+            });
+        
+        it("checks signup", async () => {
+            await expect(signup_action())
+            .resolves
+            .toMatchObject({
+                errors: undefined,
+                data: {
+                    signup: expect.anything(String)
+                }
+            })
+        });
+
+        it("adds a new User", async () => {
+            expect(usersMemory.users).toHaveLength(3);
+            await signup_action()
+            expect(usersMemory.users).toHaveLength(4);
+        });
+
+        it("checks email is not taken by another", async () => {
+            await signup_action()
+            
+            await expect(signup_action())
+            .resolves
+            .toMatchObject({
+                errors:undefined,
+                data: {
+                    signup: null
+                }
+            })
+        });
+
+        it("checks passwords with a length of at least 8 characters", async () => {
+            
+            const signup_action_short_password = () => mutate({
+                mutation: SIGN_UP,
+                variables: {
+                        name: "TestUser",
+                        email: "testUser@gmail.com",
+                        password: "123456"
+                    }
+            });
+
+            await expect(signup_action_short_password())
+            .resolves
+            .toMatchObject({
+                errors:undefined,
+                data: {
+                    signup: null
+                }
+            })
+        });
+
+        it("calls signup() ", async () => {
+            usersMemory.signup = jest.fn(() => {});
+            await signup_action()
+            expect(usersMemory.signup).toHaveBeenCalledWith("TestUser","testUser@gmail.com","12345678", jwt);
+        });
+    });
+
+    describe("LOGIN", () => {
+        
+        const LOGIN = gql`
+            mutation ($email: String!, $password: String!){
+                login(email: $email, password: $password)
+            }
+        `;
+
+        const login_action = () => mutate({
+            mutation: LOGIN,
+            variables: {
+                    email: "andrej@gmail.com",
+                    password: "12345678"
+                }
+            });
+        
+        it("checks login", async () => {
+
+            await expect(login_action())
+            .resolves
+            .toMatchObject({
+                errors: undefined,
+                data: {
+                    login: expect.anything(String)
+                }
+            })
+        });
+
+        it("checks login with not exist user", async () => {
+
+            login_not_exist_user_action = () => mutate({
+                mutation: LOGIN,
+                variables: {
+                        email: "notExistUser@gmail.com",
+                        password: "12345678"
+                    }
+                });
+
+            await expect(login_not_exist_user_action())
+            .resolves
+            .toMatchObject({
+                errors: undefined,
+                data: {
+                    login: null
+                }
+            });
+        });
+
+        it("calls login() ", async () => {
+            usersMemory.login = jest.fn(() => {});
+            await login_action()
+            expect(usersMemory.login).toHaveBeenCalledWith("andrej@gmail.com","12345678", jwt);
+        });
+    });
+})

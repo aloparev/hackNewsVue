@@ -12,9 +12,9 @@ const {context} = require('./context')
 const postsMemory = new PostsDataSource();
 const usersMemory = new UsersDataSource();
 
-usersMemory.users = utils.defaultUsers;
+usersMemory.users = [...utils.defaultUsers];
 
-postsMemory.posts = utils.defaultPosts;
+postsMemory.posts = [...utils.defaultPosts];
 
 //Permissions
 const permissions = shield({
@@ -40,7 +40,7 @@ class Server {
       context,
       dataSources
     }
-
+    
     return new ApolloServer({...defaults, ...opts})
   }
 }

@@ -14,10 +14,10 @@ const context = ({req}) => {
 
         console.log("context here", decodedJwt)
         
-        return {decodedJwt};
+        return {decodedJwt, jwt};
 
     } catch(e) {
-        return {}
+        return {jwt}
     }
 }
 
