@@ -6,25 +6,29 @@ const { GraphQLError } = require('graphql');
 const Server = require("../server");
 const utils = require("../utils");
 
-let postsMemory 
 let usersMemory
+let postsMemory
+// let postsMemory = new PostsDataSource();
 let decoded
+let secondUser
+let thirdPost
 beforeEach(() => {
     decoded = {}
-    postsMemory = new PostsDataSource();
     usersMemory = new UsersDataSource();
     usersMemory.users = [...utils.defaultUsers];
-    postsMemory.posts = [...utils.defaultPosts];
     secondUser = usersMemory.users[1];
-    firstPost = postsMemory.posts[0];
+
+    postsMemory = new PostsDataSource();
+    postsMemory.posts = [...utils.defaultPosts];
+    thirdPost = postsMemory.posts[2];
+
 })
 
 const testContext = () => decoded
-const server = new Server({context: testContext, dataSources: ()=> ({postsDataSrc: postsMemory, usersDataSrc:usersMemory})});
+const server = new Server({context: testContext, dataSources: ()=> ({postsDataSrc: postsMemory, usersDataSrc: usersMemory})});
 const {query, mutate } = createTestClient(server);
 
 describe("queries", () => {
-
     describe("POSTS", () => {
         const GET_POSTS = gql`
                 query {
@@ -35,8 +39,9 @@ describe("queries", () => {
                     }
                 }
             `;
-        
+
         it("returns empty array", async () => {
+            postsMemory.posts = []
             await expect(query({query: GET_POSTS}))
             .resolves
             .toMatchObject({
@@ -47,17 +52,17 @@ describe("queries", () => {
 
         it("given posts in the database", async () => {
             postsMemory.posts = [new Post({title: "Rocks", votes:0, author:new User({name:'Andrej', email:'andrej@gmail.com', password:'12345678'})})];
-            
+
             await expect(query({query: GET_POSTS}))
             .resolves
             .toMatchObject({
                 errors: undefined,
-                data: { posts: [{id: expect.anything(String), title:"Rocks", votes:0}]}
+                data: { posts: [{id: expect.any(String), title:"Rocks", votes:0}]}
             })
         })
 
         it("indefinitely nestable query", async () => {
-            
+
             postsMemory.posts = [...utils.defaultPosts];
 
             const NESTABLE_QUERY_POSTS = gql`
@@ -77,14 +82,14 @@ describe("queries", () => {
                         }
                     }
                 }`;
-            
+
             await expect(query({query: NESTABLE_QUERY_POSTS}))
            .resolves
            .toMatchObject({
                errors: undefined,
                data :{posts:[
                     {
-                        id: expect.anything(String), 
+                        id: expect.any(String),
                         title: "Just",
                         author: {
                             name: "An",
@@ -100,7 +105,7 @@ describe("queries", () => {
                         }
                     },
                     {
-                        id: expect.anything(String), 
+                        id: expect.any(String),
                         title: "VueJS",
                         author: {
                             name: "Ilona",
@@ -122,7 +127,7 @@ describe("queries", () => {
                         }
                     },
                     {
-                        id: expect.anything(String), 
+                        id: expect.any(String),
                         title: "Rocks",
                         author: {
                             name: "Andrej",
@@ -138,7 +143,7 @@ describe("queries", () => {
                         }
                     },
                     {
-                        id: expect.anything(String), 
+                        id: expect.any(String),
                         title: "CountrysRoad",
                         author: {
                             name: "Ilona",
@@ -167,14 +172,14 @@ describe("queries", () => {
 
 describe("mutations", () => {
     beforeEach(() => {
-        server.context = () => ({decodedJwt: { id: secondUser.id}})//new User({name:'Ilona', email:'ilona@gmail.com', password:'12345678'})
+        server.context = () => ({decodedJwt: { id: secondUser.id}})
     })
 
     describe("WRITE_POST", () => {
         beforeEach(() => {
             postsMemory.posts = [];
         })
-        
+
         const WRITE_POST = gql`
             mutation($post: PostInput!) {
                 write(post: $post) {
@@ -186,7 +191,7 @@ describe("mutations", () => {
                 }
             }
         `;
-        
+
         const create_action = () => mutate({
                 mutation: WRITE_POST,
                 variables: {
@@ -195,9 +200,9 @@ describe("mutations", () => {
                         },
                     }
                 });
-        
+
         it('checks authenticated user', async () => {
-            
+
             server.context = {}//not login yet
 
             await expect(create_action())
@@ -222,7 +227,7 @@ describe("mutations", () => {
             .toMatchObject({
                 errors: undefined,
                 data: {
-                    write: {id: expect.anything(String) ,title:"New Post", author: { name:"Ilona" }}
+                    write: {id: expect.any(String) ,title:"New Post", author: { name:"Ilona" }}
                 }
             })
         });
@@ -234,13 +239,18 @@ describe("mutations", () => {
         });
     });
 
-    
+
     describe("ACTION_POST", () => {
-        let postId;
+        // console.log(thirdPost)
+        // let postId = thirdPost.id;
+        let postId
 
         beforeEach(() => {
-            postsMemory.posts = [new Post({title: "Rocks", votes:0, author:new User({name:'Andrej', email:'andrej@gmail.com', password:'12345678'})})];
-            postId = firstPost.id;
+            postsMemory.posts = [
+                new Post({title: "Rocks", votes:0, author:
+                    new User({name:'Andrej', email:'andrej@gmail.com', password:'12345678'})})
+            ];
+            postId = postsMemory.posts[0].id;
         });
 
         describe("UPVOTE", () => {
@@ -254,18 +264,18 @@ describe("mutations", () => {
                     }
                 }
             `;
-            
+
             const upvote_action = () => mutate({
                     mutation: UPVOTE_POST,
                     variables: {
                             id: postId
                         }
                     });
-            
+
             it('checks authenticated user', async () => {
-    
+
                 server.context = {}//not login yet
-    
+
                 await expect(upvote_action())
                 .resolves
                 .toMatchObject({
@@ -277,9 +287,9 @@ describe("mutations", () => {
             });
 
             it('update votes', async () => {
-                expect(firstPost.votes).toEqual(0);
+                expect(postsMemory.posts[0].votes).toEqual(0);
                 await upvote_action()
-                expect(firstPost.votes).toEqual(1);
+                expect(postsMemory.posts[0].votes).toEqual(1);
             });
 
             it('responds with upvoted Post', async () => {
@@ -289,7 +299,7 @@ describe("mutations", () => {
                 .toMatchObject({
                     errors: undefined,
                     data: {
-                        upvote: {id: expect.anything(String) ,title:"Rocks", votes:1}
+                        upvote: {id: expect.any(String) ,title:"Rocks", votes:1}
                     }
                 })
             });
