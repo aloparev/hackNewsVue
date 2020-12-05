@@ -4,10 +4,13 @@ const crypto = require('crypto');
 
 class Post {
   constructor (data) {
-    this.id = crypto.randomBytes(16).toString('hex');
+    this.id = this.assignId();
     this.voters = [];
-    this.votes = 0;
     Object.assign(this, data);
+  }
+
+  assignId(){
+    return crypto.randomBytes(16).toString('hex');
   }
 }
 
@@ -23,23 +26,15 @@ class PostsDataSource extends DataSource {
   }
 
   async createPost (data, currUser) {
-
-    if(currUser){
-      const newPost = new Post({...data, author:currUser});
+      const newPost = new Post({...data, author:currUser, votes:0});
       this.posts.push(newPost);
-      
       return newPost;
-    }
-
-    return null;
   }
 
   async votePost(id, value, currUser) {
     const post = this.posts.find(e => e.id == id);
 
     if (post) {
-
-      if(currUser) {
 
         if(!post.voters.find(voter => voter.id == currUser.id)){
          
@@ -49,9 +44,8 @@ class PostsDataSource extends DataSource {
           return post;
         }
         else{
-          throw new UserInputError("This user voted on this post already");
+          return post;
         }
-      }
     }
     else{
       throw new UserInputError("No post with this ID", {invalidArgs: [id]});
