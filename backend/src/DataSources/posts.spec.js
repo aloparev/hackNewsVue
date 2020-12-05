@@ -7,12 +7,12 @@ const Server = require("../server");
 const utils = require("../utils");
 
 let postsMemory = new PostsDataSource();
-let usersMemory = new UsersDataSource();
-usersMemory.users = [...utils.defaultUsers];
+let usersMemory
 let decoded
-
 beforeEach(() => {
     decoded = {}
+    usersMemory = new UsersDataSource();
+    usersMemory.users = [...utils.defaultUsers];
 })
 
 const testContext = () => decoded
@@ -42,7 +42,7 @@ describe("queries", () => {
         })
 
         it("given posts in the database", async () => {
-            postsMemory.posts = [new Post({title: "Rocks", author:new User({name:'Andrej', email:'andrej@gmail.com', password:'12345678'})})];
+            postsMemory.posts = [new Post({title: "Rocks", votes:0, author:new User({name:'Andrej', email:'andrej@gmail.com', password:'12345678'})})];
             
             await expect(query({query: GET_POSTS}))
             .resolves
@@ -235,7 +235,7 @@ describe("mutations", () => {
         let postId;
 
         beforeEach(() => {
-            postsMemory.posts = [new Post({title: "Rocks", author:new User({name:'Andrej', email:'andrej@gmail.com', password:'12345678'})})];
+            postsMemory.posts = [new Post({title: "Rocks", votes:0, author:new User({name:'Andrej', email:'andrej@gmail.com', password:'12345678'})})];
             postId = postsMemory.posts[0].id;
         });
 

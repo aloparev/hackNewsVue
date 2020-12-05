@@ -1,8 +1,14 @@
 const { RESTDataSource } = require('apollo-datasource-rest');
 
 class User{
-  constructor(name){
-    this.name = name
+  constructor(data){
+    data.password = this.createPassword(data.password);
+    Object.assign(this, data);
+  }
+
+  createPassword(password) {
+    this.id = crypto.randomBytes(16).toString('hex')
+    return password = bcrypt.hashSync(password, 10);
   }
 }
 
@@ -22,22 +28,15 @@ class UsersDataSource extends RESTDataSource {
   }
 
   async signup(name, email, password, jwt) {
-    //trim
     email = email.trim();
     password = password.trim();
       
-    /*
-      Validate:
-      - Make sure the email address is not taken by another user.
-      - Accept only passwords with a length of at least 8 characters.
-    */
     if(this.getUserByEmail(email) || password.length < 8){
       return null;
     }
     
     const newUser = new User({name, email, password});
     this.users.push(newUser);
-    console.log(this.users);
 
     return createAccessToken(newUser.id, jwt);
   }
