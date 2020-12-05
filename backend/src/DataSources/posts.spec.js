@@ -6,13 +6,17 @@ const { GraphQLError } = require('graphql');
 const Server = require("../server");
 const utils = require("../utils");
 
-let postsMemory = new PostsDataSource();
+let postsMemory 
 let usersMemory
 let decoded
 beforeEach(() => {
     decoded = {}
+    postsMemory = new PostsDataSource();
     usersMemory = new UsersDataSource();
     usersMemory.users = [...utils.defaultUsers];
+    postsMemory.posts = [...utils.defaultPosts];
+    secondUser = usersMemory.users[1];
+    firstPost = postsMemory.posts[0];
 })
 
 const testContext = () => decoded
@@ -163,7 +167,7 @@ describe("queries", () => {
 
 describe("mutations", () => {
     beforeEach(() => {
-        server.context = () => ({decodedJwt: { id: usersMemory.users[1].id}})//new User({name:'Ilona', email:'ilona@gmail.com', password:'12345678'})
+        server.context = () => ({decodedJwt: { id: secondUser.id}})//new User({name:'Ilona', email:'ilona@gmail.com', password:'12345678'})
     })
 
     describe("WRITE_POST", () => {
@@ -226,7 +230,7 @@ describe("mutations", () => {
         it('calls createPost() ', async () => {
             postsMemory.createPost = jest.fn(() => {});
             await create_action()
-            expect(postsMemory.createPost).toHaveBeenCalledWith({title:"New Post"}, usersMemory.users[1]);
+            expect(postsMemory.createPost).toHaveBeenCalledWith({title:"New Post"}, secondUser);
         });
     });
 
@@ -236,7 +240,7 @@ describe("mutations", () => {
 
         beforeEach(() => {
             postsMemory.posts = [new Post({title: "Rocks", votes:0, author:new User({name:'Andrej', email:'andrej@gmail.com', password:'12345678'})})];
-            postId = postsMemory.posts[0].id;
+            postId = firstPost.id;
         });
 
         describe("UPVOTE", () => {
@@ -273,9 +277,9 @@ describe("mutations", () => {
             });
 
             it('update votes', async () => {
-                expect(postsMemory.posts[0].votes).toEqual(0);
+                expect(firstPost.votes).toEqual(0);
                 await upvote_action()
-                expect(postsMemory.posts[0].votes).toEqual(1);
+                expect(firstPost.votes).toEqual(1);
             });
 
             it('responds with upvoted Post', async () => {
@@ -301,7 +305,7 @@ describe("mutations", () => {
             it('calls upvotePost() ', async () => {
                 postsMemory.votePost = jest.fn(() => {});
                 await upvote_action()
-                expect(postsMemory.votePost).toHaveBeenCalledWith(postId, 1, usersMemory.users[1]);
+                expect(postsMemory.votePost).toHaveBeenCalledWith(postId, 1, secondUser);
             });
         });
     })
