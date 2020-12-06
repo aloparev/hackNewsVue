@@ -185,6 +185,7 @@ describe("mutations", () => {
                 write(post: $post) {
                     id
                     title
+                    votes
                     author {
                         name
                      }
@@ -227,7 +228,7 @@ describe("mutations", () => {
             .toMatchObject({
                 errors: undefined,
                 data: {
-                    write: {id: expect.any(String) ,title:"New Post", author: { name:"Ilona" }}
+                    write: {id: expect.any(String) ,title:"New Post", votes:0, author: { name:"Ilona" }}
                 }
             })
         });
@@ -235,7 +236,7 @@ describe("mutations", () => {
         it('calls createPost() ', async () => {
             postsMemory.createPost = jest.fn(() => {});
             await create_action()
-            expect(postsMemory.createPost).toHaveBeenCalledWith({title:"New Post"}, secondUser);
+            expect(postsMemory.createPost).toHaveBeenCalledWith({title:"New Post"});
         });
     });
 
@@ -287,9 +288,9 @@ describe("mutations", () => {
             });
 
             it('update votes', async () => {
-                expect(postsMemory.posts[0].votes).toEqual(0);
+                expect(postsMemory.posts[0].getVotes()).toEqual(0);
                 await upvote_action()
-                expect(postsMemory.posts[0].votes).toEqual(1);
+                expect(postsMemory.posts[0].getVotes()).toEqual(1);
             });
 
             it('responds with upvoted Post', async () => {
@@ -305,17 +306,17 @@ describe("mutations", () => {
             });
 
             it('upvote a post only once', async () => {
-                expect(postsMemory.posts[0].votes).toEqual(0);
+                expect(postsMemory.posts[0].getVotes()).toEqual(0);
                 await upvote_action()
-                expect(postsMemory.posts[0].votes).toEqual(1);
+                expect(postsMemory.posts[0].getVotes()).toEqual(1);
                 await upvote_action()
-                expect(postsMemory.posts[0].votes).toEqual(1);
+                expect(postsMemory.posts[0].getVotes()).toEqual(1);
             });
 
             it('calls upvotePost() ', async () => {
                 postsMemory.votePost = jest.fn(() => {});
                 await upvote_action()
-                expect(postsMemory.votePost).toHaveBeenCalledWith(postId, 1, secondUser);
+                expect(postsMemory.votePost).toHaveBeenCalledWith(postId, 1);
             });
         });
     })

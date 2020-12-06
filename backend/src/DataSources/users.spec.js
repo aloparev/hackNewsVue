@@ -2,6 +2,7 @@ const { createTestClient } = require("apollo-server-testing");
 const {gql} = require("apollo-server");
 const {User, UsersDataSource} = require("./users-data-source");
 const {Post, PostsDataSource} = require("./posts-data-source");
+const { GraphQLError } = require('graphql');
 const Server = require("../server");
 const bcrypt = require("bcrypt");
 const utils = require("../utils");
@@ -9,8 +10,10 @@ const jwt = require("jsonwebtoken");
 
 let postsMemory = new PostsDataSource();
 let usersMemory = new UsersDataSource();
-let decoded
 
+process.env.JWT_SECRET='TEST_THECOUNTRYROAD';
+
+let decoded
 beforeEach(() => {
     decoded = {jwt}
 })
@@ -165,6 +168,12 @@ describe("mutations", () => {
                 }
             })
         });
+        
+        it("returns a JWT", async () => {
+            let {data} = await signup_action()
+            const {id} = jwt.verify(data.signup, process.env.JWT_SECRET)
+            expect(id).toEqual(usersMemory.users[usersMemory.users.length - 1].id)
+        })
 
         it("adds a new User", async () => {
             expect(usersMemory.users).toHaveLength(3);
@@ -178,7 +187,7 @@ describe("mutations", () => {
             await expect(signup_action())
             .resolves
             .toMatchObject({
-                errors:undefined,
+                errors: [new GraphQLError("This email already is taken by another user")],
                 data: {
                     signup: null
                 }
@@ -199,7 +208,7 @@ describe("mutations", () => {
             await expect(signup_action_short_password())
             .resolves
             .toMatchObject({
-                errors:undefined,
+                errors: [new GraphQLError("Accept only passwords with a length of at least 8 characters")],
                 data: {
                     signup: null
                 }
@@ -209,7 +218,7 @@ describe("mutations", () => {
         it("calls signup() ", async () => {
             usersMemory.signup = jest.fn(() => {});
             await signup_action()
-            expect(usersMemory.signup).toHaveBeenCalledWith("TestUser","testUser@gmail.com","12345678", jwt);
+            expect(usersMemory.signup).toHaveBeenCalledWith("TestUser","testUser@gmail.com","12345678");
         });
     });
 
@@ -264,7 +273,7 @@ describe("mutations", () => {
         it("calls login() ", async () => {
             usersMemory.login = jest.fn(() => {});
             await login_action()
-            expect(usersMemory.login).toHaveBeenCalledWith("andrej@gmail.com","12345678", jwt);
+            expect(usersMemory.login).toHaveBeenCalledWith("andrej@gmail.com","12345678");
         });
     });
 })
