@@ -1,5 +1,5 @@
-require('dotenv').config();
-const {rule} = require('graphql-shield');
+require('dotenv').config()
+const { rule } = require('graphql-shield')
 
 const isAuthenticated = rule({ cache: 'contextual' })(
     async (parent, args, context) => {
@@ -22,7 +22,6 @@ const isEmailTaken = rule({ cache: 'contextual' })(
         }
     },
 )
-
 
 const isPasswordShort = rule({ cache: 'contextual' })(
     async (parent, args) => {

@@ -1,24 +1,19 @@
-require('dotenv').config();
-const jwt = require('jsonwebtoken');
+require('dotenv').config()
+const jwt = require('jsonwebtoken')
 
-const context = ({req}) => {
-    
-    let token = req.headers.authorization || '';
-    token = token.replace('Bearer ', '');
-    
-    try {
-        const decodedJwt = jwt.verify(
-          token,
-          process.env.JWT_SECRET
-        );
+const context = ({ req }) => {
+  let token = req.headers.authorization || ''
+  token = token.replace('Bearer ', '')
 
-        //console.log("context here", decodedJwt)
-        
-        return {decodedJwt, jwt};
-
-    } catch(e) {
-        return {jwt}
-    }
+  try {
+    const decodedJwt = jwt.verify(
+      token,
+      process.env.JWT_SECRET
+    )
+    return { decodedJwt, jwt }
+  } catch (e) {
+    return { jwt }
+  }
 }
 
-module.exports = {context};
+module.exports = { context }

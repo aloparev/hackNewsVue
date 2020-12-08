@@ -1,10 +1,10 @@
-const {ApolloServer, makeExecutableSchema, UserInputError} = require('apollo-server');
+const {ApolloServer, makeExecutableSchema} = require('apollo-server');
 const {PostsDataSource} = require('./DataSources/posts-data-source');
 const {UsersDataSource} = require('./DataSources/users-data-source');
 const typeDefs = require('./schema');
 const resolvers = require('./resolver');
 const {applyMiddleware} = require('graphql-middleware');
-const {shield, and, not} = require('graphql-shield');
+const {shield, and} = require('graphql-shield');
 const utils = require('./utils');
 const {isAuthenticated, isPasswordShort, isEmailTaken, mayVote, mayDelete, postFound, enteredCorrectPassword} = require('./permissions');
 const {context} = require('./context')
@@ -28,23 +28,22 @@ const permissions = shield({
   },
 }, { allowExternalErrors: true })
 
-const dataSources = () => ({postsDataSrc: postsMemory, usersDataSrc: usersMemory});
+const dataSources = () => ({ postsDataSrc: postsMemory, usersDataSrc: usersMemory })
 
 const schema = applyMiddleware(
-  makeExecutableSchema({typeDefs, resolvers}),
+  makeExecutableSchema({ typeDefs, resolvers }),
   permissions
 )
 
 class Server {
-
-  constructor(opts) {
+  constructor (opts) {
     const defaults = {
       schema,
       context,
       dataSources
     }
-    
-    return new ApolloServer({...defaults, ...opts})
+
+    return new ApolloServer({ ...defaults, ...opts })
   }
 }
 
