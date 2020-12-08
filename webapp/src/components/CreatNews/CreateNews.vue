@@ -11,12 +11,9 @@
 </template>
 
 <script>
-<<<<<<< Updated upstream
-=======
 import gql from "graphql-tag";
 require("regenerator-runtime/runtime");
 
->>>>>>> Stashed changes
 export default {
   name: "CreateNews",
   data() {

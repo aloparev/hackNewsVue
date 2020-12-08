@@ -1,10 +1,10 @@
-const {ApolloServer, makeExecutableSchema, UserInputError} = require('apollo-server');
+const {ApolloServer, makeExecutableSchema} = require('apollo-server');
 const {PostsDataSource} = require('./DataSources/posts-data-source');
 const {UsersDataSource} = require('./DataSources/users-data-source');
 const typeDefs = require('./schema');
 const resolvers = require('./resolver');
 const {applyMiddleware} = require('graphql-middleware');
-const {shield, and, not} = require('graphql-shield');
+const {shield, and} = require('graphql-shield');
 const utils = require('./utils');
 const {isAuthenticated, isPasswordShort, isEmailTaken, mayVote, mayDelete, postFound, enteredCorrectPassword} = require('./permissions');
 const {context} = require('./context')
@@ -38,8 +38,7 @@ const schema = applyMiddleware(
 class Server {
   constructor (opts) {
     const defaults = {
-      typeDefs,
-      resolvers,
+      schema,
       context,
       dataSources
     }

@@ -1,4 +1,4 @@
-const { RESTDataSource } = require('apollo-datasource-rest');
+const {DataSource} = require('apollo-datasource');
 const {UserInputError} = require('apollo-server');
 const crypto = require('crypto');
 
@@ -18,11 +18,11 @@ class Post {
   }
 }
 
-class PostsDataSource extends RESTDataSource {
+class PostsDataSource extends DataSource {
   
   constructor() {
     super();
-    this.posts = []
+    this.posts = [];
   }
 
   initialize({context}) {
@@ -34,7 +34,7 @@ class PostsDataSource extends RESTDataSource {
   }
 
   async allPosts () {
-    return this.posts
+    return this.posts;
   }
 
   async getPost(id){

@@ -1,4 +1,7 @@
-const { RESTDataSource } = require('apollo-datasource-rest');
+const {DataSource} = require('apollo-datasource');
+const {createAccessToken} = require('../token')
+const crypto = require('crypto');
+const bcrypt = require('bcrypt');
 
 class User{
   constructor(data){
@@ -16,7 +19,7 @@ class User{
   }
 }
 
-class UsersDataSource extends RESTDataSource {
+class UsersDataSource extends DataSource {
   
   constructor() {
     super();

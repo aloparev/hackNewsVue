@@ -5,7 +5,8 @@
         "es2021": true
     },
     "extends": [
-        "standard"
+        "eslint:recommended",
+        "plugin:vue/essential"
     ],
     "parserOptions": {
         "ecmaVersion": 12

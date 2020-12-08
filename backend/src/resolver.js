@@ -14,7 +14,7 @@ const resolvers = {
     }
   },
   Post: {
-    votes: async (parent, args, context) => {
+    votes: async (parent) => {
       return parent.getVotes()
     }
   },

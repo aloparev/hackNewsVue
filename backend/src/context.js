@@ -10,9 +10,6 @@ const context = ({ req }) => {
       token,
       process.env.JWT_SECRET
     )
-
-    // console.log("context here", decodedJwt)
-
     return { decodedJwt, jwt }
   } catch (e) {
     return { jwt }
