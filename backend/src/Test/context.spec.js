@@ -9,12 +9,15 @@ const token = require("../token");
 const jwt = require("jsonwebtoken");
 const {context} = require("../context");
 
+process.env.JWT_SECRET='TEST_THECOUNTRYROAD';
+
 let reqMock
 let resMock
 let usersMemory= new UsersDataSource();
 let postsMemory = new PostsDataSource();
 usersMemory.users = [...utils.defaultUsers];
 postsMemory.posts = [...utils.defaultPosts];
+
 
 const testContext = () => context({ req: reqMock, res: resMock })
 const server = new Server({context: testContext, dataSources: ()=> ({postsDataSrc: postsMemory, usersDataSrc: usersMemory})});
