@@ -35,7 +35,7 @@ const resolvers = {
       return await context.dataSources.usersDataSrc.signup(args.name, args.email, args.password)
     },
     login: async (parent, args, context) => {
-      return await context.dataSources.usersDataSrc.login(args.email, args.password)
+      return await context.dataSources.usersDataSrc.login(args.email)
     }
   }
 }

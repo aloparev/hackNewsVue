@@ -35,14 +35,14 @@ class UsersDataSource extends RESTDataSource {
     return this.users.find(user => user.email === email);
   }
 
-  async signup(name, email, password, jwt) {
+  async signup(name, email, password) {
     const newUser = new User({name, email, password});
     this.users.push(newUser);
 
     return createAccessToken(newUser.id, this.context.jwt);
   }
 
-  async login(email, password, jwt) {
+  async login(email) {
     let user = this.getUserByEmail(email);
       return createAccessToken(user.id, this.context.jwt);
   }

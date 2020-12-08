@@ -31,6 +31,11 @@ beforeEach(() => {
 describe('mutations', () => {
   
     describe('WRITE', () => {
+
+        beforeEach(() => {
+          usersMemory.users = [...utils.defaultUsers];
+        })
+
         const WRITE_POST = gql`
             mutation($post: PostInput!) {
                 write(post: $post) {
@@ -54,11 +59,8 @@ describe('mutations', () => {
             });
   
        describe('unauthenticated', () => {
-        beforeEach(() => {
-          reqMock = { headers: {} }
-        })
-  
-        it('throws authorization error', async () => {
+
+        it('throws authorization error when headers does not have JWT', async () => {
           await expect(create_action())
           .resolves
           .toMatchObject({
@@ -69,7 +71,29 @@ describe('mutations', () => {
               write: null
             }
           })
-        })
+        });
+
+        it('throws authorization error when user has been deleted in database', async () => {
+          let user_token = token.createAccessToken(usersMemory.users[0].id, jwt);
+          usersMemory.users.splice(0,1)
+          
+          reqMock = {
+            headers: {
+              authorization: `Bearer ${user_token}`
+            }
+          }
+
+          await expect(create_action())
+          .resolves
+          .toMatchObject({
+            errors: [
+              new GraphQLError('Sorry, your credentials are wrong!')
+            ],
+            data: {
+              write: null
+            }
+          })
+        });
       })
   
       describe('authenticated', () => {
@@ -101,6 +125,10 @@ describe('mutations', () => {
     });
 
     describe('UPVOTE', () => {
+      
+      beforeEach(() => {
+        usersMemory.users = [...utils.defaultUsers];
+      });
 
       const UPVOTE_POST = gql`
           mutation($id: ID!) {
@@ -120,11 +148,8 @@ describe('mutations', () => {
               });
   
        describe('unauthenticated', () => {
-        beforeEach(() => {
-          reqMock = { headers: {} }
-        })
   
-        it('throws authorization error', async () => {
+        it('throws authorization error when headers does not have JWT', async () => {
           await expect(upvote_action())
           .resolves
           .toMatchObject({
@@ -135,7 +160,29 @@ describe('mutations', () => {
               upvote: null
             }
           })
-        })
+        });
+
+        it('throws authorization error when user has been deleted in database', async () => {
+          let user_token = token.createAccessToken(usersMemory.users[0].id, jwt);
+          usersMemory.users.splice(0,1)
+          
+          reqMock = {
+            headers: {
+              authorization: `Bearer ${user_token}`
+            }
+          }
+
+          await expect(upvote_action())
+          .resolves
+          .toMatchObject({
+            errors: [
+              new GraphQLError('Sorry, your credentials are wrong!')
+            ],
+            data: {
+              upvote: null
+            }
+          });
+        });
       })
   
       describe('authenticated', () => {
