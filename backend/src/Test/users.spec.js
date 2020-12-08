@@ -272,7 +272,7 @@ describe("mutations", () => {
         it("calls login() ", async () => {
             usersMemory.login = jest.fn(() => {});
             await login_action()
-            expect(usersMemory.login).toHaveBeenCalledWith("andrej@gmail.com","12345678");
+            expect(usersMemory.login).toHaveBeenCalledWith("andrej@gmail.com");
         });
     });
 })
