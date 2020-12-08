@@ -10,8 +10,6 @@ const jwt = require("jsonwebtoken");
 let postsMemory = new PostsDataSource();
 let usersMemory = new UsersDataSource();
 
-process.env.JWT_SECRET='TEST_THECOUNTRYROAD';
-
 let decoded
 beforeEach(() => {
     decoded = {jwt}
