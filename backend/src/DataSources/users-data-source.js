@@ -27,8 +27,8 @@ class UsersDataSource extends RESTDataSource {
     this.context = context;
   }
 
-  async getUser(id) {
-    return this.users.find(user => user.id === id);
+  async getUser() {
+    return this.users.find(user => user.id === this.context.decodedJwt.id);
   }
 
   getUserByEmail(email) {
@@ -44,12 +44,7 @@ class UsersDataSource extends RESTDataSource {
 
   async login(email, password, jwt) {
     let user = this.getUserByEmail(email);
-    
-    if(user && user.comparePassword(password)){
       return createAccessToken(user.id, this.context.jwt);
-    }
-
-    return null;
   }
 
   async allUsers() {

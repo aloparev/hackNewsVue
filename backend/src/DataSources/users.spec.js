@@ -1,10 +1,9 @@
 const { createTestClient } = require("apollo-server-testing");
 const {gql} = require("apollo-server");
 const {User, UsersDataSource} = require("./users-data-source");
-const {Post, PostsDataSource} = require("./posts-data-source");
+const {PostsDataSource} = require("./posts-data-source");
 const { GraphQLError } = require('graphql');
 const Server = require("../server");
-const bcrypt = require("bcrypt");
 const utils = require("../utils");
 const jwt = require("jsonwebtoken");
 
@@ -55,7 +54,7 @@ describe("queries", () => {
             .resolves
             .toMatchObject({
                 errors: undefined,
-                data: { users: [{id:expect.anything(String), name:"Andrej", email:"andrej@gmail.com"}]}
+                data: { users: [{id:expect.any(String), name:"Andrej", email:"andrej@gmail.com"}]}
             })
         })
 
@@ -85,7 +84,7 @@ describe("queries", () => {
                data :{ users:
                 [
                     {
-                        id: expect.anything(String),
+                        id: expect.any(String),
                         name: "An",
                         email: "an@gmail.com",
                         posts: [
@@ -98,7 +97,7 @@ describe("queries", () => {
                         ]
                     },
                     {
-                        id: expect.anything(String),
+                        id: expect.any(String),
                         name: "Ilona",
                         email: "ilona@gmail.com",
                         posts: [
@@ -117,7 +116,7 @@ describe("queries", () => {
                         ],
                     },
                     {
-                        id: expect.anything(String),
+                        id: expect.any(String),
                         name: "Andrej",
                         email: "andrej@gmail.com",
                         posts: [
@@ -164,7 +163,7 @@ describe("mutations", () => {
             .toMatchObject({
                 errors: undefined,
                 data: {
-                    signup: expect.anything(String)
+                    signup: expect.any(String)
                 }
             })
         });
@@ -208,7 +207,7 @@ describe("mutations", () => {
             await expect(signup_action_short_password())
             .resolves
             .toMatchObject({
-                errors: [new GraphQLError("Accept only passwords with a length of at least 8 characters")],
+                errors: [new GraphQLError("Not Authorised!")],
                 data: {
                     signup: null
                 }
@@ -245,12 +244,12 @@ describe("mutations", () => {
             .toMatchObject({
                 errors: undefined,
                 data: {
-                    login: expect.anything(String)
+                    login: expect.any(String)
                 }
             })
         });
 
-        it("checks login with not exist user", async () => {
+        it("throws GraphQLError if no user exists with given email address", async () => {
 
             login_not_exist_user_action = () => mutate({
                 mutation: LOGIN,
@@ -263,7 +262,7 @@ describe("mutations", () => {
             await expect(login_not_exist_user_action())
             .resolves
             .toMatchObject({
-                errors: undefined,
+                errors: [new GraphQLError("Not Authorised!")],
                 data: {
                     login: null
                 }

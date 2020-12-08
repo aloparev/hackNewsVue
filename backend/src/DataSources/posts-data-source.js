@@ -37,6 +37,10 @@ class PostsDataSource extends RESTDataSource {
     return this.posts
   }
 
+  async getPost(id){
+    return this.posts.find(e => e.id === id);
+  }
+
   async createPost (data) {
       const newPost = new Post({...data, author: this.currUser()});
       this.posts.push(newPost);
@@ -46,46 +50,15 @@ class PostsDataSource extends RESTDataSource {
 
   async votePost(id, value) {
     const post = this.posts.find(e => e.id === id);
-
-    if (post) {
-
-      if(!post.voters.get(this.currUser().id)){
-
         post.voters.set(this.currUser().id, value);
         return post;
-      }
-      else{
-        throw new UserInputError("This user voted on this post already");
-      }
-    }
-    else{
-      throw new UserInputError("No post with this ID", {invalidArgs: [id]});
-    }
   }
 
-  async deletePost(id) {
-    
+  async deletePost(id) { 
     const post = this.posts.find(e => e.id === id);
-
-  async deletePost (id) {
-    const post = this.posts.find(e => e.id == id);
-    if (post) {
-      
-      if(this.currUser().id === post.author.id) {
-
         const deleteIndex = this.posts.indexOf(post);
         this.posts.splice(deleteIndex,1);
-        
         return post;
-
-      }else {
-        throw new Error("Only authors of a post are allowed to delete their own posts");
-      }
-    }
-    else{
-      throw new UserInputError("No post with this ID", {invalidArgs: [id]});
-    }
-
   }
 } 
 module.exports = {Post, PostsDataSource}
