@@ -1,7 +1,7 @@
 const { createTestClient } = require("apollo-server-testing");
 const {gql} = require("apollo-server");
-const {Post, PostsDataSource} = require("./posts-data-source");
-const {User, UsersDataSource} = require("./users-data-source");
+const {Post, PostsDataSource} = require("../DataSources/posts-data-source");
+const {User, UsersDataSource} = require("../DataSources/users-data-source");
 const { GraphQLError } = require('graphql');
 const Server = require("../server");
 const utils = require("../utils");
