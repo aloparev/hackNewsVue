@@ -8,10 +8,8 @@ const utils = require("../utils");
 
 let usersMemory
 let postsMemory
-// let postsMemory = new PostsDataSource();
 let decoded
 let secondUser
-let thirdPost
 beforeEach(() => {
     decoded = {}
     usersMemory = new UsersDataSource();
@@ -242,8 +240,6 @@ describe("mutations", () => {
 
 
     describe("ACTION_POST", () => {
-        // console.log(thirdPost)
-        // let postId = thirdPost.id;
         let postId
 
         beforeEach(() => {

@@ -1,4 +1,4 @@
-const {ApolloServer, makeExecutableSchema} = require('apollo-server');
+const {ApolloServer, makeExecutableSchema, UserInputError} = require('apollo-server');
 const {PostsDataSource} = require('./DataSources/posts-data-source');
 const {UsersDataSource} = require('./DataSources/users-data-source');
 const typeDefs = require('./schema');
@@ -6,9 +6,8 @@ const resolvers = require('./resolver');
 const {applyMiddleware} = require('graphql-middleware');
 const {shield, and, not} = require('graphql-shield');
 const utils = require('./utils');
-const {isAuthenticated, isPasswordShort, isEmailTaken} = require('./permissions');
+const {isAuthenticated, isPasswordShort, isEmailTaken, mayVote, mayDelete, postFound, enteredCorrectPassword} = require('./permissions');
 const {context} = require('./context')
-const { UserInputError } = require('apollo-server');
 
 const postsMemory = new PostsDataSource();
 const usersMemory = new UsersDataSource();
@@ -21,13 +20,11 @@ postsMemory.posts = [...utils.defaultPosts];
 const permissions = shield({
   Mutation: {
     write:isAuthenticated,
-    upvote:isAuthenticated,
-    delete:isAuthenticated,
-    downvote:isAuthenticated,
-    signup:and(
-      not(isEmailTaken, new UserInputError("This email already is taken by another user")),
-      not(isPasswordShort, new UserInputError("Accept only passwords with a length of at least 8 characters"))
-    )
+    login: enteredCorrectPassword,
+    upvote:and(isAuthenticated,mayVote, postFound),
+    delete:and(isAuthenticated,mayDelete, postFound),
+    downvote:and(isAuthenticated,mayVote, postFound),
+    signup:and(isEmailTaken, isPasswordShort)
   },
 }, { allowExternalErrors: true })
 
