@@ -1,2 +1,4 @@
 /.hello-encrypted-world filter=git-crypt diff=git-crypt
+backend/.env filter=git-crypt diff=git-crypt
+backend/temp filter=git-crypt diff=git-crypt
 
