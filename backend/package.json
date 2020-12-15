@@ -12,9 +12,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@graphql-tools/delegate": "^7.0.7",
+    "@graphql-tools/stitch": "^7.1.4",
+    "@graphql-tools/wrap": "^7.0.3",
     "apollo-datasource": "^0.7.2",
     "apollo-server": "^2.19.0",
     "bcrypt": "^5.0.0",
+    "cross-fetch": "^3.0.6",
     "dotenv": "^8.2.0",
     "dotenv-flow": "^3.2.0",
     "eslint-config-standard": "^16.0.2",

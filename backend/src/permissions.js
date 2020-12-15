@@ -1,11 +1,9 @@
-require('dotenv').config()
-const { rule } = require('graphql-shield')
+const { ForbiddenError } = require('apollo-server');
+const { rule, shield, allow, deny, and} = require('graphql-shield');
 
 const isAuthenticated = rule({ cache: 'contextual' })(
     async (parent, args, context) => {
-        const currUser = await context.dataSources.usersDataSrc.getUser();
-        if(currUser){
-            context.currUser = currUser
+        if(!!context.person){
             return true;
         }
         return new Error("Sorry, your credentials are wrong!");
@@ -85,4 +83,30 @@ const enteredCorrectPassword = rule({ cache: 'contextual' })(
   }
 )
 
-module.exports = {isAuthenticated, isEmailTaken, isPasswordShort, mayVote, mayDelete, postFound, enteredCorrectPassword}
+const permissions = shield({
+    Query: {
+        '*': deny,
+        posts: allow,
+        post: allow,
+        people: allow,
+        person: allow,
+    },
+    Person:{
+        password:deny
+    },
+    Mutation: {
+        '*': deny,
+        write: isAuthenticated,
+        login: allow,
+        upvote: and(isAuthenticated, mayVote, postFound),
+        delete: and(isAuthenticated, mayDelete, postFound),
+        downvote: and(isAuthenticated, mayVote, postFound),
+        signup: allow
+    },
+  }, {
+    allowExternalErrors: true,
+    fallbackRule: allow,
+    fallbackError: new ForbiddenError('Not Authorised!'),
+  });
+
+module.exports = permissions

@@ -1,5 +1,13 @@
-const Server = require('./server')
+const Server = require('./server');
 
-new Server().listen().then(({ url }) => {
-  console.log(`🚀  Server ready at ${url}`)
-})
+const playground = {
+  settings: {
+    'schema.polling.enable': false,
+  },
+};
+
+(async () => {
+  const server = await Server({ playground });
+  const { url } = await server.listen();
+  console.log(`🚀  Server ready at ${url}`);
+})();
