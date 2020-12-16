@@ -99,8 +99,10 @@ module.exports = ({ subschema }) => ({
       }`;
       const {data:{person}} = await executor(query)
       
-      if(bcrypt.compareSync(password, person.password)) {
-        return context.jwtSign({ person: { id: person.id } })
+      if(person) {
+        if(bcrypt.compareSync(password, person.password)) {
+          return context.jwtSign({ person: { id: person.id } })
+        }
       }
 
       return null;
