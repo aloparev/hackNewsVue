@@ -16,7 +16,9 @@ const executor = async ({ document, variables }) => {
   return fetchResult.json();
 };
 
-module.exports = async () => wrapSchema({
+const GraphCmsSchema = async () => wrapSchema({
   schema: await introspectSchema(executor),
   executor,
 });
+
+module.exports = {executor, GraphCmsSchema}

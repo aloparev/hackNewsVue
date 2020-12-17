@@ -1,9 +1,8 @@
 const { delegateToSchema } = require('@graphql-tools/delegate');
-const executor = require('./graphCms/executor');
 const bcrypt = require('bcrypt');
-const {UserInputError} = require('apollo-server');
+const {UserInputError, AuthenticationError, gql} = require('apollo-server');
 
-module.exports = ({ subschema }) => ({
+module.exports = ([{ schema, executor }]) => ({
   Query: {
   },
   Person:{
@@ -42,70 +41,60 @@ module.exports = ({ subschema }) => ({
       return null;
     },
     signup: async (parent, args, context) => {
-
       const { name, email, password } = args;
 
-      const checkEmailquery = `{
-        person(where:{email:"${email}"}){
-          id
-        }
-      }`;
-      const {data:{person}} = await executor(checkEmailquery);
-      console.log("Person has same email:", person)
-
-      if(!person) {
-          
-          const createQuery = `
-            mutation{
-              createPerson(data: {name:"${name}", email:"${email}",password:"${bcrypt.hashSync(password, 10)}"}){
-                id
-              }
-            }
-          `;
-
-          const {data:{createPerson}} = await executor(createQuery)
-          console.log("Created Person: ",createPerson)
-
-          // //publish Person
-          // const publishQuery = `
-          //   mutation{
-          //     publishPerson(where:{id:"${createPerson.id}"}, to: PUBLISHED){
-          //       id
-          //     }
-          //   }
-          // `;
-
-          // const {data: {publishPerson}} = await executor(publishQuery)
-          // console.log("Published Person",publishPerson)
-          
-          if(createPerson) {
-            return context.jwtSign({ person: { id: createPerson.id } })
+      //check email exist
+      let document  = gql`
+        query ($email: String!) {
+          person(where:{email:$email}){
+            id
           }
+        }`;
 
-      }else {
-        return new UserInputError("Email already exists")
-      }
+      let response = await executor({ document, variables: { email } });
+      if (response.errors) throw new UserInputError(response.errors.map((e) => e.message).join('\n'));
+      const { person } = response.data;
 
-      return null;
-      
+      if (!person) {
+
+        //insert the new person in database
+        document = gql`
+        mutation ($name: String!, $email: String!, $password: String!) {
+          createPerson(data: {name: $name, email: $email, password: $password}) {
+            id
+          }
+        }
+        `;
+
+        const passwordHash = bcrypt.hashSync(password, 10);
+        response = await executor({ document, variables : { name, email, password: passwordHash} });
+
+        if (response.errors) throw new UserInputError(response.errors.map((e) => e.message).join('\n'));
+
+        return context.jwtSign({ person: { id: response.data.createPerson.id } });
+      } 
+
+      throw new UserInputError("Email already exist");
     },
     login: async (parent, args, context, info) => {
-      const { email, password } = args;
-      const query = `{
-          person(where:{email:"${email}"}){
+      
+      const document  = gql`
+        query ($email: String!) {
+          person(where:{email:$email}){
             id
             password
           }
-      }`;
-      const {data:{person}} = await executor(query)
-      
-      if(person) {
-        if(bcrypt.compareSync(password, person.password)) {
+        }`;
+
+      const { email, password } = args;
+      const { data, errors } = await executor({ document, variables: { email, password } });
+      if (errors) throw new UserInputError(errors.map((e) => e.message).join('\n'));
+      const { person } = data;
+      if(person && bcrypt.compareSync(password, person.password)) {
           return context.jwtSign({ person: { id: person.id } })
-        }
       }
 
-      return null;
+      throw new AuthenticationError('Wrong email/password combination');
     }
   }
 });

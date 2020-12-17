@@ -3,15 +3,15 @@ const { applyMiddleware } = require('graphql-middleware');
 const typeDefs = require('./typeDefs');
 const Resolvers = require('./resolver');
 const permissions = require('./permissions');
-const GraphCmsSchema = require('./graphCms/schema');
+const {GraphCmsSchema, executor} = require('./graphCms/schema');
 
 module.exports = async () => {
   const graphCmsSchema = await GraphCmsSchema();
-  const resolvers = Resolvers({ subschema: graphCmsSchema });
+  const resolvers = Resolvers([{ schema: graphCmsSchema, executor }]);
 
   let gatewaySchema = stitchSchemas({
     subschemas: [
-      graphCmsSchema,
+      {schema: graphCmsSchema},
     ],
     typeDefs,
     resolvers,
