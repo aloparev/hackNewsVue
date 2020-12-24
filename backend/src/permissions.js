@@ -20,20 +20,6 @@ const isPasswordShort = rule({ cache: 'contextual' })(
     },
 )
 
-const mayVote = rule({ cache: 'contextual' })(
-    async (parent, args, context) => {
-        const currUser = await context.dataSources.usersDataSrc.getUser();
-        const userId = currUser.id;
-        const currPost = await context.dataSources.postsDataSrc.getPost(args.id);
-        if(!(currPost.voters.has(userId))){
-            return true;
-        }
-        else{
-            return new Error("This user voted on that post already.");
-        }
-    },
-)
-
 const mayDelete = rule({ cache: 'contextual' })(
     async (parent, args, context) => {
         const currUser = await context.dataSources.usersDataSrc.getUser();
@@ -43,17 +29,6 @@ const mayDelete = rule({ cache: 'contextual' })(
             return true
         }else{
             return new Error("Only the author of a post may delete a post.");
-        }
-    },
-)
-
-const postFound = rule({ cache: 'contextual' })(
-    async (parent, args, context) => {
-        const currPost = await context.dataSources.postsDataSrc.getPost(args.id);
-        if (currPost){
-        return true
-        }else{
-            return new Error('No post with this ID found.');
         }
     },
 )
@@ -69,13 +44,16 @@ const permissions = shield({
     Person:{
         password:deny
     },
+    Post: {
+        voters: deny
+    },
     Mutation: {
         '*': deny,
         write: isAuthenticated,
         login: allow,
-        upvote: and(isAuthenticated, mayVote, postFound),
-        delete: and(isAuthenticated, mayDelete, postFound),
-        downvote: and(isAuthenticated, mayVote, postFound),
+        upvote: isAuthenticated,
+        delete: isAuthenticated,
+        downvote: isAuthenticated,
         signup: isPasswordShort
     },
   }, {
