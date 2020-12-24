@@ -20,6 +20,7 @@ const typeDefs = gql`
   }
 
   extend type Post {
+    votes: Int
     authored: Boolean
   }
 `

@@ -2,6 +2,22 @@ const { delegateToSchema } = require('@graphql-tools/delegate');
 const bcrypt = require('bcrypt');
 const {UserInputError, AuthenticationError, gql} = require('apollo-server');
 
+//check user exist
+const checkUserExist = async (userId, executor) => {
+  let document  = gql`
+  query ($id: ID!) {
+    person(where:{id: $id}){
+      id
+    }
+  }`;
+
+  let response = await executor({ document, variables: {id: userId } });
+  if (response.errors)
+    return false;
+  
+  return !!response.data.person;
+} 
+
 module.exports = ([{ schema, executor }]) => ({
   Query: {
   },
@@ -12,6 +28,10 @@ module.exports = ([{ schema, executor }]) => ({
     }
   },
   Post:{
+    votes: {
+      selectionSet: '{ voters {value} }',
+      resolve: (post) => post.voters.map(e => e.value).reduce((sum, e) => sum+=e)
+    },
     authored:{
       selectionSet: '{ author {id} }',
       resolve: async (post, args, context, info) =>  {
@@ -24,9 +44,33 @@ module.exports = ([{ schema, executor }]) => ({
     }
   },
   Mutation: {
-    write: async (parent, args, context) => {
-      //TODO
-      return null;
+    write: async (parent, args, context, info) => {
+
+      if(!await checkUserExist(context.person.id, executor)) { //user is not exist
+        throw new UserInputError("Sorry, your credentials are wrong!");
+      }
+
+      //write post
+      const {post} = args
+      const param = { 
+        data: {
+          title: post.title,
+          author: { 
+            connect : { id : context.person.id }
+          }
+        }
+      }
+
+      const createPost = await delegateToSchema({
+        schema,
+        operation: 'mutation',
+        fieldName: 'createPost',
+        args: param,
+        context,
+        info
+      });
+
+      return createPost;
     },
     upvote: async (parent, args, context) => {
       //TODO

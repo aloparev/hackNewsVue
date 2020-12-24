@@ -1,23 +1,10 @@
 const { ForbiddenError } = require('apollo-server');
+const { delegateToSchema } = require('@graphql-tools/delegate');
 const { rule, shield, allow, deny, and} = require('graphql-shield');
 
 const isAuthenticated = rule({ cache: 'contextual' })(
-    async (parent, args, context) => {
-        if(!!context.person){
-            return true;
-        }
-        return new Error("Sorry, your credentials are wrong!");
-    },
-)
-
-const isEmailTaken = rule({ cache: 'contextual' })(
-    async (parent, args, context) => {
-        args.email = args.email.trim();
-        if(! await context.dataSources.usersDataSrc.getUserByEmail(args.email)){
-            return true
-        }else{
-            return new Error("This email already is taken by another user")
-        }
+    async (parent, args, context, info) => {
+        return !!context.person.id
     },
 )
 
@@ -71,18 +58,6 @@ const postFound = rule({ cache: 'contextual' })(
     },
 )
 
-const enteredCorrectPassword = rule({ cache: 'contextual' })(
-    async (parent, args, context) => {
-        const userCorrect = await context.dataSources.usersDataSrc.getUserByEmail(args.email);
-        const passwordIsRight = await userCorrect.comparePassword(args.password);
-        if(userCorrect && passwordIsRight){
-            return true;
-        }else{
-            return new Error('wrong email/password combination');
-        }
-  }
-)
-
 const permissions = shield({
     Query: {
         '*': deny,
@@ -101,7 +76,7 @@ const permissions = shield({
         upvote: and(isAuthenticated, mayVote, postFound),
         delete: and(isAuthenticated, mayDelete, postFound),
         downvote: and(isAuthenticated, mayVote, postFound),
-        signup: allow
+        signup: isPasswordShort
     },
   }, {
     allowExternalErrors: true,
