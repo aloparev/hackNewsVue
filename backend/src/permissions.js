@@ -20,19 +20,6 @@ const isPasswordShort = rule({ cache: 'contextual' })(
     },
 )
 
-const mayDelete = rule({ cache: 'contextual' })(
-    async (parent, args, context) => {
-        const currUser = await context.dataSources.usersDataSrc.getUser();
-        const userId = currUser.id;
-        const currPost = await context.dataSources.postsDataSrc.getPost(args.id);
-        if (userId === currPost.author.id){
-            return true
-        }else{
-            return new Error("Only the author of a post may delete a post.");
-        }
-    },
-)
-
 const permissions = shield({
     Query: {
         '*': deny,
