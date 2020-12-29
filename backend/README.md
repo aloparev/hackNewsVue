@@ -3,7 +3,7 @@
 2. [Setup](#setup)
 3. [Run](#run)
 4. [Supported queries and mutations](#supported-mutations-and-queries)
-5. [Contribute]()
+5. [Contribute](#contribution)
 
 <hr/>
 
