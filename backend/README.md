@@ -8,23 +8,22 @@
 ## WHY do we use Graphcms?
 
 #### :fast_forward: Easy to setup Database
-Just visit "https://graphcms.com" and through a few steps we now have a database and graphql native.:ok_hand:
+Headless CMS like "graphcms.com" provides a fully functional set up in just a few steps with graphql native.:ok_hand:
 
 #### :baby: Easy to use
-Graphcms provides a lot of tutorials at "https://graphcms.com/docs" and many examples across many platforms and libraries "https://graphcms.com/docs/develop/code-examples".
+Graphcms provides a lot of tutorials at "https://graphcms.com/docs" to get started. Code examples for specific use cases are also available under "https://graphcms.com/docs/develop/code-examples".
 
-#### :people_holding_hands: Teamwork is more efficient 
-Because the server is always online, all team members can easily update the status and synchronize the data in the database with each other.
+#### :people_holding_hands: Teamwork is more efficient 
+Because the server is always online, all team members can easily update and synchronize the data, keeping the database up to date.
 
 #### :muscle: Create Schema easily with Powerful Editors
-Graphcms supports a variety of GUIs and utilities to quickly and explicitly create a schema. In particular, we just drag, drop, and fill options.
+Graphcms supports a variety of utilities to quickly and explicitly create a schema.  In particular, the GUI allows to simple drag and drop the models.
 
-####	:handshake: Support creating Mutation and Query
-When we create a Model in Schema. Then Graphcms will also automatically create a series of mutation APIs that support the Create, Read, Update and Delete of the Model. This saves us a lot of time and code management.
-In addition, Graphcms also provides us with a utility interface "API Playground". This will help us create complex GraphQL queries.
+#### :handshake: Support creating Mutation and Query
+When creating a Model in Schema, Graphcms automatically provides basic CRUD functionality throught an API. This saves us a lot of time and boiler plate code. In addition, Graphcms has an interface called "API Playground" to interact with the scheme live or compose complex GraphQL queries.
 
 #### :lock: Security
-Setting up access security, Team settings, roles and permissions on Graphcms is also extremely simple.
+Setting up access security, team settings, roles and permissions on Graphcms is also extremely simple.
 
 <hr/>
 
