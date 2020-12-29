@@ -2,7 +2,7 @@
 1. [WHY do we use Graphcms?](#why-do-we-use-graphcms)
 2. [Setup](#setup)
 3. [Run](#run)
-4. [Supported queries and mutations]()
+4. [Supported queries and mutations](#supported-mutations-and-queries)
 5. [Contribute]()
 
 <hr/>
