@@ -3,20 +3,14 @@ const {gql} = require("apollo-server");
 const { PostsDataSource} = require("../DataSources/posts-data-source");
 const { UsersDataSource} = require("../DataSources/users-data-source");
 const Server = require ("../server");
-const jwt = require("jsonwebtoken");
+const context = require("../context");
 
 let postsMemory = new PostsDataSource();
 let usersMemory = new UsersDataSource();
 
-let decoded
-beforeEach(() => {
-    decoded = {jwt}
-})
-
-const testContext = () => decoded
-const configs = {context: testContext, dataSources: ()=> ({postsDataSrc: postsMemory, usersDataSrc:usersMemory})};
-const server =  Server( configs );
-
+let reqMock = {headers:{}}
+const testContext = () => context({ req: reqMock})
+const server = Server({context: testContext,  dataSources: ()=> ({postsDataSrc: postsMemory, usersDataSrc:usersMemory})});
 
 describe("queries", () => {
 
@@ -49,18 +43,12 @@ describe("queries", () => {
             await expect(response)
             .resolves
             .toMatchObject({
-
-                
-
                 errors: undefined,
                 data: { people: [
                     {id:expect.any(String), name:"An", email:"an@gmail.com"},
                     {id:expect.any(String), name:"Ilona", email:"ilona@gmail.com"},
                     {id:expect.any(String), name:"Andrej", email:"andrej@gmail.com"},
-                    {id:expect.any(String), name:"Nguyen An", email:"test2@gmail.com"},
-                    {id:expect.any(String), name:"Nguyen An", email:"test3@gmail.com"},
-                    {id:expect.any(String), name:"Nguyen An", email:"test4@gmail.com"},
-                    {id:expect.any(String), name:"bob", email:"bob@gmail.com"},
+                    {id:expect.any(String), name:"Bob", email:"bob@gmail.com"},
                     {id:expect.any(String), name:"TestUser", email:"testUser@gmail.com"},
                 ]}
             })
@@ -101,42 +89,6 @@ describe("queries", () => {
                                 author: {
                                     name: "An",
                                 }
-                            },
-                            {
-                                title: "Test_23",
-                                author: {
-                                    name: "An",
-                                }
-                            },
-                            {
-                                title: "bla",
-                                author: {
-                                    name: "An",
-                                }
-                            },
-                            {
-                                title: "bla",
-                                author: {
-                                    name: "An",
-                                }
-                            },
-                            {
-                                title: "bla",
-                                author: {
-                                    name: "An",
-                                }
-                            },
-                            {
-                                title: "bla",
-                                author: {
-                                    name: "An",
-                                }
-                            },
-                            {
-                                title: "bla",
-                                author: {
-                                    name: "An",
-                                }
                             }
                         ]
                     },
@@ -152,7 +104,7 @@ describe("queries", () => {
                                 }
                             },
                             {
-                                title: "ContryRoads",
+                                title: "CountryRoads",
                                 author: {
                                     name: "Ilona"
                                 }
@@ -174,39 +126,9 @@ describe("queries", () => {
                     },
                     {
                         id: expect.any(String),
-                        name: "Nguyen An",
-                        email: "test2@gmail.com",
-                        posts: [],
-                    },
-                    {
-                        id: expect.any(String),
-                        name: "Nguyen An",
-                        email: "test3@gmail.com",
-                        posts: [],
-                    },
-                    {
-                        id: expect.any(String),
-                        name: "Nguyen An",
-                        email: "test4@gmail.com",
-                        posts: [],
-                    },
-                    {
-                        id: expect.any(String),
-                        name: "bob",
+                        name: "Bob",
                         email: "bob@gmail.com",
                         posts: [
-                            {
-                                title: "bla",
-                                author: {
-                                    name: "bob",
-                                }
-                            },
-                            {
-                                title: "bla",
-                                author: {
-                                    name: "bob",
-                                }
-                            }
                         ],
                     },
                     {
@@ -214,7 +136,6 @@ describe("queries", () => {
                         name: "TestUser",
                         email: "testUser@gmail.com",
                         posts: [
-                            
                         ],
                     },
                ]}
@@ -321,8 +242,8 @@ describe("mutations", () => {
 
             const { mutate } = createTestClient(await server);
             const response = await login_action(
-                "bob@gmail.com",
-                "1pass1234",
+                "an@gmail.com",
+                "12345678",
                 mutate
               );
 
