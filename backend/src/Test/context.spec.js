@@ -5,7 +5,6 @@ const {UsersDataSource} = require("../DataSources/users-data-source");
 const { GraphQLError } = require('graphql');
 const Server = require("../server");
 const utils = require("../utils");
-const token = require("../token");
 const jwt = require("jsonwebtoken");
 const {context} = require("../context");
 
@@ -72,7 +71,7 @@ describe('mutations', () => {
         });
 
         it('throws authorization error when user has been deleted in database', async () => {
-          let user_token = token.createAccessToken(usersMemory.users[0].id, jwt);
+          let user_token = usersMemory.createAccessToken(usersMemory.users[0].id, jwt);
           usersMemory.users.splice(0,1)
           
           reqMock = {
@@ -95,7 +94,7 @@ describe('mutations', () => {
       })
   
       describe('authenticated', () => {
-        let user_token = token.createAccessToken(usersMemory.users[0].id, jwt);
+        let user_token = usersMemory.createAccessToken(usersMemory.users[0].id, jwt);
 
         beforeEach(() => {
           reqMock = {
@@ -161,7 +160,7 @@ describe('mutations', () => {
         });
 
         it('throws authorization error when user has been deleted in database', async () => {
-          let user_token = token.createAccessToken(usersMemory.users[0].id, jwt);
+          let user_token = usersMemory.createAccessToken(usersMemory.users[0].id, jwt);
           usersMemory.users.splice(0,1)
           
           reqMock = {
@@ -184,7 +183,7 @@ describe('mutations', () => {
       })
   
       describe('authenticated', () => {
-        let user_token = token.createAccessToken(usersMemory.users[0].id, jwt);
+        let user_token = usersMemory.createAccessToken(usersMemory.users[0].id, jwt);
 
         beforeEach(() => {
           reqMock = {

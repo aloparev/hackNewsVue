@@ -1,6 +1,5 @@
 const { ForbiddenError } = require('apollo-server');
-const { delegateToSchema } = require('@graphql-tools/delegate');
-const { rule, shield, allow, deny, and} = require('graphql-shield');
+const { rule, shield, allow, deny} = require('graphql-shield');
 
 const isAuthenticated = rule({ cache: 'contextual' })(
     async (parent, args, context, info) => {

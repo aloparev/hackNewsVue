@@ -1,5 +1,4 @@
 const {DataSource} = require('apollo-datasource');
-const {createAccessToken} = require('../token')
 const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 
@@ -30,6 +29,10 @@ class UsersDataSource extends DataSource {
     this.context = context;
   }
 
+  createAccessToken(id){
+    return this.context.jwt.sign({ id }, process.env.JWT_SECRET, { algorithm: 'HS256', expiresIn: '1h' });
+  }
+
   async getUser() {
     return this.users.find(user => user.id === this.context.decodedJwt.id);
   }
@@ -42,16 +45,19 @@ class UsersDataSource extends DataSource {
     const newUser = new User({name, email, password});
     this.users.push(newUser);
 
-    return createAccessToken(newUser.id, this.context.jwt);
+    return createAccessToken(newUser.id);
   }
 
   async login(email) {
     let user = this.getUserByEmail(email);
-      return createAccessToken(user.id, this.context.jwt);
+      return createAccessToken(user.id);
   }
 
   async allUsers() {
     return this.users;
+  }
+  reset(){
+    this.users=[];
   }
 }
 module.exports = {User, UsersDataSource}

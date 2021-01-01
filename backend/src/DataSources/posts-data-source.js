@@ -60,5 +60,9 @@ class PostsDataSource extends DataSource {
         this.posts.splice(deleteIndex,1);
         return post;
   }
+
+  reset(){
+   this.posts=[];
+  }
 } 
 module.exports = {Post, PostsDataSource}
