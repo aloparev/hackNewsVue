@@ -1,16 +1,24 @@
 const { createTestClient } = require("apollo-server-testing");
 const {gql} = require("apollo-server");
-const { PostsDataSource} = require("../DataSources/posts-data-source");
-const { UsersDataSource} = require("../DataSources/users-data-source");
 const Server = require ("../server");
-const context = require("../context");
+const {GraphCmsSchema} = require("../graphCms/schema")
+const jwt = require("jsonwebtoken");
+const {JWT_SECRET} = require('../config')
 
-let postsMemory = new PostsDataSource();
-let usersMemory = new UsersDataSource();
+jest.mock(GraphCmsSchema);
 
-let reqMock = {headers:{}}
-const testContext = () => context({ req: reqMock})
-const server = Server({context: testContext,  dataSources: ()=> ({postsDataSrc: postsMemory, usersDataSrc:usersMemory})});
+let query;
+let mutate;
+let contextMock;
+
+beforeEach(async () => {
+    console.log(JWT_SECRET)
+    const jwtSign = (payload) => jwt.sign(payload, JWT_SECRET, { algorithm: 'HS256', expiresIn: '1h' });
+    contextMock = {jwtSign}
+    const server = await Server({ context: () => contextMock });
+    const testClient = createTestClient(server);
+    ({ query , mutate } = testClient);
+});
 
 describe("queries", () => {
 
@@ -25,22 +33,10 @@ describe("queries", () => {
                     }
                 }
             `;
-        const action = (query) => {
-            return query({ query: GET_USERS });
-          };
-      
-          beforeEach(() => {
-            postsMemory.reset();
-            usersMemory.reset();
-          });
         
-
         it("given users in the database", async () => {
 
-            const { query } = createTestClient(await server);
-            const response = action(query);
-
-            await expect(response)
+            await expect(query({ query: GET_USERS }))
             .resolves
             .toMatchObject({
                 errors: undefined,
@@ -50,13 +46,12 @@ describe("queries", () => {
                     {id:expect.any(String), name:"Andrej", email:"andrej@gmail.com"},
                     {id:expect.any(String), name:"Bob", email:"bob@gmail.com"},
                     {id:expect.any(String), name:"TestUser", email:"testUser@gmail.com"},
+                    {id:expect.any(String), name:"Christoph Stach", email:"notexistingmail@htw-berlin.de"},
                 ]}
             })
         })
 
         it("indefinitely nestable query", async () => {
-
-            const { query } = createTestClient(await server);
 
             const NESTABLE_QUERY_USERS = gql`
                 query {
@@ -138,6 +133,13 @@ describe("queries", () => {
                         posts: [
                         ],
                     },
+                    {
+                        id: expect.any(String),
+                        name: "Christoph Stach",
+                        email: "notexistingmail@htw-berlin.de",
+                        posts: [
+                        ],
+                    },
                ]}
            })
         });
@@ -145,11 +147,7 @@ describe("queries", () => {
 });
 
 describe("mutations", () => {
-    beforeEach(() => {
-        postsMemory.reset();
-        usersMemory.reset();
-        
-    })
+
     describe("SIGN UP", () => {
         
         const SIGN_UP = gql`
@@ -160,16 +158,15 @@ describe("mutations", () => {
 
         const signup_action = (name, email, password, mutate) => {
             return mutate({
-            mutation: SIGN_UP,
-            variables: {
-                    name,
-                    email,
-                    password
-                }
-            })
+                mutation: SIGN_UP,
+                variables: {
+                        name,
+                        email,
+                        password
+                    }
+                });
             };
         it("throws error if user is already registered", async () => {
-            const { mutate } = createTestClient(await server);
             const response = signup_action(
                 "TestUser",
                 "testUser@gmail.com",
@@ -177,16 +174,15 @@ describe("mutations", () => {
                 mutate
               );
             await expect(response)
-            .resolves.toMatchObject({
-                errors: [expect.objectContaining({ message: "Email already exist" })],
-                data: {
-                signup: null,
-                },
-            });
+                .resolves.toMatchObject({
+                    errors: [expect.objectContaining({ message: "Email already exist" })],
+                    data: {
+                    signup: null,
+                    },
+                });
             });
         
         it("throws error if the password is too short", async () => {
-            const { mutate } = createTestClient(await server);
             const response = signup_action(
                 "TestUser2",
                 "testUser2@gmail.com",
@@ -222,7 +218,6 @@ describe("mutations", () => {
             };
 
         it("throws error if credentials are wrong", async () => {
-            const { mutate } = createTestClient(await server);
             const response = login_action(
                 "notexisting@gmail.com",
                 "12345678",
@@ -240,7 +235,6 @@ describe("mutations", () => {
 
         it("validates login if credentials are right", async () => {
 
-            const { mutate } = createTestClient(await server);
             const response = await login_action(
                 "an@gmail.com",
                 "12345678",

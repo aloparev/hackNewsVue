@@ -3,7 +3,8 @@ const { applyMiddleware } = require('graphql-middleware');
 const typeDefs = require('./typeDefs');
 const Resolvers = require('./resolver');
 const permissions = require('./permissions');
-const {GraphCmsSchema, executor} = require('./graphCms/schema');
+const GraphCmsSchema = require('./graphCms/schema');
+const executor = require('./graphCms/executor');
 
 module.exports = async () => {
   const graphCmsSchema = await GraphCmsSchema();
