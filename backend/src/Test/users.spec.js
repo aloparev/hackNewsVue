@@ -46,7 +46,6 @@ describe("queries", () => {
                     {id:expect.any(String), name:"Andrej", email:"andrej@gmail.com"},
                     {id:expect.any(String), name:"Bob", email:"bob@gmail.com"},
                     {id:expect.any(String), name:"TestUser", email:"testUser@gmail.com"},
-                    {id:expect.any(String), name:"Christoph Stach", email:"notexistingmail@htw-berlin.de"},
                 ]}
             })
         })
@@ -132,14 +131,7 @@ describe("queries", () => {
                         email: "testUser@gmail.com",
                         posts: [
                         ],
-                    },
-                    {
-                        id: expect.any(String),
-                        name: "Christoph Stach",
-                        email: "notexistingmail@htw-berlin.de",
-                        posts: [
-                        ],
-                    },
+                    }
                ]}
            })
         });
@@ -196,6 +188,20 @@ describe("mutations", () => {
                   signup: null,
                   },
               });
+        })
+
+        it("signs up new user", async () => {
+            const response = await signup_action(
+                "NewUser",
+                "newuser@gmail.com",
+                "12345678",
+                mutate
+              );
+            expect(response).toMatchObject({
+                data: {
+                    signup: expect.any(String)
+                },
+                });
         })
     });
 
