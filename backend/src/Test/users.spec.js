@@ -11,10 +11,10 @@ let query;
 let mutate;
 let contextMock;
 
+const jwtSign = (payload) => jwt.sign(payload, JWT_SECRET, { algorithm: 'HS256', expiresIn: '1h' });
+contextMock = {jwtSign}
+
 beforeEach(async () => {
-    console.log(JWT_SECRET)
-    const jwtSign = (payload) => jwt.sign(payload, JWT_SECRET, { algorithm: 'HS256', expiresIn: '1h' });
-    contextMock = {jwtSign}
     const server = await Server({ context: () => contextMock });
     const testClient = createTestClient(server);
     ({ query , mutate } = testClient);
