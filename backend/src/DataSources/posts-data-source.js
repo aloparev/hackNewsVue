@@ -1,5 +1,4 @@
 const {DataSource} = require('apollo-datasource');
-const {UserInputError} = require('apollo-server');
 const crypto = require('crypto');
 
 class Post {
