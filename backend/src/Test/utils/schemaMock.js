@@ -3,7 +3,7 @@ const { applyMiddleware } = require('graphql-middleware');
 const { makeExecutableSchema } = require('apollo-server')
 const { graphql } = require('graphql');
 const casual = require('casual');
-
+const mocks = require('./mockData');
 const permissions = require('../../permissions');
 
 const fs = require('fs');
@@ -22,17 +22,6 @@ const schema =  makeExecutableSchema({
   resolverValidationOptions: { requireResolversForResolveType: false }
  });
  casual.seed(123);
- const mocks = {
-  Person: () => ({
-    name:  'TestUser',
-    id: 1,
-    email: 'testmail@gmail.com',
-    password: '12345678'
-  }),
-  Post: () => ({
-    title: "Mocktitle"
-  })
-};
 const schemaWithMocks = addMocksToSchema({ schema,mocks,preserveResolvers: true });
 const permissionSchema = applyMiddleware(schemaWithMocks, permissions);
 return ((await graphql( permissionSchema, query, contextMock)));
