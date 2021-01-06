@@ -2,6 +2,8 @@
 
 ## Setup
 
+Before running test you need to create a file .env in backend root with the JWT secret, e.g. JWT_SECRET=jsonwebtoken
+
 ``` bash
 # setup
 yarn install
