@@ -2,6 +2,7 @@ const { addMocksToSchema }= require ('@graphql-tools/mock');
 const { applyMiddleware } = require('graphql-middleware');
 const { makeExecutableSchema } = require('apollo-server')
 const { graphql } = require('graphql');
+const { join }= require( 'path');
 const casual = require('casual');
 const mocks = require('./mockData');
 const permissions = require('../../permissions');
@@ -15,7 +16,7 @@ const contextMock = {jwtSign}
 
 
 module.exports = async (query) => {
-  const content = await readFile('./src/Test/utils/schema.gql','utf8');
+  const content = await readFile(join(__dirname, 'schema.gql'),'utf8');
    const typeDefs =  content;
 const schema =  makeExecutableSchema({ 
   typeDefs,
@@ -23,8 +24,9 @@ const schema =  makeExecutableSchema({
  });
  casual.seed(123);
 const schemaWithMocks = addMocksToSchema({ schema,mocks,preserveResolvers: true });
-const permissionSchema = applyMiddleware(schemaWithMocks, permissions);
-return ((await graphql( permissionSchema, query, contextMock)));
+//const permissionSchema = applyMiddleware(schemaWithMocks, permissions);
+//return ((await graphql( permissionSchema, query, contextMock)));
+return schemaWithMocks;
 };
 
 

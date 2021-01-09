@@ -1,31 +1,55 @@
-const mockedSchema = require('./utils/schemaMock');
+//const mockedSchema = require('./utils/schemaMock');
+const Server = require('../server');
+const{ createTestClient }= require('apollo-server-testing');
+const { ApolloServer, gql } =require( 'apollo-server');
+const jwt = require('jsonwebtoken');
+let query;
+
+jest.mock('../graphCms/schema');
+jest.mock('../graphCms/executor');
+jest.mock('../rootSchema');
+jest.mock('../context');
+
+let contextMock;
+
+
+beforeEach(async () => {
+    contextMock = {};
+  const server = await Server(ApolloServer, { context: () => contextMock });
+  const testClient = createTestClient(server);
+  ({ query,mutate } = testClient);
+});
+
+
 describe("queries", () => {
     describe("USERS", () => {
         
         it("given users in the database", async () => {
-            const gql_query = `
-            query people{
-                people {
-                    id
-                    name
-                    email
-                }
+            const PEOPLE = gql`
+            {
+              people {
+                id
+                name
+              }
             }
-        `;
-        const response = await mockedSchema(gql_query);
-
-        expect(response).toMatchObject({
-                data: { people: [
-                    {id:"1", name:"TestUser", email:"testmail@gmail.com"},
-                    {id:"1", name:"TestUser", email:"testmail@gmail.com"}
-                ]}
-            })
+          `;              
+                await expect(query({ query: PEOPLE }))
+                  .resolves
+                  .toMatchObject({
+                    errors: undefined,
+                    data: {
+                      people: [
+                        { id: expect.any(String), name: 'TestUser' },
+                        { id: expect.any(String), name: 'TestUser' },
+                      ],
+                    },
+                  });
         })
 
         it("indefinitely nestable query", async () => {
 
-            const gql_query = `
-            query people{
+            const gql_query = gql`
+            {
                 people {
                     id
                     name
@@ -39,10 +63,12 @@ describe("queries", () => {
                 }
             }
             `;
-            const response = await mockedSchema(gql_query);
-
-            expect(response).toMatchObject({
-               data :{ people:
+            await expect(query({ query: gql_query }))
+            .resolves
+            .toMatchObject({
+              errors: undefined,
+              data: {
+                people:                
                 [
                     { id:"1", 
                     name:"TestUser", 
@@ -80,8 +106,9 @@ describe("queries", () => {
                             }
                         ]
                     }
-               ]}
-           })
+               ]
+              },
+            });
         });
     });
 });
@@ -89,15 +116,37 @@ describe("queries", () => {
 describe("mutations", () => {
 
     describe("SIGN UP", () => {
+
+        const SIGN_UP = gql`
+        mutation ($name: String!, $email: String!, $password: String!){
+            signup(name: $name, email: $email, password: $password)
+        }
+    `;
+
+
+        const signup_action = (name, email, password, mutate) => {
+            return mutate({
+                mutation: SIGN_UP,
+                variables: {
+                        name,
+                        email,
+                        password
+                    }
+                });
+            };
         
         it("throws error if user is already registered", async () => {
-            const gql_mutation = `
-            mutation signup{
-                signup(name:"TestUser", email: "testmail@gmail.com", password: "12345678")
-            }
-        `;
-        const response = await mockedSchema(gql_mutation);
-        expect(response).toMatchObject({
+        const response = signup_action(
+                "TestUser",
+                "testUser@gmail.com",
+                "12345678",
+                mutate
+              );
+
+              const qu =  await response;
+              console.log(qu);
+            await expect(response)
+                .resolves.toMatchObject({
                     errors: [expect.objectContaining({ message: "Email already exist" })],
                     data: {
                     signup: null,
@@ -106,13 +155,14 @@ describe("mutations", () => {
             });
         
         it("throws error if the password is too short", async () => {
-            const gql_mutation = `
-            mutation signup{
-                signup(name:"testuser", email: "testuser@gmail.com", password: "123")
-            }
-        `;
-            const response = await mockedSchema(gql_mutation);
-              expect(response).toMatchObject({
+            const response = signup_action(
+                "TestUser2",
+                "testUser2@gmail.com",
+                "123",
+                mutate
+              );
+              await expect(response)
+              .resolves.toMatchObject({
                   errors: [expect.objectContaining({ message: "Not Authorised!" })],
                   data: {
                   signup: null,
@@ -121,31 +171,48 @@ describe("mutations", () => {
         })
 
         it("signs up new user", async () => {
-        const gql_mutation = `
-        mutation signup{
-            signup(name:"testuser", email: "testuser@gmail.com", password: "12345678")
-        }
-    `;
-        const response = await mockedSchema(gql_mutation);
-        expect(response).toMatchObject({
+        const response = signup_action(
+            "Notexisting",
+            "notexisting@gmail.com",
+            "12345678",
+            mutate
+            );
+            await expect(response)
+            .resolves.toMatchObject({
+                errors: [undefined],
                 data: {
                     signup: expect.any(String)
                 },
-                });
+            });
         })
     });
 
     describe("LOGIN", () => {
 
-        it("throws error if credentials are wrong", async () => {
-              const gql_mutation = `
-            mutation login{
-                login(email: "Hello World", password: "Hello World")
-            }
-        `;
-        const response = await mockedSchema(gql_mutation);
-        expect(response).toMatchObject({
+        const LOGIN = gql`
+        mutation ($email: String!, $password: String!){
+            login(email: $email, password: $password)
+        }
+    `;
 
+    const login_action = ( email, password, mutate) => {
+        return mutate({
+        mutation: LOGIN,
+        variables: {
+                email,
+                password
+            }
+        })
+        };
+
+        it("throws error if credentials are wrong", async () => {
+            const response = login_action(
+                "notexisting@gmail.com",
+                "12345678",
+                mutate
+              );
+              await expect(response)
+              .resolves.toMatchObject({
                   errors: [expect.objectContaining({ message: "Wrong email/password combination" })],
                   data: {
                   login: null,
@@ -155,13 +222,14 @@ describe("mutations", () => {
         });
 
         it("validates login if credentials are right", async () => {
-            const gql_mutation = `
-            mutation login{
-                login(email: "testmail@gmail.com", password: "12345678")
-            }
-        `;
-        const response = await mockedSchema(gql_mutation);
-        expect(response).toMatchObject({
+            const response = await login_action(
+                "an@gmail.com",
+                "12345678",
+                mutate
+              );
+
+            expect(response).toMatchObject({
+                errors: undefined,
             data: {
                 login: expect.any(String)
             },
