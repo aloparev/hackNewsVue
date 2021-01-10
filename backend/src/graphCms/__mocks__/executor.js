@@ -10,7 +10,7 @@ module.exports = async ({ document, variables }) => {
     const sch = await schema();
     const query = print(document);
     const operation = document.definitions[0].operation;
-    //console.log(query);
+    console.log(query);
     let ops;
 
     if(operation === 'mutation' || operation === 'query'){

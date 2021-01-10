@@ -151,14 +151,14 @@ describe("mutations", () => {
                 "12345678",
                 mutate
                 );
-            console.log(response.data.signup);
+            console.log(response);
 
         const obj = {
             req: {
             headers: { authorization: response.data.signup},
             },
         };
-        contextMock  = context(obj);
+        server.context  = context(obj);
         });
 
         
