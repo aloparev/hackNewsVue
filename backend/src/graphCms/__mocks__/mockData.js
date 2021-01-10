@@ -1,4 +1,5 @@
 const mocks = {
+  Int: () => 2,
  Person: () => ({
    name:  'TestUser',
    id: 1,
@@ -8,7 +9,6 @@ const mocks = {
  Post: () => ({
    id: 2,
    title: "Mocktitle",
-   votes: 5,
  })
 };
 

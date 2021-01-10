@@ -203,12 +203,12 @@ describe("mutations", () => {
                   .resolves
                   .toMatchObject({
                     errors: undefined,
-                    data: {
+                    data: {write: {
                       author: 
                         { name: 'TestUser' },
                         id: "2",
                         title: "Mocktitle",
-                        votes: expect.any(Number)
+                        votes: 4}
                     },
                   });
         });
@@ -219,7 +219,7 @@ describe("mutations", () => {
             .toMatchObject({
                 errors: undefined,
                 data: {
-                    write: {id: expect.any(String) ,title:"Mocktitle", votes:0, author: { name:"TestUser" }}
+                    write: {id: expect.any(String) ,title:"Mocktitle", votes:4, author: { name:"TestUser" }}
                 }
             })
         });

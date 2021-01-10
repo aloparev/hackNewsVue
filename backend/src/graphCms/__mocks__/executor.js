@@ -9,10 +9,8 @@ const contextMock = {jwtSign}
 module.exports = async ({ document, variables }) => {
     const sch = await schema();
     const query = print(document);
-    const operation = document.definitions[0].operation;
     let ops;
 
-    if(operation === 'mutation' || operation === 'query'){
         const tokens = query.split('!')
         const ab = Object.values(variables);
         var zip = [];
@@ -26,6 +24,6 @@ module.exports = async ({ document, variables }) => {
         }
         zip=zip.join(' ');
         ops=zip;
-    }
+    
     return (await graphql( sch, ops, contextMock))
 };

@@ -17,7 +17,7 @@ module.exports = ([{ schema, executor }]) => ({
     },
     authored:{
       selectionSet: '{ author {id} }',
-      resolve: async (post, args, context, info) =>  {
+      resolve: async (post, args, context) =>  {
         if(context.person){
           return context.person.id === post.author.id;
         }

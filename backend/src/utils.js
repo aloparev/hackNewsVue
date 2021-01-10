@@ -122,7 +122,7 @@ const mayVote = async(userId, postId, executor) => {
   const { data, errors } = await executor({ document, variables: { userId: userId, postId: postId} });
   
   if (errors) {
-    throw new UserInputError(response.errors.map((e) => e.message).join('\n'));
+    throw new UserInputError(errors);
   }
   
   const { voters } = data;
@@ -232,7 +232,7 @@ const mayDelete = async(userId, postId, executor) => {
   const { data, errors } = await executor({ document, variables: { userId: userId, postId: postId } });
   
   if (errors) {
-    throw new UserInputError(response.errors.map((e) => e.message).join('\n'));
+    throw new UserInputError(errors);
   }
   
   const { posts } = data;

@@ -2,7 +2,7 @@ const { ForbiddenError } = require('apollo-server');
 const { rule, shield, allow, deny} = require('graphql-shield');
 
 const isAuthenticated = rule({ cache: 'contextual' })(
-    async (parent, args, context, info) => {
+    async (parent, args, context) => {
         return !!context.person.id
     },
 )
