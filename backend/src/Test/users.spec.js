@@ -208,6 +208,22 @@ describe("mutations", () => {
                 });
         };
 
+        it("login", async () => {
+            const response = login_action(
+                "testmail@gmail.com",
+                "12345678",
+                mutate
+                );
+
+            await expect(response)
+            .resolves.toMatchObject({
+                errors: undefined,
+                data: {
+                    login: expect.any(String)
+                },
+            });
+        });
+
         it("throws error if credentials are wrong", async () => {
             const response = login_action(
                 "notexisting@gmail.com",
@@ -219,7 +235,7 @@ describe("mutations", () => {
             .resolves.toMatchObject({
                 errors: [expect.objectContaining({ message: "Wrong email/password combination" })],
                 data: {
-                login: null,
+                    login: null,
                 },
             });
         });

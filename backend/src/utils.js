@@ -4,21 +4,22 @@ const bcrypt = require('bcrypt');
 
 const login = async(args, executor, context) => {
   const document  = gql`
-    query ($email: String!) {
-      person(where:{email:$email}){
+    query{
+      people {
         id
+        email
         password
       }
     }`;
 
   const { email, password } = args;
-  const { data, errors } = await executor({ document, variables: { email, password } });
+  const { data, errors } = await executor({ document, variables: {} });
   
   if (errors) {
     throw new UserInputError(errors.map((e) => e.message).join('\n'));
   }
 
-  const { person } = data;
+  let person = data.people.find(e => e.email == email);
 
   if(person && bcrypt.compareSync(password, person.password)) {
       return context.jwtSign({ person: { id: person.id } })
@@ -103,7 +104,7 @@ const checkEmailExist = async (email, executor) => {
     throw new UserInputError(response.errors.map((e) => e.message).join('\n'));
   }
 
-  person = response.data.people.find(e => e.email == email);
+  let person = response.data.people.find(e => e.email == email);
 
   return !!person;
 }
