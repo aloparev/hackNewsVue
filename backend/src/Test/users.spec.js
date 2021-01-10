@@ -174,17 +174,17 @@ describe("mutations", () => {
 
         it("User already exist", async () => {
             const response = signup_action(
-                "Notexisting",
-                "notexisting@gmail.com",
+                "TestUser",
+                "testmail@gmail.com",
                 "12345678",
                 mutate
-                );
+            );
 
             await expect(response)
             .resolves.toMatchObject({
-                errors: undefined,
+                errors: [expect.objectContaining({ message: "Email already exist"})],
                 data: {
-                    signup: expect.any(String)
+                    signup: null,
                 },
             });
         });

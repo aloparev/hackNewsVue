@@ -61,7 +61,8 @@ const checkUserExist = async (userId, executor) => {
       id
     }
   }`;
-
+  
+  
   let response = await executor({ document, variables: {id: userId } });
   if (response.errors) {
     throw new UserInputError(response.errors.map((e) => e.message).join('\n'));
@@ -87,20 +88,24 @@ const checkPostExist = async (postId, executor) => {
 }
 
 const checkEmailExist = async (email, executor) => {
+  
   let document  = gql`
-  query ($email: String!) {
-    person(where:{email: $email}){
+  query {
+    people{
       id
+      email
     }
   }`;
 
-  let response = await executor({ document, variables: {email: email } });
+  let response = await executor({ document, variables: {} });
 
   if (response.errors) {
     throw new UserInputError(response.errors.map((e) => e.message).join('\n'));
   }
 
-  return !!response.data.person;
+  person = response.data.people.find(e => e.email == email);
+
+  return !!person;
 }
 
 const mayVote = async(userId, postId, executor) => {

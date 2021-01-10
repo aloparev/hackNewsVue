@@ -2,7 +2,6 @@ const jwt = require('jsonwebtoken')
 const { JWT_SECRET } = require('../config');
 
 module.exports = async function context(req) {
-  console.log(req,'sss');
   const jwtSign = (payload) => jwt.sign(payload, JWT_SECRET, { algorithm: 'HS256', expiresIn: '1h' });
 
   try {

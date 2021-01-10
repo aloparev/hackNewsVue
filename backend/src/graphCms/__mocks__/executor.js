@@ -13,30 +13,28 @@ module.exports = async ({ document, variables }) => {
     //console.log(query);
     let ops;
 
-    if(operation === 'mutation'){
+    if(operation === 'mutation' || operation === 'query'){
         const tokens = query.split('!')
-        //tokens[x] = tokens[x].replace('\n', '');    
-          console.log(tokens);
         const ab = Object.values(variables);
         var zip = [];
-        for (var i = 0; i < tokens.length; i++){
-            if(i>=ab.length){
+        let max = tokens.length - 1;
+        for(let i = 0; i < tokens.length; i++){
+            if(max-- > 0){
+                zip.push(tokens[i]+`="` +ab[i]+`"`);
+            }else {
                 zip.push(tokens[i]);
-            }else{
-            zip.push(tokens[i]+`="` +ab[i]+`"`);
             }
         }
         zip=zip.join(' ');
-        console.log(zip);
         ops=zip;
     }
     else{
-        ops=  `
-        mutation ($name: String="test", $email:String="test", $password:String="test") {
-            createPerson(data: {name: $name, email: $email, password: $password}) {
-              id
-            }
-        }
+            ops=  `
+                mutation ($name: String="test", $email:String="test", $password:String="test") {
+                    createPerson(data: {name: $name, email: $email, password: $password}) {
+                        id
+                    }
+                }
             `;
     }
     return (await graphql( sch, ops, contextMock))
