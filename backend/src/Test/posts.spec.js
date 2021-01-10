@@ -13,7 +13,7 @@ let contextMock;
 jest.mock('../graphCms/schema');
 jest.mock('../graphCms/executor');
 jest.mock('../rootSchema');
-jest.mock('../context');
+
 
 beforeEach(async() => {
     contextMock = {};
@@ -125,23 +125,23 @@ describe("queries", () => {
 
 describe("mutations", () => {
 
-    describe("WRITE_POST", () => {
+    const SIGN_UP = gql`
+    mutation ($name: String!, $email: String!, $password: String!){
+        signup(name: $name, email: $email, password: $password)
+    }
+`;      
+    const signup_action = (name, email, password, mutate) => {
+        return mutate({
+            mutation: SIGN_UP,
+            variables: {
+                    name,
+                    email,
+                    password
+                }
+            });
+        };
 
-        const SIGN_UP = gql`
-        mutation ($name: String!, $email: String!, $password: String!){
-            signup(name: $name, email: $email, password: $password)
-        }
-    `;      
-        const signup_action = (name, email, password, mutate) => {
-            return mutate({
-                mutation: SIGN_UP,
-                variables: {
-                        name,
-                        email,
-                        password
-                    }
-                });
-            };
+    describe("WRITE_POST", () => {
 
 
         beforeEach(async() => {
@@ -151,7 +151,6 @@ describe("mutations", () => {
                 "12345678",
                 mutate
                 );
-            console.log(response);
 
         const obj = {
             req: {
@@ -186,7 +185,7 @@ describe("mutations", () => {
 
         it('checks authenticated user', async () => {
 
-            contextMock = {}//not login yet
+            server.context = {}//not login yet
 
             await expect(create_action())
             .resolves
@@ -205,10 +204,11 @@ describe("mutations", () => {
                   .toMatchObject({
                     errors: undefined,
                     data: {
-                      people: [
-                        { id: expect.any(String), name: 'TestUser' },
-                        { id: expect.any(String), name: 'TestUser' },
-                      ],
+                      author: 
+                        { name: 'TestUser' },
+                        id: "2",
+                        title: "Mocktitle",
+                        votes: expect.any(Number)
                     },
                   });
         });
@@ -219,7 +219,7 @@ describe("mutations", () => {
             .toMatchObject({
                 errors: undefined,
                 data: {
-                    write: {id: expect.any(String) ,title:"New Post", votes:0, author: { name:"Ilona" }}
+                    write: {id: expect.any(String) ,title:"Mocktitle", votes:0, author: { name:"TestUser" }}
                 }
             })
         });
@@ -227,6 +227,23 @@ describe("mutations", () => {
 
 
     describe("ACTION_POST", () => {
+
+        beforeEach(async() => {
+            const response = await signup_action(
+                "Notexisting",
+                "notexisting@gmail.com",
+                "12345678",
+                mutate
+                );
+
+        const obj = {
+            req: {
+            headers: { authorization: response.data.signup},
+            },
+        };
+        server.context  = context(obj);
+        });
+
 
         describe("UPVOTE", () => {
 
@@ -261,18 +278,15 @@ describe("mutations", () => {
                 })
             });
 
-            it('update votes', async () => {
-               
-                await upvote_action()
-            });
-
 
             it('upvote a post only once', async () => {
-                expect(postsMemory.posts[0].getVotes()).toEqual(0);
-                await upvote_action()
-                expect(postsMemory.posts[0].getVotes()).toEqual(1);
-                await upvote_action()
-                expect(postsMemory.posts[0].getVotes()).toEqual(1);
+                await expect(upvote_action())
+                .resolves.toMatchObject({
+                    errors: [expect.objectContaining({ message: "This user voted on that post already." })],
+                    data: {
+                        upvote: null,
+                    },
+                });
             });
         });
     })

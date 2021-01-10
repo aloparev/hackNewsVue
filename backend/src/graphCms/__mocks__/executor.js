@@ -10,7 +10,6 @@ module.exports = async ({ document, variables }) => {
     const sch = await schema();
     const query = print(document);
     const operation = document.definitions[0].operation;
-    console.log(query);
     let ops;
 
     if(operation === 'mutation' || operation === 'query'){
@@ -27,15 +26,6 @@ module.exports = async ({ document, variables }) => {
         }
         zip=zip.join(' ');
         ops=zip;
-    }
-    else{
-            ops=  `
-                mutation ($name: String="test", $email:String="test", $password:String="test") {
-                    createPerson(data: {name: $name, email: $email, password: $password}) {
-                        id
-                    }
-                }
-            `;
     }
     return (await graphql( sch, ops, contextMock))
 };

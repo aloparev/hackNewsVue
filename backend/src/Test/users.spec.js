@@ -1,14 +1,15 @@
-//const mockedSchema = require('./utils/schemaMock');
+
 const Server = require('../server');
 const{ createTestClient }= require('apollo-server-testing');
 const { ApolloServer, gql } =require( 'apollo-server');
+const context =require( '../context');
 let query;
 let mutate;
 
 jest.mock('../graphCms/schema');
 jest.mock('../graphCms/executor');
 jest.mock('../rootSchema');
-jest.mock('../context');
+
 
 let contextMock;
 
