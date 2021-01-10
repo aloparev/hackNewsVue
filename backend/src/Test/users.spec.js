@@ -26,24 +26,24 @@ describe("queries", () => {
         
         it("given users in the database", async () => {
             const PEOPLE = gql`
-            {
-              people {
-                id
-                name
-              }
-            }
-          `;              
-                await expect(query({ query: PEOPLE }))
-                  .resolves
-                  .toMatchObject({
-                    errors: undefined,
-                    data: {
-                      people: [
-                        { id: expect.any(String), name: 'TestUser' },
-                        { id: expect.any(String), name: 'TestUser' },
-                      ],
-                    },
-                  });
+                {
+                    people {
+                        id
+                        name
+                    }
+                }
+            `;              
+            await expect(query({ query: PEOPLE }))
+                .resolves
+                .toMatchObject({
+                errors: undefined,
+                data: {
+                    people: [
+                       { id: expect.anything(String), name: 'TestUser' },
+                       { id: expect.anything(String), name: 'TestUser' },
+                    ],
+                },
+                });
         })
 
         it("indefinitely nestable query", async () => {
@@ -70,9 +70,10 @@ describe("queries", () => {
               data: {
                 people:                
                 [
-                    { id:"1", 
-                    name:"TestUser", 
-                    email:"testmail@gmail.com",
+                    {
+                        id:"1", 
+                        name:"TestUser", 
+                        email:"testmail@gmail.com",
                         posts: [
                             {
                                 title: "Mocktitle",
@@ -88,9 +89,10 @@ describe("queries", () => {
                             }
                         ]
                     },
-                    { id:"1", 
-                    name:"TestUser", 
-                    email:"testmail@gmail.com",
+                    {
+                        id:"1", 
+                        name:"TestUser", 
+                        email:"testmail@gmail.com",
                         posts: [
                             {
                                 title: "Mocktitle",
@@ -118,10 +120,10 @@ describe("mutations", () => {
     describe("SIGN UP", () => {
 
         const SIGN_UP = gql`
-        mutation ($name: String!, $email: String!, $password: String!){
-            signup(name: $name, email: $email, password: $password)
-        }
-    `;
+            mutation ($name: String!, $email: String!, $password: String!){
+                signup(name: $name, email: $email, password: $password)
+            }
+        `;
 
 
         const signup_action = (name, email, password, mutate) => {
@@ -131,9 +133,9 @@ describe("mutations", () => {
                         name,
                         email,
                         password
-                    }
-                });
-            };
+                }
+            });
+        };
         
         
         it("throws error if the password is too short", async () => {
@@ -143,22 +145,24 @@ describe("mutations", () => {
                 "123",
                 mutate
               );
-              await expect(response)
-              .resolves.toMatchObject({
-                  errors: [expect.objectContaining({ message: "Not Authorised!" })],
-                  data: {
-                  signup: null,
-                  },
-              });
+
+            await expect(response)
+            .resolves.toMatchObject({
+                errors: [expect.objectContaining({ message: "Not Authorised!" })],
+                data: {
+                signup: null,
+                },
+            });
         })
 
         it("signs up new user", async () => {
-        const response = signup_action(
-            "Notexisting",
-            "notexisting@gmail.com",
-            "12345678",
-            mutate
-            );
+            const response = signup_action(
+                "Notexisting",
+                "notexisting@gmail.com",
+                "12345678",
+                mutate
+                );
+
             await expect(response)
             .resolves.toMatchObject({
                 errors: undefined,
@@ -166,25 +170,42 @@ describe("mutations", () => {
                     signup: expect.any(String)
                 },
             });
-        })
+        });
+
+        it("User already exist", async () => {
+            const response = signup_action(
+                "Notexisting",
+                "notexisting@gmail.com",
+                "12345678",
+                mutate
+                );
+
+            await expect(response)
+            .resolves.toMatchObject({
+                errors: undefined,
+                data: {
+                    signup: expect.any(String)
+                },
+            });
+        });
     });
 
     describe("LOGIN", () => {
 
         const LOGIN = gql`
-        mutation ($email: String!, $password: String!){
-            login(email: $email, password: $password)
-        }
-    `;
-
-    const login_action = ( email, password, mutate) => {
-        return mutate({
-        mutation: LOGIN,
-        variables: {
-                email,
-                password
+            mutation ($email: String!, $password: String!){
+                login(email: $email, password: $password)
             }
-        })
+        `;
+
+        const login_action = ( email, password, mutate) => {
+            return mutate({
+                mutation: LOGIN,
+                variables: {
+                        email,
+                        password
+                    }
+                });
         };
 
         it("throws error if credentials are wrong", async () => {
@@ -193,14 +214,14 @@ describe("mutations", () => {
                 "12345678",
                 mutate
               );
-              await expect(response)
-              .resolves.toMatchObject({
-                  errors: [expect.objectContaining({ message: "Wrong email/password combination" })],
-                  data: {
-                  login: null,
-                  },
-              });
-
+            
+            await expect(response)
+            .resolves.toMatchObject({
+                errors: [expect.objectContaining({ message: "Wrong email/password combination" })],
+                data: {
+                login: null,
+                },
+            });
         });
     });
 })
