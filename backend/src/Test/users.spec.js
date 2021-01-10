@@ -2,8 +2,8 @@
 const Server = require('../server');
 const{ createTestClient }= require('apollo-server-testing');
 const { ApolloServer, gql } =require( 'apollo-server');
-const jwt = require('jsonwebtoken');
 let query;
+let mutate;
 
 jest.mock('../graphCms/schema');
 jest.mock('../graphCms/executor');
@@ -135,24 +135,6 @@ describe("mutations", () => {
                 });
             };
         
-        it("throws error if user is already registered", async () => {
-        const response = signup_action(
-                "TestUser",
-                "testUser@gmail.com",
-                "12345678",
-                mutate
-              );
-
-              const qu =  await response;
-              console.log(qu);
-            await expect(response)
-                .resolves.toMatchObject({
-                    errors: [expect.objectContaining({ message: "Email already exist" })],
-                    data: {
-                    signup: null,
-                    },
-                });
-            });
         
         it("throws error if the password is too short", async () => {
             const response = signup_action(
@@ -179,7 +161,7 @@ describe("mutations", () => {
             );
             await expect(response)
             .resolves.toMatchObject({
-                errors: [undefined],
+                errors: undefined,
                 data: {
                     signup: expect.any(String)
                 },
@@ -219,21 +201,6 @@ describe("mutations", () => {
                   },
               });
 
-        });
-
-        it("validates login if credentials are right", async () => {
-            const response = await login_action(
-                "an@gmail.com",
-                "12345678",
-                mutate
-              );
-
-            expect(response).toMatchObject({
-                errors: undefined,
-            data: {
-                login: expect.any(String)
-            },
-            });
         });
     });
 })

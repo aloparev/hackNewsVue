@@ -5,7 +5,6 @@ const { graphql } = require('graphql');
 const { join }= require( 'path');
 const casual = require('casual');
 const mocks = require('./mockData');
-const permissions = require('../../permissions');
 
 const fs = require('fs');
 const util = require('util');   
@@ -15,16 +14,15 @@ const jwtSign = (payload) => jwt.sign(payload, JWT_SECRET, { algorithm: 'HS256',
 const contextMock = {jwtSign}
 
 
-module.exports = async (query) => {
+module.exports = async () => {
   const content = await readFile(join(__dirname, 'schema.gql'),'utf8');
    const typeDefs =  content;
 const schema =  makeExecutableSchema({ 
   typeDefs,
   resolverValidationOptions: { requireResolversForResolveType: false }
  });
- casual.seed(123);
 const schemaWithMocks = addMocksToSchema({ schema,mocks,preserveResolvers: true });
-//const permissionSchema = applyMiddleware(schemaWithMocks, permissions);
+//const pSchema = applyMiddleware(schemaWithMocks, perms);
 //return ((await graphql( permissionSchema, query, contextMock)));
 return schemaWithMocks;
 };

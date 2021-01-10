@@ -1,5 +1,3 @@
-const casual = require('casual');
-casual.seed(123);
 const mocks = {
  Person: () => ({
    name:  'TestUser',
@@ -8,7 +6,9 @@ const mocks = {
    password: '12345678'
  }),
  Post: () => ({
-   title: "Mocktitle"
+   id: 2,
+   title: "Mocktitle",
+   votes: 5,
  })
 };
 
