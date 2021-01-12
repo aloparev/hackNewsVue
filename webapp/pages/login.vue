@@ -1,13 +1,16 @@
 <template>
   <div id="app">
-    <NavBar />
     <h3 class="title">The Country Roads</h3>
     <div class="container">
-      <ListNews />
+      <LoginForm />
     </div>
   </div>
 </template>
-
+<script>
+export default {
+  layout: 'login',
+}
+</script>
 <style scoped>
 body {
   background: #f0f8ff;
@@ -16,25 +19,6 @@ body {
 #app {
   text-align: center;
   padding-top: 5%;
-}
-
-.nav-bar {
-  width: 100%;
-  text-align: right;
-  margin: auto;
-  padding: 10px 0;
-  width: 1000px;
-}
-
-.nav-bar a {
-  background: #17dbef;
-  padding: 5px 50px;
-  border-radius: 2px;
-  text-decoration: none;
-  font-weight: bold;
-  font-family: 'Quicksand', 'Source Sans Pro', -apple-system, BlinkMacSystemFont,
-    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  color: #000000;
 }
 
 .container {
@@ -47,7 +31,7 @@ body {
   box-shadow: 0px 0px 4px 4px gray;
   border-radius: 10px;
   background: #fff;
-  width: 1000px;
+  width: 350px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;

@@ -1,9 +1,28 @@
 <template>
   <div class="nav-bar">
-    <a href="#">Login</a>
+    <NuxtLink v-if="!isAuthenticated" to="/login"> Login </NuxtLink>
+    <button v-else type="button" @click="logout">Logout</button>
   </div>
 </template>
-
+<script>
+export default {
+  data() {
+    return {
+      isAuthenticated: false,
+    }
+  },
+  mounted() {
+    this.isAuthenticated = !!this.$apolloHelpers.getToken()
+  },
+  methods: {
+    async logout() {
+      await this.$apolloHelpers.onLogout()
+      this.$store.commit('auth/setToken', '')
+      this.isAuthenticated = false
+    },
+  },
+}
+</script>
 <style scoped>
 .nav-bar {
   width: 100%;
@@ -13,7 +32,8 @@
   width: 1000px;
 }
 
-.nav-bar a {
+.nav-bar a,
+.nav-bar button {
   background: #17dbef;
   padding: 5px 50px;
   border-radius: 2px;

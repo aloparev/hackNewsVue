@@ -38,6 +38,7 @@ module.exports = {
         math: 'always',
       },
     ],
+    'vue/this-in-template': 'off',
     'no-console': 'off',
     'vue/singleline-html-element-content-newline': 'off',
   },
