@@ -1,7 +1,10 @@
 <template>
   <div id="news-list-container">
     <div>
-      <h1 class="text-5xl list-title">News List</h1>
+      <div class="list-header">
+        <h1 class="list-title">News List</h1>
+        <create-news @add-news="addNews" />
+      </div>
       <div v-if="$apollo.loading">
         <h2>Loading...</h2>
       </div>
@@ -10,10 +13,12 @@
           <h1 id="error-message">The list is empty :(</h1>
         </div>
         <div v-else>
-          <p>
-            News counter: <span> {{ newsCount }} </span>
-          </p>
-          <button @click="reverseSort">sort asc/desc</button>
+          <div class="news-counter">
+            <p>
+              News counter: <span> {{ newsCount }} </span>
+            </p>
+            <button @click="reverseSort">sort asc/desc</button>
+          </div>
           <div class="news-list">
             <news
               v-for="item in sortedNews"
@@ -24,7 +29,6 @@
             />
           </div>
         </div>
-        <create-news @add-news="addNews" />
       </div>
     </div>
   </div>
@@ -93,11 +97,40 @@ export default {
 <style scoped>
 #news-list-container {
   text-align: center;
+  width: 100%;
+}
+
+.list-header {
+  display: inline-grid;
+  width: 100%;
+  grid-template-columns: 20% 80%;
+}
+
+.list-title {
+  text-align: left;
+}
+
+.news-counter {
+  text-align: left;
+  margin: 15px 0;
+  display: inline-grid;
+  width: 100%;
+  grid-template-columns: 85% 15%;
+}
+
+.list-title::before {
+  content: ' ';
+  border-color: rgba(155, 132, 249, 0.58824);
+  border-style: solid;
+  border-width: 0 0.3em 0.25em 0;
+  margin-right: 3px;
 }
 
 .news-list {
   max-height: 580px;
   overflow-y: auto;
-  margin-bottom: 40px;
+  padding: 20px;
+  background: aliceblue;
+  border-radius: 0 0 10px 10px;
 }
 </style>

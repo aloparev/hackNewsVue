@@ -1,6 +1,7 @@
 <template>
-  <div>
-    <h2>{{ news.title }} ({{ news.votes }})</h2>
+  <div class="news-item">
+    <h2>{{ news.title }}</h2>
+    <h4>{{ news.votes }}</h4>
     <div>
       <button class="upvote" @click="upvote">Upvote</button>
       <button class="downvote" @click="downvote">Downvote</button>
@@ -114,3 +115,14 @@ export default {
   },
 }
 </script>
+<style scoped>
+.news-item {
+  padding: 10px;
+  display: inline-grid;
+  grid-template-columns: 60% 10% 30%;
+  width: 100%;
+}
+h2 {
+  text-align: left;
+}
+</style>

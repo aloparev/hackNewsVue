@@ -5,8 +5,11 @@
       type="text"
       aria-label="Search"
       placeholder="title"
+      class="add-input"
     />
-    <button type="submit" :disabled="!title.length > 0">Create</button>
+    <button class="add-button" type="submit" :disabled="!title.length > 0">
+      CREATE
+    </button>
   </form>
 </template>
 
@@ -65,3 +68,38 @@ export default {
   },
 }
 </script>
+<style scoped>
+.add-item {
+  display: inline-grid;
+  width: 100%;
+  grid-template-columns: 80% 20%;
+}
+
+.add-input:focus,
+.add-input {
+  outline: none;
+}
+
+.add-input {
+  height: 40px;
+  width: 100%;
+  background: rgb(155 132 249 / 0.3);
+  padding: 0px 20px;
+  border-radius: 5px 0 0 5px;
+  border: none;
+}
+
+.add-button:disabled {
+  background: rgb(16 16 16 / 0.3);
+  color: rgb(16 16 16 / 0.3);
+  cursor: no-drop;
+}
+
+.add-button {
+  border-radius: 0 5px 5px 0;
+  height: 40px;
+  border: none;
+  background: rgb(148 122 255);
+  color: white;
+}
+</style>
