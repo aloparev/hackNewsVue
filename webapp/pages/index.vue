@@ -1,14 +1,33 @@
 <template>
   <div id="app">
-    <NavBar />
+    <NavBar :isAuthenticated="isAuthenticated" @logout="logout" />
     <h3 class="title">The Country Roads</h3>
     <div class="container">
-      <ListNews />
+      <ListNews :isAuthenticated="isAuthenticated" />
     </div>
   </div>
 </template>
-
-<style scoped>
+<script>
+export default {
+  data() {
+    return {
+      isAuthenticated: false,
+    }
+  },
+  mounted() {
+    this.isAuthenticated = !!this.$apolloHelpers.getToken()
+  },
+  methods: {
+    async logout() {
+      this.isAuthenticated = false
+      await this.$apolloHelpers.onLogout()
+      this.$store.commit('auth/setToken', '')
+      this.$router.push({ path: '/' })
+    },
+  },
+}
+</script>
+<style>
 body {
   background: #f0f8ff;
 }
@@ -16,25 +35,6 @@ body {
 #app {
   text-align: center;
   padding-top: 5%;
-}
-
-.nav-bar {
-  width: 100%;
-  text-align: right;
-  margin: auto;
-  padding: 10px 0;
-  width: 1000px;
-}
-
-.nav-bar a {
-  background: #17dbef;
-  padding: 5px 50px;
-  border-radius: 2px;
-  text-decoration: none;
-  font-weight: bold;
-  font-family: 'Quicksand', 'Source Sans Pro', -apple-system, BlinkMacSystemFont,
-    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  color: #000000;
 }
 
 .container {
@@ -52,6 +52,7 @@ body {
   flex-direction: column;
   justify-content: space-between;
 }
+
 .title {
   font-family: 'Quicksand', 'Source Sans Pro', -apple-system, BlinkMacSystemFont,
     'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;

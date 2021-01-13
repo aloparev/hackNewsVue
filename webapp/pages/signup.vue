@@ -11,7 +11,7 @@ export default {
   layout: 'login',
 }
 </script>
-<style>
+<style scoped>
 body {
   background: #f0f8ff;
 }

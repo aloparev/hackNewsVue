@@ -2,17 +2,19 @@
   <div class="news-item">
     <h2>{{ news.title }}</h2>
     <h4>{{ news.votes }}</h4>
-    <div>
-      <button class="upvote" @click="upvote">Upvote</button>
+    <div v-if="isAuthenticated" style="text-align:left">
+      <button class="upvote" @click="upvote" >Upvote</button>
       <button class="downvote" @click="downvote">Downvote</button>
-      <button class="delete" @click="deleteItem">Remove</button>
+      <button class="delete" @click="deleteItem" v-if="isAuthor()">Remove</button>
     </div>
   </div>
 </template>
 
 <script>
 import gql from 'graphql-tag'
+import jwt_decode from 'jwt-decode'
 require('regenerator-runtime/runtime')
+
 export default {
   name: 'News',
   props: {
@@ -20,6 +22,9 @@ export default {
       type: Object,
       required: true,
     },
+    isAuthenticated: {
+      type:Boolean
+    }
   },
   data() {
     return {
@@ -27,6 +32,13 @@ export default {
     }
   },
   methods: {
+    isAuthor(){
+      if(this.isAuthenticated){
+        return this.news.author.id === jwt_decode(this.$apolloHelpers.getToken()).id
+      }
+
+      return false
+    },
     async deleteItem() {
       try {
         const response = await this.$apollo
@@ -119,7 +131,7 @@ export default {
 .news-item {
   padding: 10px;
   display: inline-grid;
-  grid-template-columns: 60% 10% 30%;
+  grid-template-columns: 60% 15% 25%;
   width: 100%;
 }
 h2 {

@@ -3,7 +3,7 @@
     <div>
       <div class="list-header">
         <h1 class="list-title">News List</h1>
-        <create-news @add-news="addNews" />
+        <create-news @add-news="addNews" v-if="isAuthenticated"/>
       </div>
       <div v-if="$apollo.loading">
         <h2>Loading...</h2>
@@ -26,6 +26,7 @@
               :news="item"
               @delete-news="deleteNews(item.id)"
               @update="update"
+              :isAuthenticated="isAuthenticated"
             />
           </div>
         </div>
@@ -41,6 +42,9 @@ import CreateNews from '../CreatNews/CreateNews'
 
 export default {
   name: 'ListNews',
+  props: {
+    isAuthenticated: {type:Boolean}
+  },
   components: {
     News,
     CreateNews,
@@ -59,6 +63,9 @@ export default {
             id
             title
             votes
+            author {
+              id
+            }
           }
         }
       `,
