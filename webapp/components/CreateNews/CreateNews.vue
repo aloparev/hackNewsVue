@@ -1,5 +1,5 @@
 <template>
-  <form class="add-item" @submit.prevent="addNews">
+  <form v-if="isAuthenticated" class="add-item" @submit.prevent="addNews">
     <input
       v-model="title"
       type="text"
@@ -15,6 +15,7 @@
 
 <script>
 import gql from 'graphql-tag'
+import { mapGetters } from 'vuex'
 require('regenerator-runtime/runtime')
 
 export default {
@@ -24,6 +25,9 @@ export default {
       title: '',
       currentUser: { name: 'TestUser' },
     }
+  },
+  computed: {
+    ...mapGetters('auth', ['isAuthenticated']),
   },
   methods: {
     async addNews() {

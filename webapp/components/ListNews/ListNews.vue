@@ -3,7 +3,7 @@
     <div>
       <div class="list-header">
         <h1 class="list-title">News List</h1>
-        <create-news @add-news="addNews" v-if="isAuthenticated"/>
+        <CreateNews />
       </div>
       <div v-if="$apollo.loading">
         <h2>Loading...</h2>
@@ -20,14 +20,7 @@
             <button @click="reverseSort">sort asc/desc</button>
           </div>
           <div class="news-list">
-            <news
-              v-for="item in sortedNews"
-              :key="item.id"
-              :news="item"
-              @delete-news="deleteNews(item.id)"
-              @update="update"
-              :isAuthenticated="isAuthenticated"
-            />
+            <News v-for="item in sortedNews" :key="item.id" :news="item" />
           </div>
         </div>
       </div>
@@ -36,40 +29,17 @@
 </template>
 
 <script>
-import gql from 'graphql-tag'
-import News from '../News/News'
-import CreateNews from '../CreatNews/CreateNews'
+import { ALL_NEWS } from '@/graphql/queries'
 
 export default {
-  name: 'ListNews',
-  props: {
-    isAuthenticated: {type:Boolean}
-  },
-  components: {
-    News,
-    CreateNews,
-  },
+  name: 'NewsList',
   data() {
     return {
       desc: true,
     }
   },
   apollo: {
-    posts: {
-      prefetch: true,
-      query: gql`
-        query newsList {
-          posts {
-            id
-            title
-            votes
-            author {
-              id
-            }
-          }
-        }
-      `,
-    },
+    posts: ALL_NEWS,
   },
   computed: {
     sortedNews() {
@@ -85,15 +55,6 @@ export default {
     },
   },
   methods: {
-    deleteNews(deleteId) {
-      this.posts = [...this.posts.filter((post) => post.id !== deleteId)]
-    },
-    addNews(newNews) {
-      this.posts.push(newNews)
-    },
-    update(currNews) {
-      this.posts.find((post) => post.id === currNews.id).votes = currNews.votes
-    },
     reverseSort() {
       this.desc = !this.desc
     },

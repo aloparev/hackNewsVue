@@ -1,33 +1,32 @@
 <template>
-  <form class="signup-form" @submit.prevent="signup">
+  <form class="signup-form" @submit.prevent="submit">
+    <div v-if="error">
+      <small class="error-text"> {{ error.message }}</small>
+    </div>
+    <div v-if="loading">
+      <small class="loading-text">Loading...</small>
+    </div>
     <input
-      ref="name"
-      v-model.trim="name"
-      name="name"
-      type="text"
-      placeholder="Name"
-      @focus="focusInput"
-    />
-    <small class="error-text">{{ this.nameError }}</small>
-    <input
-      ref="email"
-      v-model.trim="email"
+      v-model.trim="formData.email"
       name="email"
       type="email"
       placeholder="Email"
-      @focus="focusInput"
     />
-    <small class="error-text">{{ this.emailError }}</small>
     <input
-      ref="password"
-      v-model.trim="password"
+      v-model.trim="formData.password"
       name="password"
       type="password"
       placeholder="Password"
-      @focus="focusInput"
     />
-    <small class="error-text">{{ this.passwordError }}</small>
-    <button class="signup-btn" type="submit">Signup</button>
+    <input
+      v-model.trim="formData.name"
+      name="name"
+      type="text"
+      placeholder="Name"
+    />
+    <button class="signup-btn" type="submit" :disabled="loading || !valid">
+      Sign up
+    </button>
     <div>
       <small>Already have an account?</small>
       <NuxtLink class="login-btn" to="/login"> Login here </NuxtLink>
@@ -35,76 +34,47 @@
   </form>
 </template>
 <script>
-import gql from 'graphql-tag'
+import { mapActions } from 'vuex'
+import { SIGNUP } from '@/graphql/mutations'
 
 export default {
   name: 'SignupForm',
   data() {
     return {
-      name: '',
-      nameError: '',
-      email: '',
-      emailError: '',
-      password: '',
-      passwordError: '',
+      formData: {
+        name: '',
+        email: '',
+        password: '',
+      },
+      error: null,
+      loading: false,
     }
   },
-  methods: {
-    focusInput(e) {
-      e.target.className = ''
-      if (e.target.name === 'name') {
-        this.nameError = ''
-      }
-      if (e.target.name === 'email') {
-        this.emailError = ''
-      }
-      if (e.target.name === 'password') {
-        this.passwordError = ''
-      }
+  computed: {
+    valid() {
+      const { name, email, password } = this.formData
+      return email && password && name
     },
-    async signup() {
-      if (this.name === '') {
-        this.nameError = 'Email required'
-        this.$refs.name.className = 'error'
-      }
-
-      if (this.email === '') {
-        this.emailError = 'Email required'
-        this.$refs.email.className = 'error'
-      }
-
-      if (this.password === '') {
-        this.passwordError = 'Password required'
-        this.$refs.password.className = 'error'
-      }
-
-      if (
-        this.nameError !== '' &&
-        this.emailError !== '' &&
-        this.passwordError !== ''
-      ) {
-        return
-      }
-
-      const signup = gql`
-        mutation signup($name: String!, $email: String!, $password: String!) {
-          signup(name: $name, email: $email, password: $password)
-        }
-      `
+  },
+  methods: {
+    ...mapActions('auth', ['login']),
+    async submit() {
       try {
+        this.error = null
+        this.loading = true
+
         const res = await this.$apollo.mutate({
-          mutation: signup,
-          variables: {
-            name: this.name,
-            email: this.email,
-            password: this.password,
-          },
+          mutation: SIGNUP,
+          variables: this.formData,
         })
-        this.$store.commit('auth/setToken', res.data.signup)
-        await this.$apolloHelpers.onLogin(res.data.signup)
+        await this.login(res.data.signup)
+
         this.$router.push({ path: '/' })
       } catch (ex) {
         alert(ex)
+        this.error = { message: 'Something wrong!' }
+      } finally {
+        this.loading = false
       }
     },
   },
@@ -122,30 +92,42 @@ export default {
   border: 1px solid;
   background: aliceblue;
   padding: 0 10px;
+  margin: 10px 0px;
   outline: none;
 }
 
-.signup-form input.error {
-  border: 2px solid #ff0086;
+.error-text,
+.loading-text {
+  text-align: left;
+  padding: 5px 0px 10px;
+  font-weight: 900;
 }
 
 .error-text {
-  text-align: left;
-  padding: 5px 0px 10px;
-  color: #f913d2;
+  color: #f50749;
+}
+
+.loading-text {
+  color: green;
 }
 
 .signup-btn {
   height: 35px;
   margin-bottom: 10px;
-  background: #beb4fb;
+  background: #75c2f9;
   color: black;
   border: none;
   border-radius: 5px;
 }
 
+.signup-btn:disabled {
+  background: darkgray;
+  cursor: no-drop;
+  outline: none;
+}
+
 .login-btn {
   text-decoration: none;
-  color: #ff00c8;
+  color: #0d9ef3;
 }
 </style>

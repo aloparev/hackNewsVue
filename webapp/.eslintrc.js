@@ -12,7 +12,6 @@ module.exports = {
     sourceType: 'module',
   },
   extends: [
-    '@nuxtjs',
     'eslint:recommended',
     'plugin:vue/essential',
     'plugin:prettier/recommended',

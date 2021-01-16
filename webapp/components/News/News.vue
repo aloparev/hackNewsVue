@@ -2,18 +2,18 @@
   <div class="news-item">
     <h2>{{ news.title }}</h2>
     <h4>{{ news.votes }}</h4>
-    <div v-if="isAuthenticated" style="text-align:left">
-      <button class="upvote" @click="upvote" >Upvote</button>
-      <button class="downvote" @click="downvote">Downvote</button>
-      <button class="delete" @click="deleteItem" v-if="isAuthor()">Remove</button>
+    <div v-if="isAuthenticated" style="text-align: left">
+      <button @click="upvote">Upvote</button>
+      <button @click="downvote">Downvote</button>
+      <button v-if="isAuthor" @click="edit">Edit</button>
+      <button v-if="isAuthor" @click="remove">Remove</button>
     </div>
   </div>
 </template>
 
 <script>
-import gql from 'graphql-tag'
 import jwt_decode from 'jwt-decode'
-require('regenerator-runtime/runtime')
+import { mapGetters, mapState } from 'vuex'
 
 export default {
   name: 'News',
@@ -22,107 +22,29 @@ export default {
       type: Object,
       required: true,
     },
-    isAuthenticated: {
-      type:Boolean
-    }
   },
-  data() {
-    return {
-      currentUser: { name: 'TestUser' },
-    }
+  computed: {
+    ...mapState('auth', ['token']),
+    ...mapGetters('auth', ['isAuthenticated']),
+    isAuthor() {
+      return (
+        this.isAuthenticated &&
+        this.news.author.id === jwt_decode(this.token).id
+      )
+    },
   },
   methods: {
-    isAuthor(){
-      if(this.isAuthenticated){
-        return this.news.author.id === jwt_decode(this.$apolloHelpers.getToken()).id
-      }
-
-      return false
+    upvote() {
+      // TODO
     },
-    async deleteItem() {
-      try {
-        const response = await this.$apollo
-          .mutate({
-            mutation: gql`
-              mutation($id: ID!) {
-                delete(id: $id) {
-                  title
-                }
-              }
-            `,
-            variables: {
-              id: this.news.id,
-            },
-          })
-          .catch(console.error)
-
-        console.log(response.data.delete)
-        this.$emit('delete-news')
-      } catch {
-        throw new Error("Mutation 'delete' failed!")
-      }
+    downvote() {
+      // TODO
     },
-    async upvote() {
-      try {
-        const response = await this.$apollo
-          .mutate({
-            mutation: gql`
-              mutation($id: ID!, $voter: UserInput!) {
-                upvote(id: $id, voter: $voter) {
-                  title
-                  votes
-                  voters {
-                    name
-                  }
-                }
-              }
-            `,
-            variables: {
-              id: this.news.id,
-              voter: this.currentUser,
-            },
-          })
-          .catch(console.error)
-
-        console.log(response.data.upvote)
-        this.$emit('update', {
-          ...this.news,
-          votes: response.data.upvote.votes,
-        })
-      } catch {
-        throw new Error("Mutation 'upvote' failed!")
-      }
+    edit() {
+      // TODO
     },
-    async downvote() {
-      try {
-        const response = await this.$apollo
-          .mutate({
-            mutation: gql`
-              mutation($id: ID!, $voter: UserInput!) {
-                downvote(id: $id, voter: $voter) {
-                  title
-                  votes
-                  voters {
-                    name
-                  }
-                }
-              }
-            `,
-            variables: {
-              id: this.news.id,
-              voter: this.currentUser,
-            },
-          })
-          .catch(console.error)
-
-        console.log(response.data.downvote)
-        this.$emit('update', {
-          ...this.news,
-          votes: response.data.downvote.votes,
-        })
-      } catch {
-        throw new Error("Mutation 'downvote' failed!")
-      }
+    remove() {
+      // TODO
     },
   },
 }
@@ -131,7 +53,7 @@ export default {
 .news-item {
   padding: 10px;
   display: inline-grid;
-  grid-template-columns: 60% 15% 25%;
+  grid-template-columns: 60% 10% 30%;
   width: 100%;
 }
 h2 {

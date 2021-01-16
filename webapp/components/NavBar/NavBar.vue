@@ -1,17 +1,20 @@
 <template>
   <div class="nav-bar">
     <NuxtLink v-if="!isAuthenticated" to="/login">Login</NuxtLink>
-    <a v-else type="button" @click="logout">Logout</a>
+    <a v-else type="button" @click="exit">Logout</a>
   </div>
 </template>
 <script>
+import { mapGetters, mapActions } from 'vuex'
+
 export default {
-  props:{
-    isAuthenticated: {type:Boolean}
+  computed: {
+    ...mapGetters('auth', ['isAuthenticated']),
   },
   methods: {
-    logout() {
-      this.$emit('logout')
+    ...mapActions('auth', ['logout']),
+    async exit() {
+      await this.logout()
     },
   },
 }
@@ -32,10 +35,11 @@ export default {
   border-radius: 5px;
   text-decoration: none;
   font-weight: bold;
-  font-family: 'Quicksand', 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Quicksand', 'Source Sans Pro', -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   color: #000000;
   border: none;
-  transition: all .3s ease;
+  transition: all 0.3s ease;
 }
 .nav-bar a:hover,
 .nav-bar button:hover {

@@ -1,24 +1,26 @@
 <template>
-  <form class="login-form" @submit.prevent="login">
+  <form class="login-form" @submit.prevent="submit">
+    <div v-if="error">
+      <small class="error-text"> {{ error.message }}</small>
+    </div>
+    <div v-if="loading">
+      <small class="loading-text">Loading...</small>
+    </div>
     <input
-      ref="email"
-      v-model.trim="email"
+      v-model.trim="formData.email"
       name="email"
       type="email"
       placeholder="Email"
-      @focus="focusInput"
     />
-    <small class="error-text">{{ this.emailError }}</small>
     <input
-      ref="password"
-      v-model.trim="password"
+      v-model.trim="formData.password"
       name="password"
       type="password"
       placeholder="Password"
-      @focus="focusInput"
     />
-    <small class="error-text">{{ this.passwordError }}</small>
-    <button class="login-btn" type="submit">Login</button>
+    <button class="login-btn" type="submit" :disabled="loading || !valid">
+      Login
+    </button>
     <div>
       <small>Not a member?</small>
       <NuxtLink class="register-btn" to="signup"> Sign up now </NuxtLink>
@@ -26,62 +28,44 @@
   </form>
 </template>
 <script>
-import gql from 'graphql-tag'
+import { mapActions } from 'vuex'
+import { LOGIN } from '@/graphql/mutations'
 
 export default {
   name: 'LoginForm',
   data() {
     return {
-      email: '',
-      emailError: '',
-      password: '',
-      passwordError: '',
+      formData: {
+        email: '',
+        password: '',
+      },
+      error: null,
+      loading: false,
     }
   },
-  methods: {
-    focusInput(e) {
-      e.target.className = ''
-      if (e.target.name === 'email') {
-        this.emailError = ''
-      }
-      if (e.target.name === 'password') {
-        this.passwordError = ''
-      }
+  computed: {
+    valid() {
+      const { email, password } = this.formData
+      return email && password
     },
-    async login() {
-      if (this.email === '') {
-        this.emailError = 'Email required'
-        this.$refs.email.className = 'error'
-      }
-
-      if (this.password === '') {
-        this.passwordError = 'Password required'
-        this.$refs.password.className = 'error'
-      }
-
-      if (this.emailError !== '' && this.passwordError !== '') {
-        return
-      }
-
-      const login = gql`
-        mutation login($email: String!, $password: String!) {
-          login(email: $email, password: $password)
-        }
-      `
-
+  },
+  methods: {
+    ...mapActions('auth', ['login']),
+    async submit() {
       try {
+        this.error = null
+        this.loading = true
+
         const res = await this.$apollo.mutate({
-          mutation: login,
-          variables: {
-            email: this.email,
-            password: this.password,
-          },
+          mutation: LOGIN,
+          variables: this.formData,
         })
-        this.$store.commit('auth/setToken', res.data.login)
-        await this.$apolloHelpers.onLogin(res.data.login)
+        await this.login(res.data.login)
         this.$router.push({ path: '/' })
       } catch (ex) {
-        alert(ex)
+        this.error = { message: 'Wrong email/password combination' }
+      } finally {
+        this.loading = false
       }
     },
   },
@@ -99,30 +83,42 @@ export default {
   border: 1px solid;
   background: aliceblue;
   padding: 0 10px;
+  margin: 10px 0px;
   outline: none;
 }
 
-.login-form input.error {
-  border: 2px solid #ff0086;
+.error-text,
+.loading-text {
+  text-align: left;
+  padding: 5px 0px 10px;
+  font-weight: 900;
 }
 
 .error-text {
-  text-align: left;
-  padding: 5px 0px 10px;
-  color: #f913d2;
+  color: #f50749;
+}
+
+.loading-text {
+  color: green;
 }
 
 .login-btn {
   height: 35px;
   margin-bottom: 10px;
-  background: #beb4fb;
+  background: #75c2f9;
   color: black;
   border: none;
   border-radius: 5px;
 }
 
+.login-btn:disabled {
+  background: darkgray;
+  cursor: no-drop;
+  outline: none;
+}
+
 .register-btn {
   text-decoration: none;
-  color: #ff00c8;
+  color: #0d9ef3;
 }
 </style>

@@ -1,40 +1,11 @@
 <template>
-  <div id="app">
-    <NavBar :isAuthenticated="isAuthenticated" @logout="logout" />
-    <h3 class="title">The Country Roads</h3>
-    <div class="container">
-      <ListNews :isAuthenticated="isAuthenticated" />
-    </div>
+  <div class="container">
+    <ListNews />
   </div>
 </template>
-<script>
-export default {
-  data() {
-    return {
-      isAuthenticated: false,
-    }
-  },
-  mounted() {
-    this.isAuthenticated = !!this.$apolloHelpers.getToken()
-  },
-  methods: {
-    async logout() {
-      this.isAuthenticated = false
-      await this.$apolloHelpers.onLogout()
-      this.$store.commit('auth/setToken', '')
-      this.$router.push({ path: '/' })
-    },
-  },
-}
-</script>
 <style>
 body {
   background: #f0f8ff;
-}
-
-#app {
-  text-align: center;
-  padding-top: 5%;
 }
 
 .container {
