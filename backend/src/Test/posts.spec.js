@@ -1,32 +1,32 @@
 const { createTestClient } = require("apollo-server-testing");
-const {gql} = require("apollo-server");
-const {Post, PostsDataSource} = require("../DataSources/posts-data-source");
-const {User, UsersDataSource} = require("../DataSources/users-data-source");
+const {ApolloServer,gql} = require("apollo-server");
 const { GraphQLError } = require('graphql');
 const Server = require("../server");
-const utils = require("../utils");
+const context =require( '../context');
 
-let usersMemory
-let postsMemory
-let decoded
-let secondUser
-beforeEach(() => {
-    decoded = {}
-    usersMemory = new UsersDataSource();
-    usersMemory.users = [...utils.defaultUsers];
-    secondUser = usersMemory.users[1];
+const {users, posts} = require('./mockData');
 
-    postsMemory = new PostsDataSource();
-    postsMemory.posts = [...utils.defaultPosts];
-    thirdPost = postsMemory.posts[2];
+let query;
+let mutate;
+let server;
+let contextMock;
 
-})
 
-const testContext = () => decoded
-const server = new Server({context: testContext, dataSources: ()=> ({postsDataSrc: postsMemory, usersDataSrc: usersMemory})});
-const {query, mutate } = createTestClient(server);
+jest.mock('../graphCms/schema');
+jest.mock('../graphCms/executor');
+jest.mock('../rootSchema');
+
+
+beforeEach(async() => {
+    contextMock = {};
+    server = await Server(ApolloServer, { context: () => contextMock });
+    const testClient = createTestClient(server);
+    ({ query,mutate } = testClient);
+  });
+
 
 describe("queries", () => {
+
     describe("POSTS", () => {
         const GET_POSTS = gql`
                 query {
@@ -38,30 +38,19 @@ describe("queries", () => {
                 }
             `;
 
-        it("returns empty array", async () => {
-            postsMemory.posts = []
-            await expect(query({query: GET_POSTS}))
-            .resolves
-            .toMatchObject({
-                errors: undefined,
-                data: { posts: [] }
-            })
-        })
-
         it("given posts in the database", async () => {
-            postsMemory.posts = [new Post({title: "Rocks", votes:0, author:new User({name:'Andrej', email:'andrej@gmail.com', password:'12345678'})})];
-
             await expect(query({query: GET_POSTS}))
             .resolves
             .toMatchObject({
                 errors: undefined,
-                data: { posts: [{id: expect.any(String), title:"Rocks", votes:0}]}
+                data: { posts: [{
+                    id: expect.any(String), title: posts[0].title, votes:expect.any(Number)},
+                    {id: expect.any(String), title:posts[1].title, votes:expect.any(Number)},
+            ]}
             })
         })
 
         it("indefinitely nestable query", async () => {
-
-            postsMemory.posts = [...utils.defaultPosts];
 
             const NESTABLE_QUERY_POSTS = gql`
                 query {
@@ -88,15 +77,21 @@ describe("queries", () => {
                data :{posts:[
                     {
                         id: expect.any(String),
-                        title: "Just",
+                        title: posts[0].title,
                         author: {
-                            name: "An",
-                            email: "an@gmail.com",
+                            name: users[0].name,
+                            email: users[0].email,
                             posts: [
                                 {
-                                    title: "Just",
+                                    title: posts[0].title,
                                     author: {
-                                        name: "An"
+                                        name: users[0].name
+                                    }
+                                },
+                                {
+                                    title: posts[1].title,
+                                    author: {
+                                        name: users[0].name
                                     }
                                 }
                             ]
@@ -104,64 +99,26 @@ describe("queries", () => {
                     },
                     {
                         id: expect.any(String),
-                        title: "VueJS",
+                        title: posts[1].title,
                         author: {
-                            name: "Ilona",
-                            email: "ilona@gmail.com",
+                            name: users[1].name,
+                            email: users[1].email,
                             posts: [
                                 {
-                                    title: "VueJS",
+                                    title: posts[0].title,
                                     author: {
-                                        name: "Ilona",
+                                        name: users[1].name
                                     }
                                 },
                                 {
-                                    title: "CountrysRoad",
+                                    title: posts[1].title,
                                     author: {
-                                        name: "Ilona"
-                                    }
-                                },
-                            ]
-                        }
-                    },
-                    {
-                        id: expect.any(String),
-                        title: "Rocks",
-                        author: {
-                            name: "Andrej",
-                            email: "andrej@gmail.com",
-                            posts: [
-                                {
-                                    title: "Rocks",
-                                    author: {
-                                        name: "Andrej",
+                                        name: users[1].name
                                     }
                                 }
                             ]
                         }
-                    },
-                    {
-                        id: expect.any(String),
-                        title: "CountrysRoad",
-                        author: {
-                            name: "Ilona",
-                            email: "ilona@gmail.com",
-                            posts: [
-                                {
-                                    title: "VueJS",
-                                    author: {
-                                        name: "Ilona",
-                                    }
-                                },
-                                {
-                                    title: "CountrysRoad",
-                                    author: {
-                                        name: "Ilona",
-                                    }
-                                },
-                            ]
-                        }
-                    },
+                    }
                ]}
            })
         });
@@ -169,15 +126,43 @@ describe("queries", () => {
 });
 
 describe("mutations", () => {
-    beforeEach(() => {
-        server.context = () => ({decodedJwt: { id: secondUser.id}})
-    })
+
+    const SIGN_UP = gql`
+    mutation ($name: String!, $email: String!, $password: String!){
+        signup(name: $name, email: $email, password: $password)
+    }
+`;      
+    const signup_action = (name, email, password, mutate) => {
+        return mutate({
+            mutation: SIGN_UP,
+            variables: {
+                    name,
+                    email,
+                    password
+                }
+            });
+        };
 
     describe("WRITE_POST", () => {
-        beforeEach(() => {
-            postsMemory.posts = [];
-        })
 
+
+        beforeEach(async() => {
+            const response = await signup_action(
+                "Notexisting",
+                "notexisting@gmail.com",
+                "12345678",
+                mutate
+                );
+
+        const obj = {
+            req: {
+            headers: { authorization: response.data.signup},
+            },
+        };
+        server.context  = context(obj);
+        });
+
+        
         const WRITE_POST = gql`
             mutation($post: PostInput!) {
                 write(post: $post) {
@@ -215,40 +200,42 @@ describe("mutations", () => {
         });
 
         it('adds a post', async () => {
-            expect(postsMemory.posts).toHaveLength(0);
-            await create_action()
-            expect(postsMemory.posts).toHaveLength(1);
-        });
 
-        it('responds with created Post', async () => {
             await expect(create_action())
-            .resolves
-            .toMatchObject({
-                errors: undefined,
-                data: {
-                    write: {id: expect.any(String) ,title:"New Post", votes:0, author: { name:"Ilona" }}
-                }
-            })
+                  .resolves
+                  .toMatchObject({
+                    errors: undefined,
+                    data: {write: {
+                      author: 
+                        { name: users[0].name },
+                        id: posts[0].id,
+                        title: posts[0].title,
+                        votes: 2}
+                    },
+                  });
         });
 
-        it('calls createPost() ', async () => {
-            postsMemory.createPost = jest.fn(() => {});
-            await create_action()
-            expect(postsMemory.createPost).toHaveBeenCalledWith({title:"New Post"});
-        });
     });
 
 
     describe("ACTION_POST", () => {
-        let postId
 
-        beforeEach(() => {
-            postsMemory.posts = [
-                new Post({title: "Rocks", votes:0, author:
-                    new User({name:'Andrej', email:'andrej@gmail.com', password:'12345678'})})
-            ];
-            postId = postsMemory.posts[0].id;
+        beforeEach(async() => {
+            const response = await signup_action(
+                "Notexisting",
+                "notexisting@gmail.com",
+                "12345678",
+                mutate
+                );
+
+        const obj = {
+            req: {
+            headers: { authorization: response.data.signup},
+            },
+        };
+        server.context  = context(obj);
         });
+
 
         describe("UPVOTE", () => {
 
@@ -265,7 +252,7 @@ describe("mutations", () => {
             const upvote_action = () => mutate({
                     mutation: UPVOTE_POST,
                     variables: {
-                            id: postId
+                            id: 2
                         }
                     });
 
@@ -283,36 +270,15 @@ describe("mutations", () => {
                 })
             });
 
-            it('update votes', async () => {
-                expect(postsMemory.posts[0].getVotes()).toEqual(0);
-                await upvote_action()
-                expect(postsMemory.posts[0].getVotes()).toEqual(1);
-            });
-
-            it('responds with upvoted Post', async () => {
-
-                await expect(upvote_action())
-                .resolves
-                .toMatchObject({
-                    errors: undefined,
-                    data: {
-                        upvote: {id: expect.any(String) ,title:"Rocks", votes:1}
-                    }
-                })
-            });
 
             it('upvote a post only once', async () => {
-                expect(postsMemory.posts[0].getVotes()).toEqual(0);
-                await upvote_action()
-                expect(postsMemory.posts[0].getVotes()).toEqual(1);
-                await upvote_action()
-                expect(postsMemory.posts[0].getVotes()).toEqual(1);
-            });
-
-            it('calls upvotePost() ', async () => {
-                postsMemory.votePost = jest.fn(() => {});
-                await upvote_action()
-                expect(postsMemory.votePost).toHaveBeenCalledWith(postId, 1);
+                await expect(upvote_action())
+                .resolves.toMatchObject({
+                    errors: [expect.objectContaining({ message: "This user voted on that post already." })],
+                    data: {
+                        upvote: null,
+                    },
+                });
             });
         });
     })

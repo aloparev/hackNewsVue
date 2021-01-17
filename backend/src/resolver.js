@@ -1,43 +1,55 @@
-const resolvers = {
+
+const {writePost, upvotePost, downvotePost, deletePost, signup, login} = require('./utils')
+
+module.exports = ([{ schema, executor }]) => ({
   Query: {
-    posts: async (parent, args, context) => {
-      return await context.dataSources.postsDataSrc.allPosts()
+  },
+  Person:{
+    postCount: {
+      selectionSet: '{ posts {id} }',
+      resolve: (person) =>  person.posts.length
+    }
+  },
+  Post:{
+    votes: {
+      selectionSet: '{ voters {value} }',
+      resolve: (post) => post.voters.map(e => e.value).reduce((sum, e) => sum += e, 0)
     },
-    users: async (parent, args, context) => {
-      return await context.dataSources.usersDataSrc.allUsers()
-    }
-  },
-  User: {
-    posts: async (parent, args, context) => {
-      const posts = await context.dataSources.postsDataSrc.allPosts()
-      return posts.filter(e => e.author.id === parent.id)
-    }
-  },
-  Post: {
-    votes: async (parent) => {
-      return parent.getVotes()
+    authored:{
+      selectionSet: '{ author {id} }',
+      resolve: async (post, args, context) =>  {
+        if(context.person){
+          return context.person.id === post.author.id;
+        }
+
+        return false;
+      }
     }
   },
   Mutation: {
-    write: async (parent, args, context) => {
-      return await context.dataSources.postsDataSrc.createPost(args.post)
+    write: async (_, args, context, info) => {
+
+      return await writePost(context.person.id, args, schema, executor, context, info);
     },
-    upvote: async (parent, args, context) => {
-      return await context.dataSources.postsDataSrc.votePost(args.id, 1)
+    upvote: async (_, args, context, info) => {
+
+      return await upvotePost(context.person.id, args.id, schema, executor, context, info);
     },
-    downvote: async (parent, args, context) => {
-      return await context.dataSources.postsDataSrc.votePost(args.id, -1)
+    downvote: async (_, args, context, info) => {
+
+      return await downvotePost(context.person.id, args.id, schema, executor, context, info);
     },
-    delete: async (parent, args, context) => {
-      return await context.dataSources.postsDataSrc.deletePost(args.id)
+    delete: async (_, args, context, info) => {
+
+      return await deletePost(context.person.id, args.id, schema, executor, context, info);
     },
-    signup: async (parent, args, context) => {
-      return await context.dataSources.usersDataSrc.signup(args.name, args.email, args.password)
+    signup: async (_, args, context) => {
+
+      return await signup(args, executor, context);
     },
-    login: async (parent, args, context) => {
-      return await context.dataSources.usersDataSrc.login(args.email)
+    login: async (_, args, context) => {
+      
+      return await login(args, executor, context);
     }
   }
-}
-
-module.exports = resolvers
+});

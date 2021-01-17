@@ -1,276 +1,244 @@
-const { createTestClient } = require("apollo-server-testing");
-const {gql} = require("apollo-server");
-const {Post, PostsDataSource} = require("../DataSources/posts-data-source");
-const {User, UsersDataSource} = require("../DataSources/users-data-source");
-const { GraphQLError } = require('graphql');
-const Server = require("../server");
-const utils = require("../utils");
-const jwt = require("jsonwebtoken");
 
-let postsMemory = new PostsDataSource();
-let usersMemory = new UsersDataSource();
+const Server = require('../server');
+const{ createTestClient }= require('apollo-server-testing');
+const { ApolloServer, gql } =require( 'apollo-server');
 
-let decoded
-beforeEach(() => {
-    decoded = {jwt}
-})
+const {users, posts} = require('./mockData');
 
-const testContext = () => decoded
+let query;
+let mutate;
 
-const server = new Server({context: testContext, dataSources: ()=> ({postsDataSrc: postsMemory, usersDataSrc:usersMemory})});
-const {query, mutate } = createTestClient(server);
+jest.mock('../graphCms/schema');
+jest.mock('../graphCms/executor');
+jest.mock('../rootSchema');
+
+let contextMock;
+
+beforeEach(async () => {
+    contextMock = {};
+  const server = await Server(ApolloServer, { context: () => contextMock });
+  const testClient = createTestClient(server);
+  ({ query,mutate } = testClient);
+});
+
 
 describe("queries", () => {
-
     describe("USERS", () => {
         
-        const GET_USERS = gql`
-                query {
-                    users {
+        it("given users in the database", async () => {
+            const PEOPLE = gql`
+                {
+                    people {
                         id
                         name
-                        email
                     }
                 }
-            `;
-        
-        it("returns empty array", async () => {
-            usersMemory.users = []
-
-            await expect(query({query: GET_USERS}))
-            .resolves
-            .toMatchObject({
+            `;              
+            await expect(query({ query: PEOPLE }))
+                .resolves
+                .toMatchObject({
                 errors: undefined,
-                data: { users: [] }
-            })
-        })
-
-        it("given users in the database", async () => {
-            usersMemory.users = [new User({name:"Andrej", email:"andrej@gmail.com", password:"12345678"})]
-            
-            await expect(query({query: GET_USERS}))
-            .resolves
-            .toMatchObject({
-                errors: undefined,
-                data: { users: [{id:expect.any(String), name:"Andrej", email:"andrej@gmail.com"}]}
-            })
+                data: {
+                    people: [
+                       { id: expect.anything(String), name: users[0].name },
+                       { id: expect.anything(String), name: users[1].name  },
+                    ],
+                },
+                });
         })
 
         it("indefinitely nestable query", async () => {
-            usersMemory.users = [...utils.defaultUsers];
-            postsMemory.posts = [...utils.defaultPosts];
 
-            const NESTABLE_QUERY_USERS = gql`
-                query {
-                    users {
-                        id
-                        name
-                        email
-                        posts {
-                            title
-                            author {
-                                name
-                            }
+            const gql_query = gql`
+            {
+                people {
+                    id
+                    name
+                    email
+                    posts {
+                        title
+                        author {
+                            name
                         }
                     }
-                }`;
-            
-            await expect(query({query: NESTABLE_QUERY_USERS}))
-           .resolves
-           .toMatchObject({
-               errors: undefined,
-               data :{ users:
+                }
+            }
+            `;
+            await expect(query({ query: gql_query }))
+            .resolves
+            .toMatchObject({
+              errors: undefined,
+              data: {
+                people:                
                 [
                     {
-                        id: expect.any(String),
-                        name: "An",
-                        email: "an@gmail.com",
+                        id: users[0].id, 
+                        name: users[0].name, 
+                        email: users[0].email,
                         posts: [
                             {
-                                title: "Just",
+                                title: posts[0].title,
                                 author: {
-                                    name: "An",
+                                    name: users[0].name,
+                                }
+                            },
+                            {
+                                title: posts[1].title,
+                                author: {
+                                    name: users[0].name,
                                 }
                             }
                         ]
                     },
                     {
-                        id: expect.any(String),
-                        name: "Ilona",
-                        email: "ilona@gmail.com",
+                        id: users[1].id, 
+                        name: users[1].name,
+                        email: users[1].email,
                         posts: [
                             {
-                                title: "VueJS",
+                                title: posts[0].title,
                                 author: {
-                                    name: "Ilona"
+                                    name: users[1].name,
                                 }
                             },
                             {
-                                title: "CountrysRoad",
+                                title: posts[1].title,
                                 author: {
-                                    name: "Ilona"
+                                    name: users[1].name,
                                 }
-                            },
-                        ],
-                    },
-                    {
-                        id: expect.any(String),
-                        name: "Andrej",
-                        email: "andrej@gmail.com",
-                        posts: [
-                            {
-                                title: "Rocks",
-                                author: {
-                                    name: "Andrej",
-                                }
-                            },
-                        ],
-                    },
-               ]}
-           })
+                            }
+                        ]
+                    }
+               ]
+              },
+            });
         });
     });
 });
 
 describe("mutations", () => {
-    beforeEach(() => {
-        usersMemory.users = [...utils.defaultUsers];
-        postsMemory.posts = [...utils.defaultPosts];
-    })
 
     describe("SIGN UP", () => {
-        
+
         const SIGN_UP = gql`
             mutation ($name: String!, $email: String!, $password: String!){
                 signup(name: $name, email: $email, password: $password)
             }
         `;
 
-        const signup_action = () => mutate({
-            mutation: SIGN_UP,
-            variables: {
-                    name: "TestUser",
-                    email: "testUser@gmail.com",
-                    password: "12345678"
+
+        const signup_action = (name, email, password, mutate) => {
+            return mutate({
+                mutation: SIGN_UP,
+                variables: {
+                        name,
+                        email,
+                        password
                 }
             });
+        };
         
-        it("checks signup", async () => {
-            await expect(signup_action())
-            .resolves
-            .toMatchObject({
+        
+        it("throws error if the password is too short", async () => {
+            const response = signup_action(
+                "TestUser2",
+                "testUser2@gmail.com",
+                "123",
+                mutate
+              );
+
+            await expect(response)
+            .resolves.toMatchObject({
+                errors: [expect.objectContaining({ message: "Accept only passwords with a length of at least 8 characters" })],
+                data: {
+                signup: null,
+                },
+            });
+        })
+
+        it("signs up new user", async () => {
+            const response = signup_action(
+                "Notexisting",
+                "notexisting@gmail.com",
+                "12345678",
+                mutate
+                );
+
+            await expect(response)
+            .resolves.toMatchObject({
                 errors: undefined,
                 data: {
                     signup: expect.any(String)
-                }
-            })
-        });
-        
-        it("returns a JWT", async () => {
-            let {data} = await signup_action()
-            const {id} = jwt.verify(data.signup, process.env.JWT_SECRET)
-            expect(id).toEqual(usersMemory.users[usersMemory.users.length - 1].id)
-        })
-
-        it("adds a new User", async () => {
-            expect(usersMemory.users).toHaveLength(3);
-            await signup_action()
-            expect(usersMemory.users).toHaveLength(4);
-        });
-
-        it("checks email is not taken by another", async () => {
-            await signup_action()
-            
-            await expect(signup_action())
-            .resolves
-            .toMatchObject({
-                errors: [new GraphQLError("This email already is taken by another user")],
-                data: {
-                    signup: null
-                }
-            })
-        });
-
-        it("checks passwords with a length of at least 8 characters", async () => {
-            
-            const signup_action_short_password = () => mutate({
-                mutation: SIGN_UP,
-                variables: {
-                        name: "TestUser",
-                        email: "testUser@gmail.com",
-                        password: "123456"
-                    }
+                },
             });
-
-            await expect(signup_action_short_password())
-            .resolves
-            .toMatchObject({
-                errors: [new GraphQLError("Not Authorised!")],
-                data: {
-                    signup: null
-                }
-            })
         });
 
-        it("calls signup() ", async () => {
-            usersMemory.signup = jest.fn(() => {});
-            await signup_action()
-            expect(usersMemory.signup).toHaveBeenCalledWith("TestUser","testUser@gmail.com","12345678");
+        it("User already exist", async () => {
+            const response = signup_action(
+                users[0].name,
+                users[0].email,
+                "12345678",
+                mutate
+            );
+
+            await expect(response)
+            .resolves.toMatchObject({
+                errors: [expect.objectContaining({ message: "Email already exist"})],
+                data: {
+                    signup: null,
+                },
+            });
         });
     });
 
     describe("LOGIN", () => {
-        
+
         const LOGIN = gql`
             mutation ($email: String!, $password: String!){
                 login(email: $email, password: $password)
             }
         `;
 
-        const login_action = () => mutate({
-            mutation: LOGIN,
-            variables: {
-                    email: "andrej@gmail.com",
-                    password: "12345678"
-                }
-            });
-        
-        it("checks login", async () => {
+        const login_action = ( email, password, mutate) => {
+            return mutate({
+                mutation: LOGIN,
+                variables: {
+                        email,
+                        password
+                    }
+                });
+        };
 
-            await expect(login_action())
-            .resolves
-            .toMatchObject({
+        it("login", async () => {
+            const response = login_action(
+                users[0].email,
+                "12345678",
+                mutate
+                );
+
+            await expect(response)
+            .resolves.toMatchObject({
                 errors: undefined,
                 data: {
                     login: expect.any(String)
-                }
-            })
-        });
-
-        it("throws GraphQLError if no user exists with given email address", async () => {
-
-            login_not_exist_user_action = () => mutate({
-                mutation: LOGIN,
-                variables: {
-                        email: "notExistUser@gmail.com",
-                        password: "12345678"
-                    }
-                });
-
-            await expect(login_not_exist_user_action())
-            .resolves
-            .toMatchObject({
-                errors: [new GraphQLError("Not Authorised!")],
-                data: {
-                    login: null
-                }
+                },
             });
         });
 
-        it("calls login() ", async () => {
-            usersMemory.login = jest.fn(() => {});
-            await login_action()
-            expect(usersMemory.login).toHaveBeenCalledWith("andrej@gmail.com");
+        it("throws error if credentials are wrong", async () => {
+            const response = login_action(
+                "notexisting@gmail.com",
+                "12345678",
+                mutate
+              );
+            
+            await expect(response)
+            .resolves.toMatchObject({
+                errors: [expect.objectContaining({ message: "Wrong email/password combination" })],
+                data: {
+                    login: null,
+                },
+            });
         });
     });
 })
