@@ -2,6 +2,10 @@ const {UserInputError, AuthenticationError, gql} = require('apollo-server');
 const { delegateToSchema } = require('@graphql-tools/delegate');
 const bcrypt = require('bcrypt');
 
+const NEW_VOTE = 0
+const VOTE_AGAIN = 1
+const NOT_ALLOWED_VOTE = -1
+
 const login = async(args, executor, context) => {
   const document  = gql`
     query{
@@ -114,13 +118,17 @@ const checkEmailExist = async (email, executor) => {
   return !!person;
 }
 
-const mayVote = async(userId, postId, executor) => {
+/**
+ * @param val is either -1 or 1.if -1 is downvote, otherwise upvote 
+ */
+const mayVote = async(userId, postId, val, executor) => {
   
   //get the list voters of User
   const document  = gql`
   query ($userId: ID!, $postId: ID!) {
     voters(where: {person: {id: $userId}, post: {id: $postId}}) {
       id
+      value
     }
   }`;
 
@@ -131,56 +139,32 @@ const mayVote = async(userId, postId, executor) => {
   }
   
   const { voters } = data;
+  let voteType = NEW_VOTE
+  let voterId = null
 
-  return voters != null && voters.length == 0;
+  if(voters) {
+    if(voters.length > 0) { // User already has voted (max length = 1)
+      if(voters[0].value === val) {
+        voteType = NOT_ALLOWED_VOTE;
+      } else {
+        voteType = VOTE_AGAIN; //user is allowed vote again.
+        voterId = voters[0].id
+      }
+    }
+  }
+
+  return { voteType, voterId }
 }
 
 const upvotePost = async(userId, postId, schema, executor, context, info) => {
-
-  await checkForErrors(userId, postId, executor);
-
-  if(!await checkForExistingPost(userId, postId, 1, executor)) {
-
-  const upvotedPost = await delegateToSchema({
-    schema,
-    operation: 'query',
-    fieldName: 'post',
-    args: {
-      where: { id: postId },
-    },
-    context,
-    info
-  });
-  
-
-  return upvotedPost;
-}
-return null;
+  return await votePost(userId, postId, 1, schema, executor, context, info)
 }
 
 const downvotePost = async(userId, postId, schema, executor, context, info) => {
-
-await checkForErrors(userId, postId, executor);
-
-if(!await checkForExistingPost(userId, postId, -1, executor)) {
-
-  const votedPost = await delegateToSchema({
-    schema,
-    operation: 'query',
-    fieldName: 'post',
-    args: {
-      where: { id: postId },
-    },
-    context,
-    info
-  });
-
-  return votedPost;
-}
- return null;
+  return await votePost(userId, postId, -1, schema, executor, context, info)
 }
 
-const checkForErrors = async(userId, postId, executor ) => {
+const votePost = async(userId, postId, val, schema, executor, context, info) => {
   
   if(!await checkUserExist(userId, executor)) { //user is not exist?
     throw new AuthenticationError("Sorry, your credentials are wrong!");
@@ -190,8 +174,73 @@ const checkForErrors = async(userId, postId, executor ) => {
     throw new UserInputError("No post with this ID found.");
   }
 
-  if(!await mayVote(userId, postId, executor)) {
+  const { voteType, voterId } = await mayVote(userId, postId, val, executor)
+  
+  if(voteType === NOT_ALLOWED_VOTE) {
     throw new UserInputError("This user voted on that post already.");
+  }
+  
+  let variables = {}
+  let document = null
+
+  if(voteType === VOTE_AGAIN && voterId) {
+
+    variables = { 
+      data:{
+        value: val
+      },
+      where: {
+        id: voterId
+      }
+    }
+
+    document = gql`
+      mutation ($data: VoterUpdateInput!, $where: VoterWhereUniqueInput!) {
+        updateVoter(data: $data, where: $where) {
+          id
+        }
+      }
+    `;
+    
+  } else { //NEW_VOTE
+    variables = { 
+      data:{
+        person:{
+          connect: {id:userId}
+        },
+        post:{
+          connect:{id:postId}
+        },
+        value: val
+      }
+    }
+    
+    document = gql`
+      mutation ($data: VoterCreateInput!) {
+        createVoter(data: $data) {
+          id
+        }
+      }
+    `;
+  }
+  const { data, errors }  = await executor({ document, variables });
+  
+  if (errors) throw new UserInputError(errors.map((e) => e.message).join('\n'));
+  
+  if (data.createVoter || data.updateVoter) {
+  
+    const votedPost = await delegateToSchema({
+      schema,
+      operation: 'query',
+      fieldName: 'post',
+      args: {
+        where: { id: postId },
+      },
+      context,
+      info
+    });
+  
+    return votedPost;
   }
   
   return null;

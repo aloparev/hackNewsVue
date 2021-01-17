@@ -210,7 +210,7 @@ describe("mutations", () => {
                         { name: users[0].name },
                         id: posts[0].id,
                         title: posts[0].title,
-                        votes: 4}
+                        votes: 2}
                     },
                   });
         });
