@@ -4,6 +4,8 @@ const { GraphQLError } = require('graphql');
 const Server = require("../server");
 const context =require( '../context');
 
+const {users, posts} = require('./mockData');
+
 let query;
 let mutate;
 let server;
@@ -42,8 +44,8 @@ describe("queries", () => {
             .toMatchObject({
                 errors: undefined,
                 data: { posts: [{
-                    id: expect.any(String), title:"Mocktitle", votes:expect.any(Number)},
-                    {id: expect.any(String), title:"Mocktitle", votes:expect.any(Number)},
+                    id: expect.any(String), title: posts[0].title, votes:expect.any(Number)},
+                    {id: expect.any(String), title:posts[1].title, votes:expect.any(Number)},
             ]}
             })
         })
@@ -75,21 +77,21 @@ describe("queries", () => {
                data :{posts:[
                     {
                         id: expect.any(String),
-                        title: "Mocktitle",
+                        title: posts[0].title,
                         author: {
-                            name: "TestUser",
-                            email: "testmail@gmail.com",
+                            name: users[0].name,
+                            email: users[0].email,
                             posts: [
                                 {
-                                    title: "Mocktitle",
+                                    title: posts[0].title,
                                     author: {
-                                        name: "TestUser"
+                                        name: users[0].name
                                     }
                                 },
                                 {
-                                    title: "Mocktitle",
+                                    title: posts[1].title,
                                     author: {
-                                        name: "TestUser"
+                                        name: users[0].name
                                     }
                                 }
                             ]
@@ -97,21 +99,21 @@ describe("queries", () => {
                     },
                     {
                         id: expect.any(String),
-                        title: "Mocktitle",
+                        title: posts[1].title,
                         author: {
-                            name: "TestUser",
-                            email: "testmail@gmail.com",
+                            name: users[1].name,
+                            email: users[1].email,
                             posts: [
                                 {
-                                    title: "Mocktitle",
+                                    title: posts[0].title,
                                     author: {
-                                        name: "TestUser"
+                                        name: users[1].name
                                     }
                                 },
                                 {
-                                    title: "Mocktitle",
+                                    title: posts[1].title,
                                     author: {
-                                        name: "TestUser"
+                                        name: users[1].name
                                     }
                                 }
                             ]
@@ -205,24 +207,14 @@ describe("mutations", () => {
                     errors: undefined,
                     data: {write: {
                       author: 
-                        { name: 'TestUser' },
-                        id: "2",
-                        title: "Mocktitle",
+                        { name: users[0].name },
+                        id: posts[0].id,
+                        title: posts[0].title,
                         votes: 4}
                     },
                   });
         });
 
-        it('responds with created Post', async () => {
-            await expect(create_action())
-            .resolves
-            .toMatchObject({
-                errors: undefined,
-                data: {
-                    write: {id: expect.any(String) ,title:"Mocktitle", votes:4, author: { name:"TestUser" }}
-                }
-            })
-        });
     });
 
 

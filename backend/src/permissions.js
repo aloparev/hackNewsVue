@@ -7,18 +7,6 @@ const isAuthenticated = rule({ cache: 'contextual' })(
     },
 )
 
-const isPasswordShort = rule({ cache: 'contextual' })(
-    async (parent, args) => {
-        
-        args.password = args.password.trim();
-        if(args.password.length < 8){
-            new Error("Accept only passwords with a length of at least 8 characters")
-        }else{
-            return true;
-        }
-    },
-)
-
 const permissions = shield({
     Query: {
         '*': deny,
@@ -37,10 +25,10 @@ const permissions = shield({
         '*': deny,
         write: isAuthenticated,
         login: allow,
+        signup: allow,
         upvote: isAuthenticated,
         delete: isAuthenticated,
-        downvote: isAuthenticated,
-        signup: isPasswordShort
+        downvote: isAuthenticated
     },
   }, {
     allowExternalErrors: true,

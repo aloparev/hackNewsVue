@@ -7,23 +7,21 @@ const contextMock = {jwtSign}
 
 
 module.exports = async ({ document, variables }) => {
-    const sch = await schema();
+    const mockedSchema = await schema();
     const query = print(document);
-    let ops;
 
         const tokens = query.split('!')
-        const ab = Object.values(variables);
-        var zip = [];
+        const vars = Object.values(variables);
+        let filledQuery = [];
         let max = tokens.length - 1;
         for(let i = 0; i < tokens.length; i++){
             if(max-- > 0){
-                zip.push(tokens[i]+`="` +ab[i]+`"`);
+                filledQuery.push(tokens[i]+`="` +vars[i]+`"`);
             }else {
-                zip.push(tokens[i]);
+                filledQuery.push(tokens[i]);
             }
         }
-        zip=zip.join(' ');
-        ops=zip;
+        filledQuery=filledQuery.join(' ');
     
-    return (await graphql( sch, ops, contextMock))
+    return (await graphql( mockedSchema, filledQuery, contextMock))
 };

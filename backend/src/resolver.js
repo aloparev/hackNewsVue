@@ -1,5 +1,5 @@
 
-const {writePost, votePost, deletePost, signup, login} = require('./utils')
+const {writePost, upvotePost, downvotePost, deletePost, signup, login} = require('./utils')
 
 module.exports = ([{ schema, executor }]) => ({
   Query: {
@@ -33,11 +33,11 @@ module.exports = ([{ schema, executor }]) => ({
     },
     upvote: async (_, args, context, info) => {
 
-      return await votePost(context.person.id, args.id, 1, schema, executor, context, info);
+      return await upvotePost(context.person.id, args.id, schema, executor, context, info);
     },
     downvote: async (_, args, context, info) => {
 
-      return await votePost(context.person.id, args.id, -1 , schema, executor, context, info);
+      return await downvotePost(context.person.id, args.id, schema, executor, context, info);
     },
     delete: async (_, args, context, info) => {
 

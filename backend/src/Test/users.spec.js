@@ -2,7 +2,9 @@
 const Server = require('../server');
 const{ createTestClient }= require('apollo-server-testing');
 const { ApolloServer, gql } =require( 'apollo-server');
-const context =require( '../context');
+
+const {users, posts} = require('./mockData');
+
 let query;
 let mutate;
 
@@ -10,9 +12,7 @@ jest.mock('../graphCms/schema');
 jest.mock('../graphCms/executor');
 jest.mock('../rootSchema');
 
-
 let contextMock;
-
 
 beforeEach(async () => {
     contextMock = {};
@@ -40,8 +40,8 @@ describe("queries", () => {
                 errors: undefined,
                 data: {
                     people: [
-                       { id: expect.anything(String), name: 'TestUser' },
-                       { id: expect.anything(String), name: 'TestUser' },
+                       { id: expect.anything(String), name: users[0].name },
+                       { id: expect.anything(String), name: users[1].name  },
                     ],
                 },
                 });
@@ -72,39 +72,39 @@ describe("queries", () => {
                 people:                
                 [
                     {
-                        id:"1", 
-                        name:"TestUser", 
-                        email:"testmail@gmail.com",
+                        id: users[0].id, 
+                        name: users[0].name, 
+                        email: users[0].email,
                         posts: [
                             {
-                                title: "Mocktitle",
+                                title: posts[0].title,
                                 author: {
-                                    name: "TestUser",
+                                    name: users[0].name,
                                 }
                             },
                             {
-                                title: "Mocktitle",
+                                title: posts[1].title,
                                 author: {
-                                    name: "TestUser",
+                                    name: users[0].name,
                                 }
                             }
                         ]
                     },
                     {
-                        id:"1", 
-                        name:"TestUser", 
-                        email:"testmail@gmail.com",
+                        id: users[1].id, 
+                        name: users[1].name,
+                        email: users[1].email,
                         posts: [
                             {
-                                title: "Mocktitle",
+                                title: posts[0].title,
                                 author: {
-                                    name: "TestUser",
+                                    name: users[1].name,
                                 }
                             },
                             {
-                                title: "Mocktitle",
+                                title: posts[1].title,
                                 author: {
-                                    name: "TestUser",
+                                    name: users[1].name,
                                 }
                             }
                         ]
@@ -149,7 +149,7 @@ describe("mutations", () => {
 
             await expect(response)
             .resolves.toMatchObject({
-                errors: [expect.objectContaining({ message: "Not Authorised!" })],
+                errors: [expect.objectContaining({ message: "Accept only passwords with a length of at least 8 characters" })],
                 data: {
                 signup: null,
                 },
@@ -175,8 +175,8 @@ describe("mutations", () => {
 
         it("User already exist", async () => {
             const response = signup_action(
-                "TestUser",
-                "testmail@gmail.com",
+                users[0].name,
+                users[0].email,
                 "12345678",
                 mutate
             );
@@ -211,7 +211,7 @@ describe("mutations", () => {
 
         it("login", async () => {
             const response = login_action(
-                "testmail@gmail.com",
+                users[0].email,
                 "12345678",
                 mutate
                 );

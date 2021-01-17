@@ -29,11 +29,17 @@ const login = async(args, executor, context) => {
 }
 
 const signup = async(args, executor, context) => {
-  const { name, email, password } = args;
+  let { name, email, password } = args;
 
   if (await checkEmailExist(email, executor)) {
     throw new UserInputError("Email already exist");
   }
+
+  password = password.trim();
+  if(password.length < 8){
+    throw new UserInputError("Accept only passwords with a length of at least 8 characters")
+  }
+  const passwordHash = bcrypt.hashSync(password, 10);
 
   //insert the new user in database
   let document = gql`
@@ -44,7 +50,6 @@ const signup = async(args, executor, context) => {
   }
   `;
 
-  const passwordHash = bcrypt.hashSync(password, 10);
   let response = await executor({ document, variables : { name, email, password: passwordHash} });
 
   if (response.errors) {
@@ -130,8 +135,52 @@ const mayVote = async(userId, postId, executor) => {
   return voters != null && voters.length == 0;
 }
 
-//val = 1 or -1
-const votePost = async(userId, postId, val, schema, executor, context, info) => {
+const upvotePost = async(userId, postId, schema, executor, context, info) => {
+
+  await checkForErrors(userId, postId, executor);
+
+  if(!await checkForExistingPost(userId, postId, 1, executor)) {
+
+  const upvotedPost = await delegateToSchema({
+    schema,
+    operation: 'query',
+    fieldName: 'post',
+    args: {
+      where: { id: postId },
+    },
+    context,
+    info
+  });
+  
+
+  return upvotedPost;
+}
+return null;
+}
+
+const downvotePost = async(userId, postId, schema, executor, context, info) => {
+
+await checkForErrors(userId, postId, executor);
+
+if(!await checkForExistingPost(userId, postId, -1, executor)) {
+
+  const votedPost = await delegateToSchema({
+    schema,
+    operation: 'query',
+    fieldName: 'post',
+    args: {
+      where: { id: postId },
+    },
+    context,
+    info
+  });
+
+  return votedPost;
+}
+ return null;
+}
+
+const checkForErrors = async(userId, postId, executor ) => {
   
   if(!await checkUserExist(userId, executor)) { //user is not exist?
     throw new AuthenticationError("Sorry, your credentials are wrong!");
@@ -144,6 +193,11 @@ const votePost = async(userId, postId, val, schema, executor, context, info) => 
   if(!await mayVote(userId, postId, executor)) {
     throw new UserInputError("This user voted on that post already.");
   }
+  
+  return null;
+}
+
+const checkForExistingPost= async(userId, postId,value, executor ) => {
 
   const param = { 
     data:{
@@ -153,10 +207,10 @@ const votePost = async(userId, postId, val, schema, executor, context, info) => 
       post:{
         connect:{id:postId}
       },
-      value: val
+      value
     }
   }
-  
+
   let document = gql`
   mutation ($data: VoterCreateInput!) {
     createVoter(data: $data) {
@@ -164,30 +218,12 @@ const votePost = async(userId, postId, val, schema, executor, context, info) => 
     }
   }
   `;
-  
-  const { data, errors }  = await executor({ document, variables : {data: param.data} });
-  
-  if (errors) throw new UserInputError(errors.map((e) => e.message).join('\n'));
-  
-  if (data.createVoter) {
-  
-    const votedPost = await delegateToSchema({
-      schema,
-      operation: 'query',
-      fieldName: 'post',
-      args: {
-        where: { id: postId },
-      },
-      context,
-      info
-    });
-  
-    return votedPost;
-  }
-  
-  return null;
-}
+   const { data, errors } = await executor({ document, variables : {data: param.data} });
+if (errors) throw new UserInputError(errors.map((e) => e.message).join('\n'));
+const { createVoter } = data;
+return createVoter != null && createVoter.length == 0;
 
+}
 
 const writePost = async(userId, args, schema, executor, context, info) => {
   if(!await checkUserExist(userId, executor)) { //user is not exist
@@ -278,4 +314,4 @@ const deletePost = async(userId, postId, schema, executor, context, info) => {
   return deletedPost;
 }
 
-module.exports = {votePost, writePost, deletePost, signup, login}
+module.exports = {upvotePost, downvotePost, writePost, deletePost, signup, login}

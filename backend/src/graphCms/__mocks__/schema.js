@@ -1,9 +1,6 @@
 const { addMocksToSchema }= require ('@graphql-tools/mock');
-const { applyMiddleware } = require('graphql-middleware');
 const { makeExecutableSchema } = require('apollo-server')
-const { graphql } = require('graphql');
 const { join }= require( 'path');
-const casual = require('casual');
 const mocks = require('./mockData');
 
 const fs = require('fs');
