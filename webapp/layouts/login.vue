@@ -1,9 +1,27 @@
 <template>
-  <div class="container">
-    <ListNews />
+  <div id="app">
+    <h3 class="title">The Country Roads</h3>
+    <Nuxt />
   </div>
 </template>
-<style>
+<style scoped>
+html {
+  font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 16px;
+  word-spacing: 1px;
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  box-sizing: border-box;
+}
+
+#app {
+  text-align: center;
+  padding-top: 5%;
+}
+
 body {
   background: #f0f8ff;
 }
@@ -18,7 +36,7 @@ body {
   box-shadow: 0px 0px 4px 4px gray;
   border-radius: 10px;
   background: #fff;
-  width: 1000px;
+  width: 350px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -31,8 +49,15 @@ body {
   font-size: 50px;
   color: #35495e;
   letter-spacing: 1px;
-  background: #9b84f996;
+  background: #b5e0ff;
   padding: 10px;
   margin-bottom: 20px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
 }
 </style>
