@@ -6,9 +6,7 @@ export const ALL_NEWS = gql`
       id
       title
       votes
-      author {
-        id
-      }
+      authored
     }
   }
 `
