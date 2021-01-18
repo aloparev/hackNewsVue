@@ -4,6 +4,11 @@
     <Nuxt />
   </div>
 </template>
+<script>
+export default {
+  middleware: 'isAuth',
+}
+</script>
 <style scoped>
 html {
   font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI',
