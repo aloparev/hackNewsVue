@@ -1,17 +1,20 @@
 <template>
-  <div>
-    <h2>{{ news.title }} ({{ news.votes }})</h2>
-    <div>
-      <button class="upvote" @click="upvote">Upvote</button>
-      <button class="downvote" @click="downvote">Downvote</button>
-      <button class="delete" @click="deleteItem">Remove</button>
+  <div class="news-item">
+    <h2>{{ news.title }}</h2>
+    <h4>{{ news.votes }}</h4>
+    <div v-if="isAuthenticated" style="text-align: left">
+      <button @click="upvote">Upvote</button>
+      <button @click="downvote">Downvote</button>
+      <button v-if="isAuthor" @click="edit">Edit</button>
+      <button v-if="isAuthor" @click="remove">Remove</button>
     </div>
   </div>
 </template>
 
 <script>
-import gql from 'graphql-tag'
-require('regenerator-runtime/runtime')
+import jwt_decode from 'jwt-decode'
+import { mapGetters, mapState } from 'vuex'
+
 export default {
   name: 'News',
   props: {
@@ -20,97 +23,40 @@ export default {
       required: true,
     },
   },
-  data() {
-    return {
-      currentUser: { name: 'TestUser' },
-    }
+  computed: {
+    ...mapState('auth', ['token']),
+    ...mapGetters('auth', ['isAuthenticated']),
+    isAuthor() {
+      return (
+        this.isAuthenticated &&
+        this.news.author.id === jwt_decode(this.token).id
+      )
+    },
   },
   methods: {
-    async deleteItem() {
-      try {
-        const response = await this.$apollo
-          .mutate({
-            mutation: gql`
-              mutation($id: ID!) {
-                delete(id: $id) {
-                  title
-                }
-              }
-            `,
-            variables: {
-              id: this.news.id,
-            },
-          })
-          .catch(console.error)
-
-        console.log(response.data.delete)
-        this.$emit('delete-news')
-      } catch {
-        throw new Error("Mutation 'delete' failed!")
-      }
+    upvote() {
+      // TODO
     },
-    async upvote() {
-      try {
-        const response = await this.$apollo
-          .mutate({
-            mutation: gql`
-              mutation($id: ID!, $voter: UserInput!) {
-                upvote(id: $id, voter: $voter) {
-                  title
-                  votes
-                  voters {
-                    name
-                  }
-                }
-              }
-            `,
-            variables: {
-              id: this.news.id,
-              voter: this.currentUser,
-            },
-          })
-          .catch(console.error)
-
-        console.log(response.data.upvote)
-        this.$emit('update', {
-          ...this.news,
-          votes: response.data.upvote.votes,
-        })
-      } catch {
-        throw new Error("Mutation 'upvote' failed!")
-      }
+    downvote() {
+      // TODO
     },
-    async downvote() {
-      try {
-        const response = await this.$apollo
-          .mutate({
-            mutation: gql`
-              mutation($id: ID!, $voter: UserInput!) {
-                downvote(id: $id, voter: $voter) {
-                  title
-                  votes
-                  voters {
-                    name
-                  }
-                }
-              }
-            `,
-            variables: {
-              id: this.news.id,
-              voter: this.currentUser,
-            },
-          })
-          .catch(console.error)
-
-        console.log(response.data.downvote)
-        this.$emit('update', {
-          ...this.news,
-          votes: response.data.downvote.votes,
-        })
-      } catch {
-        throw new Error("Mutation 'downvote' failed!")
-      }
+    edit() {
+      // TODO
+    },
+    remove() {
+      // TODO
     },
   },
 }
 </script>
+<style scoped>
+.news-item {
+  padding: 10px;
+  display: inline-grid;
+  grid-template-columns: 60% 10% 30%;
+  width: 100%;
+}
+h2 {
+  text-align: left;
+}
+</style>
