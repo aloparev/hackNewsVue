@@ -12,7 +12,6 @@ module.exports = {
     sourceType: 'module',
   },
   extends: [
-    '@nuxtjs',
     'eslint:recommended',
     'plugin:vue/essential',
     'plugin:prettier/recommended',
@@ -38,6 +37,7 @@ module.exports = {
         math: 'always',
       },
     ],
+    'vue/this-in-template': 'off',
     'no-console': 'off',
     'vue/singleline-html-element-content-newline': 'off',
   },

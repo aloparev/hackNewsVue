@@ -18,7 +18,6 @@ export default {
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
   plugins: [],
-
   // Auto import components (https://go.nuxtjs.dev/config-components)
   components: true,
 
@@ -26,6 +25,7 @@ export default {
   buildModules: [
     // https://go.nuxtjs.dev/eslint
     '@nuxtjs/eslint-module',
+    '@nuxtjs/pwa',
   ],
 
   // Modules (https://go.nuxtjs.dev/config-modules)
@@ -34,8 +34,19 @@ export default {
     '@nuxtjs/pwa',
     // https://go.nuxtjs.dev/content
     '@nuxt/content',
+    '@nuxtjs/apollo',
   ],
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {},
+
+  apollo: {
+    // Sets up the apollo client endpoints
+    clientConfigs: {
+      default: {
+        // required
+        httpEndpoint: 'http://localhost:4000',
+      },
+    },
+  },
 }
