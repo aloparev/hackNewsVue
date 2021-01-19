@@ -246,34 +246,6 @@ const votePost = async(userId, postId, val, schema, executor, context, info) => 
   return null;
 }
 
-const checkForExistingPost= async(userId, postId,value, executor ) => {
-
-  const param = { 
-    data:{
-      person:{
-        connect: {id:userId}
-      },
-      post:{
-        connect:{id:postId}
-      },
-      value
-    }
-  }
-
-  let document = gql`
-  mutation ($data: VoterCreateInput!) {
-    createVoter(data: $data) {
-      id
-    }
-  }
-  `;
-   const { data, errors } = await executor({ document, variables : {data: param.data} });
-if (errors) throw new UserInputError(errors.map((e) => e.message).join('\n'));
-const { createVoter } = data;
-return createVoter != null && createVoter.length == 0;
-
-}
-
 const writePost = async(userId, args, schema, executor, context, info) => {
   if(!await checkUserExist(userId, executor)) { //user is not exist
     throw new AuthenticationError("Sorry, your credentials are wrong!");
