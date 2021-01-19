@@ -55,7 +55,9 @@ describe('LoginForm.vue', () => {
 
     describe('when register are wrong', () => {
       it('shows password short error', async () => {
-        actions.signup = jest.fn().mockRejectedValue(new GraphQLError(PASSWORT_SHORT))
+        actions.signup = jest
+          .fn()
+          .mockRejectedValue(new GraphQLError(PASSWORT_SHORT))
         const wrapper = setupWrapper()
         await signup(wrapper)
         await localVue.nextTick()
@@ -63,7 +65,9 @@ describe('LoginForm.vue', () => {
       })
 
       it('shows email exist error', async () => {
-        actions.signup = jest.fn().mockRejectedValue(new GraphQLError(EMAIL_EXIST))
+        actions.signup = jest
+          .fn()
+          .mockRejectedValue(new GraphQLError(EMAIL_EXIST))
         const wrapper = setupWrapper()
         await signup(wrapper)
         await localVue.nextTick()
