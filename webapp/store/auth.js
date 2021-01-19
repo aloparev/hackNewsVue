@@ -1,3 +1,4 @@
+import { LOGIN, SIGNUP } from '@/graphql/mutations'
 import { SET_TOKEN, SET_USER } from '.'
 
 export const state = () => ({
@@ -12,21 +13,40 @@ export const getters = {
 }
 
 export const mutations = {
-  [SET_TOKEN](state, token) {
+  async [SET_TOKEN](state, token) {
     state.token = token
+
+    if (token) {
+      await this.$apolloHelpers.onLogin(token)
+    } else {
+      await this.$apolloHelpers.onLogout()
+    }
   },
-  [SET_USER](state, token) {
-    state.token = token
+  [SET_USER](state, user) {
+    state.currentUser = user
   },
 }
 
 export const actions = {
-  async login({ commit }, token) {
-    commit(SET_TOKEN, token)
-    await this.$apolloHelpers.onLogin(token)
+  async login({ commit }, { email, password, apollo }) {
+    const res = await apollo.mutate({
+      mutation: LOGIN,
+      variables: { email, password },
+    })
+
+    const token = res.data.login
+    await commit(SET_TOKEN, token)
+  },
+  async signup({ commit }, { name, email, password, apollo }) {
+    const res = await apollo.mutate({
+      mutation: SIGNUP,
+      variables: { name, email, password },
+    })
+
+    const token = res.data.signup
+    await commit(SET_TOKEN, token)
   },
   async logout({ commit }) {
-    commit(SET_TOKEN, null)
-    await this.$apolloHelpers.onLogout()
+    await commit(SET_TOKEN, null)
   },
 }

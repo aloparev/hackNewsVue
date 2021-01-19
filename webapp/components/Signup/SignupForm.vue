@@ -7,18 +7,21 @@
       <small class="loading-text">Loading...</small>
     </div>
     <input
+      id="email"
       v-model.trim="formData.email"
       name="email"
       type="email"
       placeholder="Email"
     />
     <input
+      id="password"
       v-model.trim="formData.password"
       name="password"
       type="password"
       placeholder="Password"
     />
     <input
+      id="name"
       v-model.trim="formData.name"
       name="name"
       type="text"
@@ -35,7 +38,7 @@
 </template>
 <script>
 import { mapActions } from 'vuex'
-import { SIGNUP } from '@/graphql/mutations'
+import { UNKNOWN_ERROR, SIGNUP_ERRORS } from '@/static/error'
 
 export default {
   name: 'SignupForm',
@@ -57,22 +60,19 @@ export default {
     },
   },
   methods: {
-    ...mapActions('auth', ['login']),
+    ...mapActions('auth', ['signup']),
     async submit() {
       try {
         this.error = null
         this.loading = true
-
-        const res = await this.$apollo.mutate({
-          mutation: SIGNUP,
-          variables: this.formData,
-        })
-        await this.login(res.data.signup)
-
+        await this.signup({ ...this.formData, apollo: this.$apollo })
         this.$router.push({ path: '/' })
       } catch (ex) {
-        alert(ex)
-        this.error = { message: 'Something wrong!' }
+        let message = ex.message.replace('GraphQL error:', ' ').trim()
+        if (!SIGNUP_ERRORS.includes(message)) {
+          message = UNKNOWN_ERROR
+        }
+        this.error = { message }
       } finally {
         this.loading = false
       }

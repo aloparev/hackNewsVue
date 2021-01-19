@@ -12,12 +12,13 @@ module.exports = {
     sourceType: 'module',
   },
   extends: [
+    '@nuxtjs',
     'eslint:recommended',
     'plugin:vue/essential',
     'plugin:prettier/recommended',
     'plugin:nuxt/recommended',
   ],
-  plugins: ['vue', 'jest'],
+  plugins: ['vue'],
   rules: {
     'prettier/prettier': [
       'error',
