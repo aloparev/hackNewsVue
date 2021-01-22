@@ -7,18 +7,30 @@
       <small class="loading-text">Loading...</small>
     </div>
     <input
+<<<<<<< HEAD
+=======
+      id="email"
+>>>>>>> dee07c679be3dba3ace41184611ecd3d746ec947
       v-model.trim="formData.email"
       name="email"
       type="email"
       placeholder="Email"
     />
     <input
+<<<<<<< HEAD
+=======
+      id="password"
+>>>>>>> dee07c679be3dba3ace41184611ecd3d746ec947
       v-model.trim="formData.password"
       name="password"
       type="password"
       placeholder="Password"
     />
     <input
+<<<<<<< HEAD
+=======
+      id="name"
+>>>>>>> dee07c679be3dba3ace41184611ecd3d746ec947
       v-model.trim="formData.name"
       name="name"
       type="text"
@@ -35,7 +47,11 @@
 </template>
 <script>
 import { mapActions } from 'vuex'
+<<<<<<< HEAD
 import { SIGNUP } from '@/graphql/mutations'
+=======
+import { UNKNOWN_ERROR, SIGNUP_ERRORS } from '@/static/error'
+>>>>>>> dee07c679be3dba3ace41184611ecd3d746ec947
 
 export default {
   name: 'SignupForm',
@@ -57,11 +73,16 @@ export default {
     },
   },
   methods: {
+<<<<<<< HEAD
     ...mapActions('auth', ['login']),
+=======
+    ...mapActions('auth', ['signup']),
+>>>>>>> dee07c679be3dba3ace41184611ecd3d746ec947
     async submit() {
       try {
         this.error = null
         this.loading = true
+<<<<<<< HEAD
 
         const res = await this.$apollo.mutate({
           mutation: SIGNUP,
@@ -73,6 +94,16 @@ export default {
       } catch (ex) {
         alert(ex)
         this.error = { message: 'Something wrong!' }
+=======
+        await this.signup({ ...this.formData })
+        this.$router.push({ path: '/' })
+      } catch (ex) {
+        let message = ex.message.replace('GraphQL error:', ' ').trim()
+        if (!SIGNUP_ERRORS.includes(message)) {
+          message = UNKNOWN_ERROR
+        }
+        this.error = { message }
+>>>>>>> dee07c679be3dba3ace41184611ecd3d746ec947
       } finally {
         this.loading = false
       }

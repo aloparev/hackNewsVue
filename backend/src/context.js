@@ -1,19 +1,18 @@
-require('dotenv-flow').config()
 const jwt = require('jsonwebtoken')
+const { JWT_SECRET } = require('./config');
 
-const context = ({ req }) => {
-  let token = req.headers.authorization || ''
-  token = token.replace('Bearer ', '')
-
+module.exports= function context({ req }) {
+  const jwtSign = (payload) => jwt.sign(payload, JWT_SECRET, { algorithm: 'HS256', expiresIn: '1h' });
   try {
+    let token = req.headers.authorization || ''
+    token = token.replace('Bearer ', '')
     const decodedJwt = jwt.verify(
       token,
-      process.env.JWT_SECRET
+      JWT_SECRET
     )
-    return { decodedJwt, jwt }
+    return { ...decodedJwt, jwtSign }
+    
   } catch (e) {
-    return { jwt }
+    return { jwtSign }
   }
 }
-
-module.exports = { context }

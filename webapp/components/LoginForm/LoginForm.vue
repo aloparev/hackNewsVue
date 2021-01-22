@@ -7,12 +7,14 @@
       <small class="loading-text">Loading...</small>
     </div>
     <input
+      id="email"
       v-model.trim="formData.email"
       name="email"
       type="email"
       placeholder="Email"
     />
     <input
+      id="password"
       v-model.trim="formData.password"
       name="password"
       type="password"
@@ -29,7 +31,7 @@
 </template>
 <script>
 import { mapActions } from 'vuex'
-import { LOGIN } from '@/graphql/mutations'
+import { UNKNOWN_ERROR, LOGIN_ERRORS } from '@/static/error'
 
 export default {
   name: 'LoginForm',
@@ -55,15 +57,14 @@ export default {
       try {
         this.error = null
         this.loading = true
-
-        const res = await this.$apollo.mutate({
-          mutation: LOGIN,
-          variables: this.formData,
-        })
-        await this.login(res.data.login)
+        await this.login({ ...this.formData })
         this.$router.push({ path: '/' })
       } catch (ex) {
-        this.error = { message: 'Wrong email/password combination' }
+        let message = ex.message.replace('GraphQL error:', ' ').trim()
+        if (!LOGIN_ERRORS.includes(message)) {
+          message = UNKNOWN_ERROR
+        }
+        this.error = { message }
       } finally {
         this.loading = false
       }

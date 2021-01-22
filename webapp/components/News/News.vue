@@ -5,14 +5,14 @@
     <div v-if="isAuthenticated" style="text-align: left">
       <button @click="upvote">Upvote</button>
       <button @click="downvote">Downvote</button>
-      <button v-if="isAuthor" @click="edit">Edit</button>
-      <button v-if="isAuthor" @click="remove">Remove</button>
+      <button v-if="news.authored" @click="edit">Edit</button>
+      <button v-if="news.authored" @click="remove">Remove</button>
     </div>
   </div>
 </template>
 
 <script>
-import jwt_decode from 'jwt-decode'
+// import jwt_decode from 'jwt-decode'
 import { mapGetters, mapState } from 'vuex'
 
 export default {
@@ -26,12 +26,6 @@ export default {
   computed: {
     ...mapState('auth', ['token']),
     ...mapGetters('auth', ['isAuthenticated']),
-    isAuthor() {
-      return (
-        this.isAuthenticated &&
-        this.news.author.id === jwt_decode(this.token).id
-      )
-    },
   },
   methods: {
     upvote() {

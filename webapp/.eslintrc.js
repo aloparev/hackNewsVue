@@ -17,7 +17,7 @@ module.exports = {
     'plugin:prettier/recommended',
     'plugin:nuxt/recommended',
   ],
-  plugins: ['vue', 'jest'],
+  plugins: ['vue'],
   rules: {
     'prettier/prettier': [
       'error',

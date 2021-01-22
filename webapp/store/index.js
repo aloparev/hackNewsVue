@@ -11,7 +11,7 @@ export const actions = {
     }
     const parsed = cookieparser.parse(cookie)
     if (parsed['apollo-token']) {
-      await store.dispatch('auth/login', parsed['apollo-token'])
+      await store.commit('auth/' + SET_TOKEN, parsed['apollo-token'])
     } else {
       await store.dispatch('auth/logout')
     }

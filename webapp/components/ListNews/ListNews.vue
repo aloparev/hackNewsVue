@@ -32,7 +32,7 @@
 import { ALL_NEWS } from '@/graphql/queries'
 
 export default {
-  name: 'NewsList',
+  name: 'ListNews',
   data() {
     return {
       desc: true,
