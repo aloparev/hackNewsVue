@@ -39,7 +39,14 @@ export default {
   ],
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
-  build: {},
+  build: {
+    hotMiddleware: {
+      client: {
+        // turn off client overlay when errors are present
+        overlay: false,
+      },
+    },
+  },
 
   apollo: {
     // Sets up the apollo client endpoints

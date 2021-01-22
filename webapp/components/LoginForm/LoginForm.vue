@@ -57,7 +57,7 @@ export default {
       try {
         this.error = null
         this.loading = true
-        await this.login({ ...this.formData, apollo: this.$apollo })
+        await this.login({ ...this.formData })
         this.$router.push({ path: '/' })
       } catch (ex) {
         let message = ex.message.replace('GraphQL error:', ' ').trim()

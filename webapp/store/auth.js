@@ -28,8 +28,8 @@ export const mutations = {
 }
 
 export const actions = {
-  async login({ commit }, { email, password, apollo }) {
-    const res = await apollo.mutate({
+  async login({ commit }, { email, password }) {
+    const res = await this.app.apolloProvider.defaultClient.mutate({
       mutation: LOGIN,
       variables: { email, password },
     })
@@ -37,8 +37,8 @@ export const actions = {
     const token = res.data.login
     await commit(SET_TOKEN, token)
   },
-  async signup({ commit }, { name, email, password, apollo }) {
-    const res = await apollo.mutate({
+  async signup({ commit }, { name, email, password }) {
+    const res = await this.app.apolloProvider.defaultClient.mutate({
       mutation: SIGNUP,
       variables: { name, email, password },
     })
