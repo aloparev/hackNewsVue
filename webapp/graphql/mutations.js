@@ -18,9 +18,7 @@ export const WRITE_POST = gql`
       id
       title
       votes
-      author {
-        id
-      }
+      authored
     }
   }
 `
@@ -31,9 +29,7 @@ export const UPVOTE_POST = gql`
       id
       title
       votes
-      author {
-        id
-      }
+      authored
     }
   }
 `
@@ -44,9 +40,7 @@ export const DOWNVOTE_POST = gql`
       id
       title
       votes
-      author {
-        id
-      }
+      authored
     }
   }
 `
@@ -57,9 +51,7 @@ export const DELETE_POST = gql`
       id
       title
       votes
-      author {
-        id
-      }
+      authored
     }
   }
 `
