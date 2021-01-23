@@ -3,8 +3,8 @@
     <h2>{{ news.title }}</h2>
     <h4>{{ news.votes }}</h4>
     <div v-if="isAuthenticated" style="text-align: left">
-      <button @click="upvote">Upvote</button>
-      <button @click="downvote">Downvote</button>
+      <button @click="upvote" v-if="isAuthenticated">Upvote</button>
+      <button @click="downvote" v-if="isAuthenticated">Downvote</button>
       <button v-if="news.authored" @click="edit">Edit</button>
       <button v-if="news.authored" @click="remove">Remove</button>
     </div>
@@ -14,6 +14,9 @@
 <script>
 // import jwt_decode from 'jwt-decode'
 import { mapGetters, mapState } from 'vuex'
+
+import { UPVOTE_POST, DOWNVOTE_POST, DELETE_POST } from '@/graphql/mutations'
+import { ALL_NEWS } from '@/graphql/queries'
 
 export default {
   name: 'News',
@@ -28,17 +31,39 @@ export default {
     ...mapGetters('auth', ['isAuthenticated']),
   },
   methods: {
-    upvote() {
-      // TODO
+    async upvote() {
+      await this.$apollo.mutate({
+        mutation: UPVOTE_POST,
+        variables: {
+          id: this.news.id,
+        },
+      })
     },
-    downvote() {
-      // TODO
+    async downvote() {
+      await this.$apollo.mutate({
+        mutation: DOWNVOTE_POST,
+        variables: {
+          id: this.news.id,
+        },
+      })
     },
     edit() {
       // TODO
     },
-    remove() {
-      // TODO
+    async remove() {
+      await this.$apollo.mutate({
+        mutation: DELETE_POST,
+        variables: {
+          id: this.news.id,
+        },
+        update: (store, { data }) => {
+          const dataCache = store.readQuery({ query: ALL_NEWS })
+          dataCache.posts = dataCache.posts.filter(
+            (post) => post.id !== data.delete.id
+          )
+          store.writeQuery({ query: ALL_NEWS, data: dataCache })
+        },
+      })
     },
   },
 }

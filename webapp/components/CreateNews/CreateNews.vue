@@ -14,8 +14,10 @@
 </template>
 
 <script>
-import gql from 'graphql-tag'
 import { mapGetters } from 'vuex'
+
+import { WRITE_POST } from '@/graphql/mutations'
+import { ALL_NEWS } from '@/graphql/queries'
 require('regenerator-runtime/runtime')
 
 export default {
@@ -35,36 +37,20 @@ export default {
         return
       }
       try {
-        const response = await this.$apollo
-          .mutate({
-            mutation: gql`
-              mutation($post: PostInput!) {
-                write(post: $post) {
-                  id
-                  title
-                  author {
-                    name
-                  }
-                }
-              }
-            `,
-            variables: {
-              post: {
-                title: this.title,
-                author: this.currentUser,
-              },
+        await this.$apollo.mutate({
+          mutation: WRITE_POST,
+          variables: {
+            post: {
+              title: this.title,
             },
-          })
-          .catch(console.error)
-
-        console.log(response.data.write)
-        this.$emit('add-news', {
-          id: response.data.write.id,
-          title: response.data.write.title,
-          votes: 0,
+          },
+          update: (store, { data: { write } }) => {
+            console.log(write)
+            const data = store.readQuery({ query: ALL_NEWS })
+            data.posts.push(write)
+            store.writeQuery({ query: ALL_NEWS, data })
+          },
         })
-
-        this.title = ''
       } catch {
         throw new Error("Mutation 'write' failed!")
       }
