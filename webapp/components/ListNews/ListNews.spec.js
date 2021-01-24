@@ -1,23 +1,52 @@
-import { describe, expect, it } from '@jest/globals'
-import { mount } from '@vue/test-utils'
+import { createLocalVue, shallowMount  } from '@vue/test-utils'
 import News from '../News/News.vue'
 import ListNews from './ListNews.vue'
+import Vuex from 'vuex'
 require('regenerator-runtime/runtime')
 
+const localVue = createLocalVue()
+localVue.use(Vuex)
+
 describe('ListNews', () => {
-  describe('given empty list', () => {
-    let items
-    beforeEach(() => {
-      items = []
-    })
-    it('should display "The list is empty :(" if newsList contains no items', () => {
-      const wrapper = mount(ListNews, {
-        data() {
-          return {
-            newsList: items,
-          }
+  let actions
+  let getters
+  let store
+  const setupWrapper = (data) => {
+    store = new Vuex.Store({
+      modules: {
+        auth: {
+          namespaced: true,
+          actions,
+          getters,
         },
-      })
+      },
+    })
+    const stubs = { NuxtLink: true }
+    return shallowMount(ListNews, {
+      store,
+      localVue,
+      propsData: {
+        posts: data
+      },
+      stubs
+    })
+  }
+
+  beforeEach(() => {
+    getters = {
+      isAuthenticated: () => false,
+    }
+    actions = {
+      signup: jest.fn(),
+    }
+  })
+
+  
+  describe('given empty list', () => {
+
+    it('should display "The list is empty :(" if newsList contains no items', () => {
+      const wrapper = setupWrapper([])
+ 
 
       const paragraph = wrapper.find('#error-message')
 
@@ -25,14 +54,15 @@ describe('ListNews', () => {
     })
   })
 
-  it('should display default news in list', () => {
-    const wrapper = mount(ListNews)
-    const title = ['Just', 'VueJS', 'Rocks']
+  it('should display default news in list', async() => {
+    const wrapper = setupWrapper([
+      { id: 0, title: 'Item 1', votes: 1, authored: false },
+      { id: 1, title: 'Item 2', votes: 0, authored: true }
+    ])
+    await wrapper.vm.$nextTick()
 
     const news = wrapper.findAllComponents(News)
-    expect(news.at(0).text()).toContain(title[0])
-    expect(news.at(1).text()).toContain(title[1])
-    expect(news.at(2).text()).toContain(title[2])
+    expect(news).toHaveLength(2)
   })
 
   it('should toggle between ascending and descending order', async () => {

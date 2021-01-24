@@ -7,7 +7,7 @@ import SignupForm from './SignupForm.vue'
 const localVue = createLocalVue()
 localVue.use(Vuex)
 
-describe('LoginForm.vue', () => {
+describe('SignupForm', () => {
   let actions
   let getters
   let store
@@ -17,10 +17,6 @@ describe('LoginForm.vue', () => {
       modules: {
         auth: {
           namespaced: true,
-          state: () => ({
-            currentUser: null,
-            token: null,
-          }),
           actions,
           getters,
         },

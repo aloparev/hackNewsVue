@@ -33,4 +33,19 @@ describe('LoginForm.vue', () => {
       isAuthenticated: () => false,
     }
   })
+
+  it('should show login button', async () => {
+    const wrapper = setupWrapper()
+    const navBar = wrapper.find('.nav-bar')
+    expect(navBar.text()).toContain('Login')
+
+  })
+
+  it('should show logout button', async () => {
+    getters.isAuthenticated = jest.fn().mockResolvedValue(true)
+    const wrapper = setupWrapper()
+    const navBar = wrapper.find('.nav-bar')
+    expect(navBar.text()).toContain('Logout')
+
+  })
 })

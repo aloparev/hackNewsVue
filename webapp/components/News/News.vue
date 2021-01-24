@@ -3,10 +3,10 @@
     <h2>{{ news.title }}</h2>
     <h4>{{ news.votes }}</h4>
     <div v-if="isAuthenticated" style="text-align: left">
-      <button @click="upvote" v-if="isAuthenticated">Upvote</button>
-      <button @click="downvote" v-if="isAuthenticated">Downvote</button>
+      <button id="upvote" @click="upvote">Upvote</button>
+      <button id="downvote" @click="downvote">Downvote</button>
       <button v-if="news.authored" @click="edit">Edit</button>
-      <button v-if="news.authored" @click="remove">Remove</button>
+      <button id="delete" v-if="news.authored" @click="remove">Remove</button>
     </div>
   </div>
 </template>

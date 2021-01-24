@@ -51,6 +51,7 @@ export default {
             store.writeQuery({ query: ALL_NEWS, data })
           },
         })
+        this.title = ''
       } catch {
         throw new Error("Mutation 'write' failed!")
       }
