@@ -1,158 +1,108 @@
-import { createLocalVue, mount  } from '@vue/test-utils'
-import News from '../News/News.vue'
-import ListNews from './ListNews.vue'
+import { createLocalVue, shallowMount } from '@vue/test-utils'
+import ListNews from '@/components/ListNews/ListNews.vue'
+import News from '@/components/News/News.vue'
 import Vuex from 'vuex'
-import Vue from 'vue'
-import { createMockClient } from "mock-apollo-client";
-import VueApollo from 'vue-apollo'
-import { ALL_NEWS } from '@/graphql/queries'
 
 const localVue = createLocalVue()
 localVue.use(Vuex)
-localVue.use(VueApollo);
-
-const postListMock = {
-  data: {
-      posts: [
-          {
-              id: "1",
-              title: "Vue",
-              votes: 4,
-              authored: false,
-              author: {
-                __typename: "User",
-                id: "3",
-            },
-              __typename: "Post",
-          },
-          {
-              id: "2",
-              title: "React",
-              votes: 0,
-              authored: false,
-              author: {
-                __typename: "User",
-                id: "3",
-            },
-              __typename: "Post",
-          },
-          {
-              id: "3",
-              title: "TDD",
-              votes: 2,
-              authored: false,
-              author: {
-                __typename: "User",
-                id: "3",
-            },
-              __typename: "Post",
-          },
-      ],
-  },
-};
 
 describe('ListNews', () => {
-  let mockClient;
-  let apolloProvider;
-  let requestHandlers;
-  let wrapper;
-  let getters;
-  let store;
-
-  const setupWrapper = (passed) => {
+  let actions
+  let getters
+  let store
+  const setupWrapper = (loading, data) => {
     store = new Vuex.Store({
       modules: {
         auth: {
           namespaced: true,
-          state: () => ({
-            loading: false,
-            currentUser: null,
-            token: null,
-          }),
+          actions,
           getters,
         },
       },
     })
-    mockClient = createMockClient({
-      resolvers: {},
-  });
-  requestHandlers = {
-      allPostsQueryHandler: jest.fn().mockResolvedValue({ ...postListMock }),
-      ...passed,
-  };
-  mockClient.setRequestHandler(ALL_NEWS, requestHandlers.allPostsQueryHandler);
-  apolloProvider = new VueApollo({ defaultClient: mockClient });
-    wrapper= mount(ListNews, {
+    const stubs = { NuxtLink: true, News: News }
+    return shallowMount(ListNews, {
       store,
-            localVue,
-            apolloProvider,
+      localVue,
+      mocks: {
+        $apollo: {
+          loading: loading,
+        },
+      },
+      data: () => data,
+      stubs,
     })
   }
 
   beforeEach(() => {
     getters = {
-      isAuthenticated: () => true,
+      isAuthenticated: () => false,
     }
   })
+  const data = { posts: [], desc: true }
 
-  afterEach(() => {
-    wrapper.destroy();
-    mockClient = null;
-    apolloProvider = null;
-});
-
-
-  
-  describe('given empty list', () => {
-
-    it("renders a Vue component", () => {
-      setupWrapper();
-      expect(wrapper.exists()).toBe(true);
-      expect(wrapper.vm.$apollo.queries.posts).toBeTruthy();
-  });
-
-    it('should display "The list is empty :(" if newsList contains no items', async () => {
-      setupWrapper({
-        allPostsQueryHandler: jest.fn().mockResolvedValue({ data: { posts: [] } }),
-    });
-    await wrapper.vm.$nextTick();
-      const paragraph = wrapper.find('#error-message')
-      expect(paragraph.text()).toEqual('The list is empty :(')
-    })
+  it('Page loading', () => {
+    const wrapper = setupWrapper(true, data)
+    const loading = wrapper.find('#loading-message')
+    expect(loading.text()).toEqual('Loading...')
   })
 
-/*   it('should display added news in list', async() => {
-    setupWrapper();
-    wrapper.setData(postListMock)
-    await Vue.nextTick()
-    let news = wrapper.findAllComponents(News)
-    console.log('child', news)
-    expect(wrapper.findAllComponents(News).wrappers.map(w => w.find('h2').text())).toContain(["Vue", "TDD", "React"]); 
-})
-
-  it('should toggle between ascending and descending order', async () => {
-    const wrapper = mount(ListNews, {
-      data() {
-        return {
-          newsList: [
-            { id: 0, title: 'Just', votes: 3 },
-            { id: 1, title: 'VueJS', votes: 1 },
-            { id: 2, title: 'Rocks', votes: 2 },
-          ],
-          desc: true,
-        }
-      },
+  describe('shows list', () => {
+    it('display message "The list is empty :(" if newsList contains no items', () => {
+      const wrapper = setupWrapper(false, data)
+      const emptyMessage = wrapper.find('#error-message')
+      expect(emptyMessage.text()).toEqual('The list is empty :(')
     })
 
-    // sorting to ascending
-    const sortButton = wrapper.find('button')
-    await sortButton.trigger('click')
-    let news = wrapper.findAllComponents(News)
-    expect(news.at(0).text()).toContain(1)
+    it('display news list', () => {
+      data.posts = [
+        { id: 0, title: 'Item 1', votes: 3, authored: false },
+        { id: 1, title: 'Item 2', votes: 1, authored: true },
+      ]
+      const wrapper = setupWrapper(false, data)
+      const news = wrapper.findAllComponents(News)
+      expect(news).toHaveLength(2)
+    })
 
-    // sorting to descending
-    await sortButton.trigger('click')
-    news = wrapper.findAllComponents(News)
-    expect(news.at(0).text()).toContain(3)
-  }) */
+    describe('sorts List', () => {
+      beforeEach(() => {
+        data.posts = [
+          { id: 0, title: 'Item 1', votes: 3, authored: false },
+          { id: 1, title: 'Item 2', votes: 1, authored: true },
+          { id: 2, title: 'Item 3', votes: 2, authored: true },
+        ]
+      })
+
+      it('should descending', () => {
+        const wrapper = setupWrapper(false, data)
+        const news = wrapper.findAll('.news-item')
+        expect(news.at(0).find('h4').text()).toEqual('3')
+        expect(news.at(1).find('h4').text()).toEqual('2')
+        expect(news.at(2).find('h4').text()).toEqual('1')
+      })
+
+      it('should ascending', () => {
+        data.desc = false
+        const wrapper = setupWrapper(false, data)
+        const news = wrapper.findAll('.news-item')
+        expect(news.at(0).find('h4').text()).toEqual('1')
+        expect(news.at(1).find('h4').text()).toEqual('2')
+        expect(news.at(2).find('h4').text()).toEqual('3')
+      })
+
+      it('should toggle between ascending and descending order', async () => {
+        data.desc = false
+        const wrapper = setupWrapper(false, data)
+        const sortButton = wrapper.find('button')
+        await sortButton.trigger('click')
+        let news = wrapper.findAll('.news-item')
+        expect(news.at(0).find('h4').text()).toEqual('3')
+
+        // sorting to descending
+        await sortButton.trigger('click')
+        news = wrapper.findAll('.news-item')
+        expect(news.at(0).find('h4').text()).toEqual('1')
+      })
+    })
+  })
 })

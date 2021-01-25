@@ -1,4 +1,4 @@
-import { mount,createLocalVue } from '@vue/test-utils'
+import { mount, createLocalVue } from '@vue/test-utils'
 import News from './News.vue'
 import Vuex from 'vuex'
 import Vue from 'vue'
@@ -15,7 +15,7 @@ describe('News', () => {
 
   const examplePost = { id: 90, title: 'TestPost', votes: 0, authored: true }
 
-  const setupWrapper = options => {
+  const setupWrapper = (options) => {
     store = new Vuex.Store({
       modules: {
         auth: {
@@ -33,13 +33,12 @@ describe('News', () => {
       store,
       localVue,
       propsData: {
-        news: examplePost
+        news: examplePost,
       },
       stubs,
-      ...options
+      ...options,
     })
   }
-
 
   beforeEach(() => {
     getters = {
@@ -58,7 +57,6 @@ describe('News', () => {
     button.trigger('click')
     await Vue.nextTick()
     expect(remove).toHaveBeenCalledTimes(1)
-
   })
 
   it('should correctly trigger when the upvote button is clicked', async () => {

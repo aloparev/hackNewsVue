@@ -11,7 +11,7 @@ describe('CreateNews', () => {
   let getters
   let store
 
-  const setupWrapper = options => {
+  const setupWrapper = (options) => {
     store = new Vuex.Store({
       modules: {
         auth: {
@@ -29,7 +29,7 @@ describe('CreateNews', () => {
     return mount(CreateNews, {
       store,
       localVue,
-      ...options
+      ...options,
     })
   }
 
@@ -55,7 +55,6 @@ describe('CreateNews', () => {
     button.trigger('click')
     await Vue.nextTick()
     expect(addNews).toHaveBeenCalledTimes(0)
-    
   })
 
   it('should trigger submit method on input', async () => {
@@ -68,6 +67,5 @@ describe('CreateNews', () => {
     button.trigger('click')
     await Vue.nextTick()
     expect(addNews).toHaveBeenCalledTimes(1)
-    
   })
 })

@@ -61,11 +61,11 @@ export default {
     manifest: {
       name: 'CountryRoads News App',
       lang: 'en',
-      start_url: '/'
-    }
+      start_url: '/',
+    },
     // ,
     // icon: {
     //   fileName: 'favicon.ico'
     // }
-  }
+  },
 }

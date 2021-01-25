@@ -38,7 +38,6 @@ describe('LoginForm.vue', () => {
     const wrapper = setupWrapper()
     const navBar = wrapper.find('.nav-bar')
     expect(navBar.text()).toContain('Login')
-
   })
 
   it('should show logout button', async () => {
@@ -46,6 +45,5 @@ describe('LoginForm.vue', () => {
     const wrapper = setupWrapper()
     const navBar = wrapper.find('.nav-bar')
     expect(navBar.text()).toContain('Logout')
-
   })
 })

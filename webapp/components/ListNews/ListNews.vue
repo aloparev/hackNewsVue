@@ -6,7 +6,7 @@
         <CreateNews />
       </div>
       <div v-if="$apollo.loading">
-        <h2>Loading...</h2>
+        <h2 id="loading-message">Loading...</h2>
       </div>
       <div v-else>
         <div v-if="posts.length == 0">
@@ -17,10 +17,15 @@
             <p>
               News counter: <span> {{ newsCount }} </span>
             </p>
-            <button @click="reverseSort">sort asc/desc</button>
+            <button id="sort-button" @click="reverseSort">sort asc/desc</button>
           </div>
           <div class="news-list">
-            <News id="newsItems" v-for="item in sortedNews" :key="item.id" :news="item" />
+            <News
+              id="newsItems"
+              v-for="item in sortedNews"
+              :key="item.id"
+              :news="item"
+            />
           </div>
         </div>
       </div>
@@ -30,12 +35,19 @@
 
 <script>
 import { ALL_NEWS } from '@/graphql/queries'
+import CreateNews from '@/components/CreateNews/CreateNews'
+import News from '@/components/News/News'
 
 export default {
   name: 'ListNews',
+  components: {
+    News,
+    CreateNews,
+  },
   data() {
     return {
       desc: true,
+      posts: [],
     }
   },
   apollo: {

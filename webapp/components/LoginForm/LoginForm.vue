@@ -31,7 +31,7 @@
 </template>
 <script>
 import { mapActions } from 'vuex'
-import { LOGIN_FAILED, LOGIN_ERRORS } from '@/static/error'
+import { UNKNOWN_ERROR, LOGIN_ERRORS } from '@/static/error'
 
 export default {
   name: 'LoginForm',
@@ -62,7 +62,7 @@ export default {
       } catch (ex) {
         let message = ex.message.replace('GraphQL error:', ' ').trim()
         if (!LOGIN_ERRORS.includes(message)) {
-          message = LOGIN_FAILED
+          message = UNKNOWN_ERROR
         }
         this.error = { message }
       } finally {
