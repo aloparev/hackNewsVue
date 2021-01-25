@@ -20,7 +20,7 @@
             <button @click="reverseSort">sort asc/desc</button>
           </div>
           <div class="news-list">
-            <News v-for="item in sortedNews" :key="item.id" :news="item" />
+            <News id="newsItems" v-for="item in sortedNews" :key="item.id" :news="item" />
           </div>
         </div>
       </div>

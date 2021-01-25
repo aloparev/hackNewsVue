@@ -1,7 +1,7 @@
 import { mount, createLocalVue } from '@vue/test-utils'
 import CreateNews from './CreateNews.vue'
 import Vuex from 'vuex'
-require('regenerator-runtime/runtime')
+import Vue from 'vue'
 
 const localVue = createLocalVue()
 localVue.use(Vuex)
@@ -11,7 +11,7 @@ describe('CreateNews', () => {
   let getters
   let store
 
-  const setupWrapper = (data) => {
+  const setupWrapper = options => {
     store = new Vuex.Store({
       modules: {
         auth: {
@@ -29,9 +29,7 @@ describe('CreateNews', () => {
     return mount(CreateNews, {
       store,
       localVue,
-      propsData: {
-        news: data
-      },
+      ...options
     })
   }
 
@@ -41,21 +39,35 @@ describe('CreateNews', () => {
     }
   })
 
-  it('should return default empty title', async () => {
-    const wrapper = setupWrapper({ title:''})
+  it('should be disabled for an empty title', async () => {
+    const wrapper = setupWrapper()
     const button = wrapper.find('button')
-    await button.trigger('click')
-    setTimeout(() => {
-      expect(wrapper.title).toBeNull()
-    }, 2000)
+    expect(button.attributes('disabled')).toBe('disabled')
   })
 
-  it('should cover correct emit of component', async () => {
-    const wrapper = setupWrapper({ title:'Test'})
-    const button = wrapper.find('button')
-    await button.trigger('click')
-    setTimeout(() => {
-      expect(wrapper.emitted('update')).toBeTruthy()
-    }, 2000)
+  it('should not trigger on empty input', async () => {
+    const wrapper = setupWrapper({ attachToDocument: true })
+    const addNews = jest.fn()
+    wrapper.find('input').setValue('')
+    await Vue.nextTick()
+    wrapper.setMethods({ addNews })
+    const button = wrapper.find('[type=submit]')
+    button.trigger('click')
+    await Vue.nextTick()
+    expect(addNews).toHaveBeenCalledTimes(0)
+    
+  })
+
+  it('should trigger submit method on input', async () => {
+    const wrapper = setupWrapper({ attachToDocument: true })
+    const addNews = jest.fn()
+    wrapper.find('input').setValue('Test Title')
+    await Vue.nextTick()
+    wrapper.setMethods({ addNews })
+    const button = wrapper.find('[type=submit]')
+    button.trigger('click')
+    await Vue.nextTick()
+    expect(addNews).toHaveBeenCalledTimes(1)
+    
   })
 })
