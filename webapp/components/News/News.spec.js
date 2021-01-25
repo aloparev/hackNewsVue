@@ -1,6 +1,7 @@
 import { mount,createLocalVue } from '@vue/test-utils'
 import News from './News.vue'
 import Vuex from 'vuex'
+import Vue from 'vue'
 require('regenerator-runtime/runtime')
 
 const localVue = createLocalVue()
@@ -12,7 +13,9 @@ describe('News', () => {
   let store
   let wrapper
 
-  const setupWrapper = (data) => {
+  const examplePost = { id: 90, title: 'TestPost', votes: 0, authored: true }
+
+  const setupWrapper = options => {
     store = new Vuex.Store({
       modules: {
         auth: {
@@ -30,19 +33,13 @@ describe('News', () => {
       store,
       localVue,
       propsData: {
-        news: data
+        news: examplePost
       },
-      stubs
+      stubs,
+      ...options
     })
   }
 
-  const findReturnVal = async (buttonName) => {
-    const button = wrapper.find('#'+buttonName)
-    await button.trigger('click')
-    return wrapper
-  }
-
-  const examplePost = { id: 90, title: 'TestPost', votes: 0, authored: true }
 
   beforeEach(() => {
     getters = {
@@ -51,34 +48,34 @@ describe('News', () => {
     actions = {
       login: jest.fn().mockResolvedValue(true),
     }
-    wrapper = setupWrapper(examplePost)
+    wrapper = setupWrapper({ attachToDocument: true })
   })
 
-  it('should correctly emit when the delete button is clicked', async () => {
-    await findReturnVal('delete')
-    setTimeout(() => {
-      expect(wrapper.emitted('update')).toBeTruthy()
-      const newsHeader = wrapper.find('h2')
-      expect(newsHeader.text()).toBeNull
-    }, 2000)
+  it('should correctly trigger when the delete button is clicked', async () => {
+    const remove = jest.fn()
+    wrapper.setMethods({ remove })
+    const button = wrapper.find('#delete')
+    button.trigger('click')
+    await Vue.nextTick()
+    expect(remove).toHaveBeenCalledTimes(1)
 
   })
 
-  it('should correctly increment votes when the upvote button is clicked', async () => {
-      await findReturnVal('upvote')
-    setTimeout(() => {
-      expect(wrapper.emitted('update')).toBeTruthy()
-      const newsHeader = wrapper.find('h2')
-      expect(newsHeader.text()).toContain(1)
-    }, 2000)
+  it('should correctly trigger when the upvote button is clicked', async () => {
+    const upvote = jest.fn()
+    wrapper.setMethods({ upvote })
+    const button = wrapper.find('#upvote')
+    button.trigger('click')
+    await Vue.nextTick()
+    expect(upvote).toHaveBeenCalledTimes(1)
   })
 
-  it('should correctly decrease votes when the downvote button is clicked', async () => {
-    await findReturnVal('downvote')
-    setTimeout(() => {
-      expect(wrapper.emitted('update')).toBeTruthy()
-      const newsHeader = wrapper.find('h2')
-      expect(newsHeader.text()).toContain(-1)
-    }, 2000)
+  it('should correctly trigger when the downvote button is clicked', async () => {
+    const downvote = jest.fn()
+    wrapper.setMethods({ downvote })
+    const button = wrapper.find('#downvote')
+    button.trigger('click')
+    await Vue.nextTick()
+    expect(downvote).toHaveBeenCalledTimes(1)
   })
 })
