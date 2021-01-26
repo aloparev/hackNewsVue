@@ -5,7 +5,7 @@ import NavBar from './NavBar.vue'
 const localVue = createLocalVue()
 localVue.use(Vuex)
 
-describe('LoginForm.vue', () => {
+describe('NavBar.vue', () => {
   let actions
   let getters
   let store
@@ -15,10 +15,6 @@ describe('LoginForm.vue', () => {
       modules: {
         auth: {
           namespaced: true,
-          state: () => ({
-            currentUser: null,
-            token: 'fake_token',
-          }),
           actions,
           getters,
         },
