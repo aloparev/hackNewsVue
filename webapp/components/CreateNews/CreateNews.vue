@@ -45,7 +45,6 @@ export default {
             },
           },
           update: (store, { data: { write } }) => {
-            console.log(write)
             const data = store.readQuery({ query: ALL_NEWS })
             data.posts.push(write)
             store.writeQuery({ query: ALL_NEWS, data })

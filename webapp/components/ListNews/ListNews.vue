@@ -107,7 +107,7 @@ export default {
 }
 
 .news-list {
-  max-height: 580px;
+  max-height: 500px;
   overflow-y: auto;
   padding: 20px;
   background: aliceblue;

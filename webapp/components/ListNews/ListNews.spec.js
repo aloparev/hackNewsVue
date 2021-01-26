@@ -98,7 +98,7 @@ describe('ListNews', () => {
         let news = wrapper.findAll('.news-item')
         expect(news.at(0).find('h4').text()).toEqual('3')
 
-        // sorting to descending
+        // sorting to ascending
         await sortButton.trigger('click')
         news = wrapper.findAll('.news-item')
         expect(news.at(0).find('h4').text()).toEqual('1')

@@ -68,4 +68,14 @@ export default {
     //   fileName: 'favicon.ico'
     // }
   },
+
+  router: {
+    extendRoutes(routes, resolve) {
+      routes.push({
+        name: 'custom',
+        path: '*',
+        component: resolve(__dirname, 'pages/404.vue'),
+      })
+    },
+  },
 }
