@@ -1,9 +1,10 @@
 <template>
-  <div>
+  <div id="app">
+    <NavBar />
+    <h3 class="title">The Country Roads</h3>
     <Nuxt />
   </div>
 </template>
-
 <style>
 html {
   font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI',
@@ -15,6 +16,11 @@ html {
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
   box-sizing: border-box;
+}
+
+#app {
+  text-align: center;
+  padding-top: 5%;
 }
 
 *,

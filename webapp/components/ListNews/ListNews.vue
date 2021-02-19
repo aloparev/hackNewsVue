@@ -1,39 +1,42 @@
 <template>
   <div id="news-list-container">
     <div>
-      <h1 class="text-5xl list-title">News List</h1>
+      <div class="list-header">
+        <h1 class="list-title">News List</h1>
+        <CreateNews />
+      </div>
       <div v-if="$apollo.loading">
-        <h2>Loading...</h2>
+        <h2 id="loading-message">Loading...</h2>
       </div>
       <div v-else>
         <div v-if="posts.length == 0">
           <h1 id="error-message">The list is empty :(</h1>
         </div>
         <div v-else>
-          <p>
-            News counter: <span> {{ newsCount }} </span>
-          </p>
-          <button @click="reverseSort">sort asc/desc</button>
+          <div class="news-counter">
+            <p>
+              News counter: <span> {{ newsCount }} </span>
+            </p>
+            <button id="sort-button" @click="reverseSort">sort asc/desc</button>
+          </div>
           <div class="news-list">
-            <news
+            <News
+              id="newsItems"
               v-for="item in sortedNews"
               :key="item.id"
               :news="item"
-              @delete-news="deleteNews(item.id)"
-              @update="update"
             />
           </div>
         </div>
-        <create-news @add-news="addNews" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import gql from 'graphql-tag'
-import News from '../News/News'
-import CreateNews from '../CreatNews/CreateNews'
+import { ALL_NEWS } from '@/graphql/queries'
+import CreateNews from '@/components/CreateNews/CreateNews'
+import News from '@/components/News/News'
 
 export default {
   name: 'ListNews',
@@ -44,21 +47,11 @@ export default {
   data() {
     return {
       desc: true,
+      posts: [],
     }
   },
   apollo: {
-    posts: {
-      prefetch: true,
-      query: gql`
-        query newsList {
-          posts {
-            id
-            title
-            votes
-          }
-        }
-      `,
-    },
+    posts: ALL_NEWS,
   },
   computed: {
     sortedNews() {
@@ -74,15 +67,6 @@ export default {
     },
   },
   methods: {
-    deleteNews(deleteId) {
-      this.posts = [...this.posts.filter((post) => post.id !== deleteId)]
-    },
-    addNews(newNews) {
-      this.posts.push(newNews)
-    },
-    update(currNews) {
-      this.posts.find((post) => post.id === currNews.id).votes = currNews.votes
-    },
     reverseSort() {
       this.desc = !this.desc
     },
@@ -93,11 +77,40 @@ export default {
 <style scoped>
 #news-list-container {
   text-align: center;
+  width: 100%;
+}
+
+.list-header {
+  display: inline-grid;
+  width: 100%;
+  grid-template-columns: 20% 80%;
+}
+
+.list-title {
+  text-align: left;
+}
+
+.news-counter {
+  text-align: left;
+  margin: 15px 0;
+  display: inline-grid;
+  width: 100%;
+  grid-template-columns: 85% 15%;
+}
+
+.list-title::before {
+  content: ' ';
+  border-color: rgba(155, 132, 249, 0.58824);
+  border-style: solid;
+  border-width: 0 0.3em 0.25em 0;
+  margin-right: 3px;
 }
 
 .news-list {
-  max-height: 580px;
+  max-height: 500px;
   overflow-y: auto;
-  margin-bottom: 40px;
+  padding: 20px;
+  background: aliceblue;
+  border-radius: 0 0 10px 10px;
 }
 </style>

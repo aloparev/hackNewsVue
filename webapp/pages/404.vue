@@ -1,6 +1,9 @@
 <template>
   <div class="container">
-    <ListNews />
+    <h2 class="title" style="background: #f3f3f3">PAGE NOT FOUND :( !!!!</h2>
+    <NuxtLink to="/"><b>Go Home</b></NuxtLink>
+    <br />
+    <img src="~/assets/img/404-Page.gif" />
   </div>
 </template>
 <style>
@@ -34,5 +37,9 @@ body {
   background: #9b84f996;
   padding: 10px;
   margin-bottom: 20px;
+}
+
+img {
+  width: -webkit-fill-available;
 }
 </style>

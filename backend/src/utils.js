@@ -4,7 +4,8 @@ const bcrypt = require('bcrypt');
 
 const NEW_VOTE = 0
 const VOTE_AGAIN = 1
-const NOT_ALLOWED_VOTE = -1
+const NOT_ALLOWED_UPVOTE = -1
+const NOT_ALLOWED_DOWNVOTE = -2
 
 const login = async(args, executor, context) => {
   const document  = gql`
@@ -145,7 +146,7 @@ const mayVote = async(userId, postId, val, executor) => {
   if(voters) {
     if(voters.length > 0) { // User already has voted (max length = 1)
       if(voters[0].value === val) {
-        voteType = NOT_ALLOWED_VOTE;
+        voteType = val === -1 ? NOT_ALLOWED_DOWNVOTE : NOT_ALLOWED_UPVOTE;
       } else {
         voteType = VOTE_AGAIN; //user is allowed vote again.
         voterId = voters[0].id
@@ -176,8 +177,12 @@ const votePost = async(userId, postId, val, schema, executor, context, info) => 
 
   const { voteType, voterId } = await mayVote(userId, postId, val, executor)
   
-  if(voteType === NOT_ALLOWED_VOTE) {
-    throw new UserInputError("This user voted on that post already.");
+  if(voteType === NOT_ALLOWED_UPVOTE) {
+    throw new UserInputError("This user upvoted on that post already.");
+  }
+
+  if(voteType === NOT_ALLOWED_DOWNVOTE) {
+    throw new UserInputError("This user downvoted on that post already.");
   }
   
   let variables = {}
@@ -244,34 +249,6 @@ const votePost = async(userId, postId, val, schema, executor, context, info) => 
   }
   
   return null;
-}
-
-const checkForExistingPost= async(userId, postId,value, executor ) => {
-
-  const param = { 
-    data:{
-      person:{
-        connect: {id:userId}
-      },
-      post:{
-        connect:{id:postId}
-      },
-      value
-    }
-  }
-
-  let document = gql`
-  mutation ($data: VoterCreateInput!) {
-    createVoter(data: $data) {
-      id
-    }
-  }
-  `;
-   const { data, errors } = await executor({ document, variables : {data: param.data} });
-if (errors) throw new UserInputError(errors.map((e) => e.message).join('\n'));
-const { createVoter } = data;
-return createVoter != null && createVoter.length == 0;
-
 }
 
 const writePost = async(userId, args, schema, executor, context, info) => {

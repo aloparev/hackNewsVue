@@ -274,7 +274,7 @@ describe("mutations", () => {
             it('upvote a post only once', async () => {
                 await expect(upvote_action())
                 .resolves.toMatchObject({
-                    errors: [expect.objectContaining({ message: "This user voted on that post already." })],
+                    errors: [expect.objectContaining({ message: "This user upvoted on that post already." })],
                     data: {
                         upvote: null,
                     },

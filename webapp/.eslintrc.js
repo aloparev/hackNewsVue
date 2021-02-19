@@ -12,13 +12,12 @@ module.exports = {
     sourceType: 'module',
   },
   extends: [
-    '@nuxtjs',
     'eslint:recommended',
     'plugin:vue/essential',
     'plugin:prettier/recommended',
     'plugin:nuxt/recommended',
   ],
-  plugins: ['vue', 'jest'],
+  plugins: ['vue'],
   rules: {
     'prettier/prettier': [
       'error',
@@ -38,6 +37,7 @@ module.exports = {
         math: 'always',
       },
     ],
+    'vue/this-in-template': 'off',
     'no-console': 'off',
     'vue/singleline-html-element-content-newline': 'off',
   },
