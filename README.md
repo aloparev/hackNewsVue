@@ -27,22 +27,3 @@ I belong
 - the app shall now be available under http://localhost:8080
 
 To open the project in an interactive mode, you can type ```vue ui```; to see our storybooks ```yarn serve:storybook```.
-
-### Contribution
-
-Wish to contribute?
-We communicate over Moodle:
-
-https://moodle.htw-berlin.de/mod/bigbluebuttonbn/view.php?id=774135
-
-Similarly, we have a Telegram group, if you wish to participate, please contact one of us:
-
-Andrej Loparev:
-Andrej.Loparev@Student.HTW-Berlin.de
-
-Truong An Nguyen:
-Truong.Nguyen@Student.HTW-Berlin.de
-
-Ilona Eisenbraun:
-Ilona.Eisenbraun@Student.HTW-Berlin.de
-
