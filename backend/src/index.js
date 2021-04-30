@@ -8,6 +8,7 @@ const playground = {
 
 (async () => {
   const server = await Server({ playground });
-  const { url } = await server.listen();
+  const port = process.env.PORT || 4000;
+  const { url } = await server.listen(port);
   console.log(`🚀  Server ready at ${url}`);
 })();
